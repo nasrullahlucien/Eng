@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 1. Design Tokens */
+        /* ================= 1. Design Tokens ================= */
         :root {
             --color-primary: #4f46e5;
             --color-primary-hover: #4338ca;
@@ -27,15 +27,18 @@
             --color-warning: #f59e0b;
             --color-danger: #f43f5e;
             
-            --bg-main: #f0f4f8;
-            --bg-surface: rgba(255, 255, 255, 0.85);
+            --bg-main: #f8fafc;
+            --bg-surface: rgba(255, 255, 255, 0.9);
             --bg-surface-solid: #ffffff;
-            --bg-card-front: linear-gradient(to bottom right, #ffffff, #f8fafc);
-            --bg-card-back: linear-gradient(to bottom right, #eff6ff, #dbeafe);
             
-            --text-main: #1e293b;
+            --bg-fallback: #ffffff;
+            
+            --bg-card-front: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --bg-card-back: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            
+            --text-main: #0f172a;
             --text-muted: #64748b;
-            --border-color: rgba(0, 0, 0, 0.1);
+            --border-color: rgba(0, 0, 0, 0.08);
             --border-card: #e2e8f0;
             
             --border-radius-card: 1.5rem;
@@ -45,16 +48,20 @@
             --transition-duration: 200ms;
         }
 
+        /* Dark Mode Tokens */
         [data-theme="dark"] {
-            --color-primary: #818cf8;
-            --color-primary-hover: #6366f1;
-            --color-secondary: #a78bfa;
+            --color-primary: #6366f1;
+            --color-primary-hover: #4f46e5;
+            --color-secondary: #8b5cf6;
             
             --bg-main: #0f172a;
             --bg-surface: rgba(30, 41, 59, 0.85);
             --bg-surface-solid: #1e293b;
-            --bg-card-front: linear-gradient(to bottom right, #1e293b, #0f172a);
-            --bg-card-back: linear-gradient(to bottom right, #172554, #1e3a8a);
+            
+            --bg-fallback: #1e293b;
+            
+            --bg-card-front: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --bg-card-back: linear-gradient(135deg, #172554 0%, #1e3a8a 100%);
             
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -65,7 +72,7 @@
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
         }
 
-        /* 2. Reset & Base */
+        /* ================= 2. Reset & Base ================= */
         body {
             font-family: 'Prompt', sans-serif;
             background-color: var(--bg-main);
@@ -75,8 +82,9 @@
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
-        /* 3. Components & Layout */
+        /* ================= 3. Components & Layout ================= */
         .surface-panel {
+            background-color: var(--bg-fallback);
             background: var(--bg-surface);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -92,8 +100,9 @@
             box-shadow: var(--shadow-lg);
         }
 
+        /* Interactive Buttons */
         .btn-hover-effect {
-            transition: transform 0.15s ease, background-color var(--transition-duration), box-shadow var(--transition-duration);
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-duration), box-shadow var(--transition-duration);
         }
         .btn-hover-effect:active {
             transform: scale(0.96);
@@ -126,7 +135,7 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* 4. Dashboard SVG Progress Ring */
+        /* ================= 4. Dashboard Progress Ring ================= */
         .circular-chart {
             display: block;
             margin: 0 auto;
@@ -136,20 +145,20 @@
         .circle-bg {
             fill: none;
             stroke: var(--border-color);
-            stroke-width: 3;
+            stroke-width: 3.5;
         }
         .circle {
             fill: none;
-            stroke-width: 2.5;
+            stroke-width: 3.5;
             stroke-linecap: round;
             transition: stroke-dasharray 0.8s ease-out;
         }
 
-        /* 5. Flashcard 3D Variables */
+        /* ================= 5. Flashcard 3D Variables ================= */
         .scene {
-            perspective: 1000px;
+            perspective: 1200px;
             width: 100%;
-            min-height: 24rem; /* Changed to fixed min-height for content */
+            min-height: 24rem; 
             position: relative;
         }
         .card {
@@ -188,7 +197,7 @@
             transform: rotateY(180deg);
         }
 
-        /* Scrollbar */
+        /* Flashcard Scrollbar */
         .card-content-scroll {
             flex: 1;
             display: flex;
@@ -202,14 +211,48 @@
         .card-content-scroll::-webkit-scrollbar { width: 4px; }
         .card-content-scroll::-webkit-scrollbar-thumb { background-color: var(--border-card); border-radius: 4px; }
 
-        /* 6. Animations & Accessibility */
+        /* Quiz Option Button States */
+        .quiz-option {
+            transition: all 0.2s ease;
+            border: 2px solid var(--border-color);
+        }
+        .quiz-option:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        .quiz-option.correct {
+            border-color: var(--color-success);
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+        }
+        .quiz-option.incorrect {
+            border-color: var(--color-danger);
+            background-color: rgba(244, 63, 94, 0.1);
+            color: var(--color-danger);
+        }
+        .quiz-option:disabled {
+            cursor: not-allowed;
+            opacity: 0.9; /* Keep high opacity for readability */
+        }
+        
+        /* Cloze Inline Button Pulse */
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+        .cloze-btn-unanswered {
+            animation: pulse-border 2s infinite;
+        }
+
+        /* ================= 6. Animations & Accessibility ================= */
         .toast-enter { animation: slideInUp 0.3s forwards; }
         @keyframes slideInUp {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         
-        .fade-in { animation: fadeIn 0.25s ease-in-out; }
+        .fade-in { animation: fadeIn 0.25s ease-in-out forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -228,7 +271,8 @@
 </head>
 <body class="relative overflow-x-hidden antialiased">
 
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-[-1] pointer-events-none transition-opacity duration-500" id="bg-decor">
+    <!-- Background Decoration -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-[-1] pointer-events-none transition-opacity duration-500" aria-hidden="true">
         <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 dark:opacity-10"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 dark:opacity-10"></div>
     </div>
@@ -237,7 +281,7 @@
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Toast Notification -->
-    <div id="toast-container" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden">
+    <div id="toast-container" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden" role="alert">
         <div class="surface-solid text-main px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center gap-3 toast-enter border border-[var(--border-color)]">
             <i class="fas fa-check-circle text-[var(--color-success)] text-lg"></i>
             <span id="toast-message">แจ้งเตือนสำเร็จ</span>
@@ -265,28 +309,43 @@
         </div>
     </div>
 
-    <!-- Achievement Modal -->
-    <div id="achievement-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity" role="dialog" aria-modal="true">
-        <div class="surface-solid rounded-3xl p-8 max-w-sm w-full mx-4 text-center border-t-4 border-[var(--color-success)] fade-in">
-            <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
-                <span class="text-4xl">🎉</span>
+    <!-- Cloze Question Modal -->
+    <div id="cloze-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity p-4" role="dialog" aria-modal="true" aria-labelledby="cloze-modal-title">
+        <div class="surface-solid rounded-3xl p-5 md:p-6 max-w-md w-full transform transition-all fade-in flex flex-col max-h-[90vh]">
+            
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="cloze-modal-title" class="text-lg font-bold text-[var(--color-primary)]">ข้อ <span id="cloze-qnum-display">XX</span></h3>
+                <button onclick="closeClozeModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <h3 class="text-2xl font-extrabold mb-2">ยอดเยี่ยมมาก!</h3>
-            <p class="text-[var(--text-muted)] mb-6">คุณจำจุดตายโครงสร้างได้ครบแล้ว<br><span class="text-sm font-semibold text-[var(--color-primary)] mt-2 block">พร้อมทำข้อสอบหรือยัง?</span></p>
-            <button onclick="closeAchievementModal()" class="px-8 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 hover:opacity-90 text-white rounded-full font-bold shadow-lg w-full btn-hover-effect">
-                ไปลุยกันต่อเลย!
+
+            <div class="flex flex-col gap-2 mb-4 overflow-y-auto shrink-0" id="cloze-options-container">
+                <!-- Cloze options injected here -->
+            </div>
+
+            <!-- Cloze Explanation Box (Hidden initially) -->
+            <div id="cloze-explanation-box" class="hidden surface-panel p-4 rounded-xl border-l-4 border-[var(--color-primary)] shrink-0 overflow-y-auto mt-2">
+                <h4 class="font-bold text-xs sm:text-sm text-[var(--color-primary)] mb-1 flex items-center gap-2">
+                    <i class="fas fa-lightbulb"></i> คำอธิบาย
+                </h4>
+                <p class="text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed" id="cloze-explanation-text"></p>
+            </div>
+
+            <button id="cloze-modal-close-btn" onclick="closeClozeModal()" class="hidden w-full mt-4 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl shadow-md font-bold text-sm sm:text-base btn-hover-effect shrink-0">
+                เข้าใจแล้ว (ตกลง)
             </button>
         </div>
     </div>
 
-    <!-- MAIN CONTAINER (Updated for Dashboard Expansion) -->
+    <!-- MAIN APP CONTAINER -->
     <div class="max-w-7xl mx-auto min-h-screen flex flex-col p-4 md:p-6 lg:p-8 relative z-10 w-full">
         
         <!-- ================= VIEW 1: LOBBY (Learning Dashboard) ================= -->
         <main id="view-lobby" class="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 fade-in">
             
             <!-- Header & Theme Toggle -->
-            <header class="flex items-center justify-between mt-1 sm:mt-2 lg:col-span-3 order-1">
+            <header class="flex items-center justify-between lg:col-span-3 order-1">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-primary)]">YRU TEP Master</h1>
                     <p class="text-xs sm:text-sm font-medium text-[var(--text-muted)]" id="greeting-text">สวัสดี</p>
@@ -305,15 +364,15 @@
                 </div>
             </header>
 
-            <!-- Overview Dashboard Card -->
-            <section class="surface-panel p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
-                <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-5">
+            <!-- Overview Dashboard Card (Hero) -->
+            <section class="surface-panel p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
+                <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-5" aria-hidden="true">
                     <i class="fas fa-graduation-cap text-9xl"></i>
                 </div>
                 
                 <!-- Progress Ring -->
-                <div class="w-24 h-24 sm:w-32 sm:h-32 relative flex-shrink-0" id="progress-ring-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                    <svg viewBox="0 0 36 36" class="circular-chart w-full h-full">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 relative flex-shrink-0" id="progress-ring-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-full h-full drop-shadow-sm">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                         <path id="progress-ring-circle" class="circle stroke-[var(--color-primary)]" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
@@ -323,114 +382,110 @@
                 </div>
 
                 <!-- Learning Call to Action -->
-                <div class="flex-1 text-center sm:text-left z-10 w-full">
-                    <h2 class="text-base sm:text-lg font-bold mb-0.5 sm:mb-1">ความคืบหน้าของคุณ</h2>
+                <div class="flex-1 text-center sm:text-left z-10 w-full flex flex-col justify-center">
+                    <h2 class="text-base sm:text-lg font-bold mb-1">ความคืบหน้าของคุณ</h2>
                     <p class="text-xs sm:text-sm text-[var(--text-muted)] mb-3 sm:mb-4" id="progress-fraction">0/19 จำได้แล้ว</p>
-                    <button id="btn-continue-learning" onclick="navigateTo('view-flashcards')" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect min-h-[48px]">
+                    <button id="btn-continue-learning" onclick="navigateTo('view-flashcards')" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect min-h-[48px] text-sm sm:text-base transition-colors">
                         เริ่มเรียน Flashcard
                     </button>
                 </div>
             </section>
 
             <!-- Summary Stats Grid -->
-            <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 lg:col-span-3 order-3 lg:order-4">
-                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:col-span-3 order-3 lg:order-4">
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center h-full">
                     <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-check"></i></span>
                     <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-mastered">0</span>
-                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">จำได้แล้ว</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)] mt-1">จำได้แล้ว</span>
                 </div>
-                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center h-full">
                     <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-[var(--color-warning)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-spinner"></i></span>
                     <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-learning">0</span>
-                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">กำลังฝึก</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)] mt-1">กำลังฝึก</span>
                 </div>
-                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center h-full">
                     <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-times"></i></span>
                     <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-unsure">0</span>
-                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">ไม่มั่นใจ</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)] mt-1">ไม่มั่นใจ</span>
                 </div>
-                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center h-full">
                     <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-minus"></i></span>
                     <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-unattempted">19</span>
-                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">ยังไม่ได้เริ่ม</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)] mt-1">ยังไม่ได้เริ่ม</span>
                 </div>
             </section>
 
             <!-- Countdown Timer -->
             <section class="surface-panel py-3 px-4 sm:p-5 text-center relative overflow-hidden group lg:col-span-1 order-4 lg:order-3 flex flex-col justify-center h-full">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[var(--color-warning)] to-transparent opacity-10 rounded-bl-full -z-10"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--color-warning)] to-transparent opacity-10 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500"></div>
                 <h2 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 sm:mb-3">นับถอยหลังสู่วันสอบ YRU TEP</h2>
-                <div class="flex justify-center items-end gap-2 sm:gap-6" id="countdown-display">
-                    <div class="flex flex-col"><span id="cd-days" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">วัน</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
-                    <div class="flex flex-col"><span id="cd-hours" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">ชม.</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
+                <div class="flex justify-center items-end gap-2 sm:gap-4 lg:gap-3 xl:gap-4" id="countdown-display">
+                    <div class="flex flex-col"><span id="cd-days" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">วัน</span></div><span class="text-2xl font-bold opacity-30 pb-3">:</span>
+                    <div class="flex flex-col"><span id="cd-hours" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">ชม.</span></div><span class="text-2xl font-bold opacity-30 pb-3">:</span>
                     <div class="flex flex-col"><span id="cd-mins" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">นาที</span></div>
                 </div>
-                <div class="mt-2 sm:mt-4 text-[10px] sm:text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center">3 ตุลาคม 2026</div>
+                <div class="mt-3 sm:mt-4 text-[10px] sm:text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center">3 ตุลาคม 2026</div>
             </section>
 
-            <!-- Main Navigation Modes -->
-            <section class="lg:col-span-3 order-5 mt-1 sm:mt-2">
-                <div class="flex items-end justify-between mb-3 sm:mb-4 px-1 sm:px-2">
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">เลือกโหมดการฝึกฝน</h3>
-                        <p class="text-[10px] sm:text-xs text-[var(--text-muted)] opacity-80 mt-0.5">เลือกบทเรียนเพื่อเริ่มเก็บคะแนนความคืบหน้า</p>
-                    </div>
+            <!-- Main Navigation Modes (Aligned with CSS Grid Auto-placement) -->
+            <section class="lg:col-span-3 order-5 mt-2 sm:mt-0">
+                <div class="mb-3 px-1">
+                    <h3 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">เลือกโหมดการฝึกฝน</h3>
+                    <p class="text-[10px] sm:text-xs text-[var(--text-muted)] opacity-80 mt-0.5">เลือกบทเรียนเพื่อเริ่มเก็บคะแนนความคืบหน้า</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
                     
                     <!-- Card 1: คลังอาวุธ (Main) - Highlighted on Desktop -->
-                    <button onclick="navigateTo('view-flashcards')" class="surface-panel p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-3 sm:gap-5 lg:gap-6 btn-hover-effect text-left group hover:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] w-full text-inherit h-full lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-br from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 shadow-sm hover:shadow-md">
-                        <!-- Background Decoration -->
+                    <button onclick="navigateTo('view-flashcards')" class="surface-panel p-4 sm:p-5 md:p-6 flex flex-col items-center gap-3 sm:gap-4 btn-hover-effect text-center group hover:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] w-full text-inherit h-full lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-b from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 shadow-sm hover:shadow-md justify-center">
                         <div class="absolute -right-8 -bottom-8 text-[var(--color-primary)] opacity-5 transition-transform group-hover:scale-110 group-hover:rotate-12 duration-700 pointer-events-none">
                             <i class="fas fa-brain text-9xl"></i>
                         </div>
                         
-                        <div class="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl sm:rounded-3xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[var(--color-primary)] text-2xl sm:text-4xl lg:text-5xl shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[var(--color-primary)] text-2xl sm:text-3xl shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-brain"></i>
                         </div>
                         
-                        <div class="flex-1 relative z-10 w-full text-center sm:text-left">
-                            <div class="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-[var(--color-primary)] text-white text-[9px] sm:text-[10px] lg:text-xs font-bold rounded-full mb-2 sm:mb-3 uppercase tracking-wide shadow-sm">แนะนำสำหรับคุณ</div>
-                            <h4 class="font-bold text-lg sm:text-2xl lg:text-3xl leading-tight text-[var(--color-primary)] group-hover:text-[var(--color-primary-hover)] transition-colors">คลังอาวุธ (ทริคจำ)</h4>
-                            <p class="text-xs sm:text-base lg:text-lg text-[var(--text-muted)] mt-1 sm:mt-2 leading-relaxed max-w-md mx-auto sm:mx-0">ท่องจุดตาย Grammar 19 ข้อ พร้อมเทคนิคที่ออกสอบบ่อยที่สุด ดึงคะแนนได้ทันที</p>
+                        <div class="relative z-10 w-full px-2">
+                            <div class="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-[var(--color-primary)] text-white text-[9px] sm:text-[10px] font-bold rounded-full mb-2 sm:mb-3 uppercase tracking-wide shadow-sm">แนะนำสำหรับคุณ</div>
+                            <h4 class="font-bold text-lg sm:text-xl lg:text-2xl leading-tight text-[var(--color-primary)] group-hover:text-[var(--color-primary-hover)] transition-colors">คลังอาวุธ (ทริคจำ)</h4>
+                            <p class="text-[11px] sm:text-xs lg:text-sm text-[var(--text-muted)] mt-1.5 sm:mt-2 leading-relaxed max-w-sm mx-auto">ท่องจุดตาย Grammar 19 ข้อ พร้อมเทคนิคที่ออกสอบบ่อยที่สุด ดึงคะแนนได้ทันที</p>
                         </div>
                         
-                        <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 shrink-0 relative z-10 mt-3 sm:mt-0 shadow-sm group-hover:shadow-md group-active:scale-95">
-                            <i class="fas fa-arrow-right text-xs sm:text-sm lg:text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 shrink-0 relative z-10 mt-1 shadow-sm group-hover:shadow-md">
+                            <i class="fas fa-arrow-right text-xs sm:text-sm"></i>
                         </div>
                     </button>
         
                     <!-- Card 2: ห้องซ้อมรบ -->
-                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-secondary)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-purple-50/40 dark:to-purple-900/10 shadow-sm relative overflow-hidden">
+                    <button onclick="navigateTo('view-practice-menu')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-secondary)] w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-purple-50/40 dark:to-purple-900/10 shadow-sm relative overflow-hidden">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-[var(--color-secondary)] text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-dumbbell"></i>
                         </div>
                         <div class="flex-1 relative z-10">
-                            <h4 class="font-bold text-sm sm:text-base lg:text-lg leading-tight group-hover:text-[var(--color-secondary)] transition-colors">ห้องซ้อมรบ</h4>
-                            <p class="text-[10px] sm:text-xs lg:text-sm text-[var(--text-muted)] mt-0.5">ตะลุยโจทย์แยกพาร์ท</p>
-                            <div class="flex gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
-                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-headphones text-[8px]"></i> Listening</span>
-                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-book-reader text-[8px]"></i> Reading</span>
+                            <h4 class="font-bold text-sm sm:text-base leading-tight group-hover:text-[var(--color-secondary)] transition-colors">ห้องซ้อมรบ</h4>
+                            <p class="text-[10px] sm:text-xs text-[var(--text-muted)] mt-0.5">ตะลุยโจทย์แยกพาร์ท</p>
+                            <div class="flex gap-1.5 mt-1.5 flex-wrap">
+                                <span class="text-[9px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> Grammar</span>
+                                <span class="text-[9px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> Cloze Test</span>
                             </div>
                         </div>
-                        <i class="fas fa-lock text-xs sm:text-sm text-[var(--border-color)] group-hover:text-[var(--color-secondary)] transition-colors relative z-10"></i>
                     </button>
         
                     <!-- Card 3: ลงสนามจริง -->
-                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-warning)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10 shadow-sm relative overflow-hidden">
+                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-warning)] opacity-95 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10 shadow-sm relative overflow-hidden">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-[var(--color-warning)] text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-trophy"></i>
                         </div>
                         <div class="flex-1 relative z-10">
-                            <h4 class="font-bold text-sm sm:text-base lg:text-lg leading-tight group-hover:text-[var(--color-warning)] transition-colors">ลงสนามจริง</h4>
-                            <p class="text-[10px] sm:text-xs lg:text-sm text-[var(--text-muted)] mt-0.5">ข้อสอบเสมือนจริง 90 ข้อ</p>
-                            <div class="flex gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
-                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-stopwatch text-[8px]"></i> 120 นาที</span>
-                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
+                            <h4 class="font-bold text-sm sm:text-base leading-tight group-hover:text-[var(--color-warning)] transition-colors">ลงสนามจริง</h4>
+                            <p class="text-[10px] sm:text-xs text-[var(--text-muted)] mt-0.5">ข้อสอบเสมือนจริง 90 ข้อ</p>
+                            <div class="flex gap-1.5 mt-1.5 flex-wrap opacity-70">
+                                <span class="text-[9px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1"><i class="fas fa-stopwatch text-[8px]"></i> 120 นาที</span>
+                                <span class="text-[9px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
                             </div>
                         </div>
-                        <i class="fas fa-lock text-xs sm:text-sm text-[var(--border-color)] group-hover:text-[var(--color-warning)] transition-colors relative z-10"></i>
+                        <i class="fas fa-lock text-xs text-[var(--border-color)] group-hover:text-[var(--color-warning)] transition-colors relative z-10"></i>
                     </button>
 
                 </div>
@@ -438,8 +493,7 @@
         </main>
 
         <!-- ================= VIEW 2: FLASHCARDS ================= -->
-        <main id="view-flashcards" class="hidden flex-1 flex flex-col fade-in h-full max-w-xl mx-auto w-full">
-            <!-- Header -->
+        <main id="view-flashcards" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full">
             <header class="flex items-center justify-between mb-4 sm:mb-6">
                 <button onclick="goBack()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] transition-colors btn-hover-effect focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]" aria-label="กลับไปหน้าหลัก">
                     <i class="fas fa-arrow-left"></i>
@@ -450,7 +504,6 @@
                 </div>
             </header>
 
-            <!-- Progress Bar -->
             <section class="mb-4 sm:mb-6 relative z-10 surface-panel p-3">
                 <div class="flex justify-between items-end mb-2 text-xs sm:text-sm font-semibold px-1">
                     <div class="text-[var(--color-primary)] flex items-center gap-1">
@@ -465,27 +518,24 @@
                 </div>
             </section>
 
-            <!-- Flashcard 3D Container -->
             <section class="scene mb-4 sm:mb-6 flex-1 cursor-pointer" onclick="flipCard()" id="flashcard-container" role="button" tabindex="0" aria-label="พลิกการ์ด กด Spacebar หรือ Enter">
                 <div class="card" id="flashcard-inner">
-                    <!-- Front -->
                     <div class="card__face card__face--front">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[var(--color-primary)] flex items-center justify-center mb-4 absolute top-3 left-3 sm:top-4 sm:left-4">
                             <i class="fas fa-question text-lg sm:text-xl"></i>
                         </div>
-                        <div class="card-content-scroll px-2 mt-10 mb-4">
+                        <div class="card-content-scroll px-2 mt-12 mb-4">
                             <h3 class="text-lg sm:text-xl md:text-2xl font-bold leading-snug my-auto" id="card-front-text">Loading...</h3>
                         </div>
                         <div class="mt-auto pt-4 text-[var(--text-muted)] text-xs sm:text-sm flex items-center gap-2 opacity-70">
                             <i class="fas fa-hand-pointer animate-bounce"></i> แตะเพื่อดูคำตอบ
                         </div>
                     </div>
-                    <!-- Back -->
                     <div class="card__face card__face--back">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-500 flex items-center justify-center mb-4 absolute top-3 right-3 sm:top-4 sm:right-4">
                             <i class="fas fa-lightbulb text-lg sm:text-xl"></i>
                         </div>
-                        <div class="card-content-scroll px-2 mt-10 mb-4">
+                        <div class="card-content-scroll px-2 mt-12 mb-4">
                             <h3 class="text-lg sm:text-xl md:text-2xl font-bold leading-snug my-auto" id="card-back-text">Loading...</h3>
                         </div>
                         <div class="mt-auto pt-3 sm:pt-4 w-full border-t border-[var(--border-color)]">
@@ -495,19 +545,16 @@
                 </div>
             </section>
 
-            <!-- Controls & State Buttons -->
             <section class="flex flex-col gap-3 relative z-10 mt-auto">
-                <!-- Navigation -->
                 <div class="flex justify-between items-center gap-3">
-                    <button onclick="prevCard()" id="prev-btn" aria-label="การ์ดก่อนหน้า" class="btn-hover-effect flex-1 py-3 surface-solid rounded-xl font-bold disabled:opacity-40 disabled:cursor-not-allowed">
-                        <i class="fas fa-arrow-left mr-1"></i> <span class="hidden sm:inline">ก่อนหน้า</span>
+                    <button onclick="prevCard()" id="prev-btn" aria-label="การ์ดก่อนหน้า" class="btn-hover-effect flex-1 py-3 surface-solid rounded-xl font-bold disabled:opacity-40 disabled:cursor-not-allowed text-sm sm:text-base border border-[var(--border-color)]">
+                        <i class="fas fa-arrow-left mr-1"></i> ก่อนหน้า
                     </button>
-                    <button onclick="nextCard()" id="next-btn" aria-label="การ์ดถัดไป" class="btn-hover-effect flex-1 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl shadow-md font-bold disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span class="hidden sm:inline">ถัดไป</span> <i class="fas fa-arrow-right ml-1"></i>
+                    <button onclick="nextCard()" id="next-btn" aria-label="การ์ดถัดไป" class="btn-hover-effect flex-1 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl shadow-md font-bold disabled:opacity-40 disabled:cursor-not-allowed text-sm sm:text-base">
+                        ถัดไป <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
                 
-                <!-- 3 State Buttons -->
                 <div class="grid grid-cols-3 gap-2" role="group" aria-label="เลือกสถานะการจำ">
                     <button onclick="setCardState('unsure')" id="btn-unsure" aria-pressed="false" class="btn-hover-effect py-2 px-1 rounded-xl font-bold border transition-all text-[11px] sm:text-sm focus-visible:ring-2 surface-solid border-[var(--border-color)]">
                         <i class="fas fa-times-circle mb-1 block text-base sm:text-lg text-[var(--color-danger)]"></i> <span class="truncate">ไม่มั่นใจ <span class="hidden sm:inline">(1)</span></span>
@@ -528,15 +575,184 @@
             </footer>
         </main>
 
-        <!-- ================= VIEW 3: COMING SOON ================= -->
+        <!-- ================= VIEW 3: PRACTICE MENU (Sprint 3) ================= -->
+        <main id="view-practice-menu" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full">
+            <header class="flex items-center justify-between mb-6">
+                <button onclick="goBack()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-primary)] transition-colors btn-hover-effect focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]" aria-label="กลับ">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="font-bold text-lg text-center flex-1 mx-2">ห้องซ้อมรบ (Practice)</h2>
+                <div class="w-10 h-10 flex items-center justify-center text-[var(--border-color)]">
+                    <i class="fas fa-dumbbell text-xl"></i>
+                </div>
+            </header>
+
+            <div class="text-center mb-6">
+                <p class="text-sm text-[var(--text-muted)]">เลือกพาร์ทที่คุณต้องการฝึกทำแบบทดสอบ<br>ตอบปุ๊บรู้ผลปั๊บ พร้อมคำอธิบายจุดตาย</p>
+            </div>
+
+            <div class="grid gap-4">
+                <!-- Grammar (Available) -->
+                <button onclick="startQuiz()" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 text-white group-hover:scale-150 transition-transform duration-500">
+                        <i class="fas fa-check-circle text-6xl"></i>
+                    </div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-secondary)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-secondary)] group-hover:text-white text-xl">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">Grammar & Structure</h4>
+                            <p class="text-xs opacity-70">ข้อสอบเดี่ยว 20 ข้อ (จุดตาย 19 จุด)</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-play relative z-10 text-[var(--color-secondary)] group-hover:text-white"></i>
+                </button>
+
+                <!-- Cloze Test (Available) -->
+                <button onclick="startClozeTest()" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 text-white group-hover:scale-150 transition-transform duration-500">
+                        <i class="fas fa-file-alt text-6xl"></i>
+                    </div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-primary)] group-hover:text-white text-xl">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">Cloze Test (Reading)</h4>
+                            <p class="text-xs opacity-70">บทความ 3 เรื่อง เติมคำ 15 ข้อ</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-play relative z-10 text-[var(--color-primary)] group-hover:text-white"></i>
+                </button>
+
+                <!-- Listening (Locked) -->
+                <button onclick="showToast('โหมดนี้กำลังอยู่ระหว่างการพัฒนา')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left opacity-70">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[var(--text-muted)] text-xl">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-[var(--text-muted)]">Listening Comprehension</h4>
+                            <p class="text-xs text-[var(--text-muted)]">เร็วๆ นี้</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-lock text-[var(--border-color)]"></i>
+                </button>
+            </div>
+        </main>
+
+        <!-- ================= VIEW 4: QUIZ INTERFACE (Grammar) ================= -->
+        <main id="view-quiz" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full pb-6">
+            <!-- Header & Progress -->
+            <header class="flex items-center justify-between mb-4">
+                <button onclick="quitQuiz()" class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors btn-hover-effect" aria-label="ออกจากการทำข้อสอบ">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="flex-1 px-4">
+                    <div class="flex justify-between items-center text-xs font-bold mb-1">
+                        <span class="text-[var(--color-primary)]">ข้อ <span id="quiz-current-num">1</span>/20</span>
+                        <span class="text-[var(--text-muted)]" id="quiz-score-display">คะแนน: 0</span>
+                    </div>
+                    <div class="w-full bg-[var(--border-color)] rounded-full h-1.5 overflow-hidden">
+                        <div id="quiz-progress-bar" class="bg-[var(--color-primary)] h-full rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Question Card -->
+            <section class="surface-solid rounded-2xl p-5 sm:p-6 mb-4 shadow-sm border border-[var(--border-color)] relative">
+                <div class="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-md">
+                    Q
+                </div>
+                <h3 class="text-base sm:text-lg font-medium leading-relaxed mt-2" id="quiz-question-text">Loading question...</h3>
+            </section>
+
+            <!-- Options -->
+            <section class="flex flex-col gap-3 mb-6" id="quiz-options-container">
+                <!-- Options injected via JS -->
+            </section>
+
+            <!-- Explanation Box -->
+            <section id="quiz-explanation-box" class="hidden surface-panel p-4 rounded-2xl mb-4 border-l-4 border-[var(--color-primary)] fade-in">
+                <h4 class="font-bold text-sm text-[var(--color-primary)] mb-1 flex items-center gap-2">
+                    <i class="fas fa-lightbulb"></i> คำอธิบาย (จุดตาย)
+                </h4>
+                <p class="text-sm text-[var(--text-muted)] leading-relaxed" id="quiz-explanation-text">Explanation goes here...</p>
+            </section>
+
+            <!-- Next Button -->
+            <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl shadow-md font-bold text-sm sm:text-base btn-hover-effect fade-in mt-auto">
+                ถัดไป <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+        </main>
+
+        <!-- ================= VIEW 5: CLOZE TEST (Inline) ================= -->
+        <main id="view-cloze" class="hidden flex-1 flex flex-col fade-in max-w-2xl mx-auto w-full pb-6 h-full">
+            <!-- Header & Progress -->
+            <header class="flex items-center justify-between mb-4">
+                <button onclick="quitClozeTest()" class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors btn-hover-effect shrink-0" aria-label="ออกจากบทความ">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="flex-1 px-4 text-center">
+                    <h2 class="font-bold text-sm sm:text-base text-[var(--text-main)] truncate" id="cloze-title">Passage Title</h2>
+                    <p class="text-[10px] sm:text-xs text-[var(--text-muted)] mt-0.5" id="cloze-progress-text">บทความ 1/3 (ตอบแล้ว 0/5 ข้อ)</p>
+                </div>
+            </header>
+
+            <div class="w-full bg-[var(--border-color)] rounded-full h-1.5 overflow-hidden mb-4 shrink-0">
+                <div id="cloze-progress-bar" class="bg-[var(--color-primary)] h-full rounded-full transition-all duration-300 w-0"></div>
+            </div>
+
+            <!-- Passage Content -->
+            <section class="surface-solid rounded-2xl p-5 sm:p-6 mb-4 shadow-sm border border-[var(--border-color)] flex-1 overflow-y-auto">
+                <div id="cloze-passage-container" class="leading-loose sm:leading-loose text-sm sm:text-base text-[var(--text-main)] break-words">
+                    <!-- Passage text and buttons injected via JS -->
+                </div>
+            </section>
+
+            <!-- Next Passage Button -->
+            <button id="cloze-next-passage-btn" onclick="nextClozePassage()" class="hidden w-full py-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl shadow-md font-bold text-sm sm:text-base btn-hover-effect fade-in shrink-0">
+                ถัดไป <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+        </main>
+
+        <!-- ================= VIEW 6: QUIZ SUMMARY ================= -->
+        <main id="view-quiz-summary" class="hidden flex-1 flex flex-col items-center justify-center text-center fade-in max-w-xl mx-auto w-full pb-10">
+            <div class="w-24 h-24 surface-solid rounded-full flex items-center justify-center mb-6 shadow-inner relative">
+                <i class="fas fa-award text-5xl text-[var(--color-warning)]"></i>
+                <div class="absolute -right-2 -bottom-2 w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 shadow border-2 border-white dark:border-gray-800">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold mb-2 text-[var(--text-main)]" id="summary-title">ทำแบบทดสอบเสร็จสิ้น!</h2>
+            <p class="text-[var(--text-muted)] mb-8" id="summary-desc">คุณได้ทบทวนจุดตาย Grammar ครบ 20 ข้อแล้ว</p>
+            
+            <div class="surface-panel w-full p-6 rounded-3xl mb-8 flex flex-col items-center border-t-4 border-[var(--color-primary)]">
+                <span class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wide mb-1">คะแนนของคุณ</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-5xl font-black text-[var(--color-primary)]" id="quiz-final-score">0</span>
+                    <span class="text-xl font-bold text-[var(--text-muted)]" id="quiz-total-score">/ 20</span>
+                </div>
+                <p class="text-sm text-[var(--text-muted)] mt-4" id="quiz-feedback-msg">ยอดเยี่ยม! พื้นฐานโครงสร้างของคุณแน่นมาก</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <button onclick="navigateTo('view-practice-menu')" class="flex-1 px-6 py-3.5 bg-[var(--color-primary)] text-white rounded-xl font-bold btn-hover-effect shadow-md">
+                    <i class="fas fa-list mr-2"></i> เมนูซ้อมรบ
+                </button>
+            </div>
+        </main>
+
+        <!-- ================= VIEW 7: COMING SOON ================= -->
         <main id="view-coming-soon" class="hidden flex-1 flex flex-col items-center justify-center text-center fade-in max-w-xl mx-auto w-full">
             <div class="w-20 h-20 sm:w-24 sm:h-24 surface-solid rounded-full flex items-center justify-center mb-6 text-[var(--text-muted)] text-3xl sm:text-4xl shadow-inner">
                 <i class="fas fa-tools"></i>
             </div>
             <h2 class="text-xl sm:text-2xl font-bold mb-2">กำลังก่อสร้าง</h2>
             <p class="text-[var(--text-muted)] text-sm sm:text-base mb-8 max-w-xs mx-auto">ฟีเจอร์นี้กำลังอยู่ในระหว่างการพัฒนา จะเปิดให้ใช้งานในเร็วๆ นี้ครับ</p>
-            <button onclick="goBack()" class="px-6 py-3 bg-[var(--text-main)] text-[var(--bg-main)] rounded-xl font-bold btn-hover-effect shadow-lg min-h-[48px]">
-                <i class="fas fa-arrow-left mr-2"></i> กลับหน้าหลัก
+            <button onclick="goBack()" class="px-6 py-3 surface-panel text-[var(--text-main)] rounded-xl font-bold btn-hover-effect shadow-sm min-h-[48px]">
+                <i class="fas fa-arrow-left mr-2"></i> กลับ
             </button>
         </main>
 
@@ -545,7 +761,7 @@
     <script>
         "use strict";
 
-        // ================= 1. Data (Flashcards) =================
+        // ================= 1. Data (Flashcards, Quiz, Cloze) =================
         const flashcardsData = [
             { front: "มีคำเชื่อม and หรือ or คั่นกลาง\n(เช่น can produce, learn, and _____ หรือ happy, smiling, and _____)", back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(V.1 คู่ V.1 / Adjective คู่ Adjective / V.ing คู่ V.ing)", hint: "Parallelism (ข้อ 2,21,26,31,32)" },
             { front: "ประธานทำกริยาเองไม่ได้\nเช่น ผู้ชาย(ถูกจับ), GPS(ถูกใช้), แมงมุม(ถูกจัดประเภท), ทักษะ(ถูกต้องการ)", back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ\n(เช่น were arrested, has been used)", hint: "Passive Voice (ข้อ 3,11,17,27)" },
@@ -568,12 +784,172 @@
             { front: "ประโยคหลัก (Main clause)\nเป็น would have + V.3", back: "ประโยค If ต้องเป็น Past Perfect\n(had + V.3)", hint: "If-clause Type 3 (ข้อ 19)" }
         ];
 
+        const quizData = [
+            {
+                question: "Blocking some people on Facebook not only prevents them from contacting or communicating with you, but it also ________ you invisible to them - like Harry Potter's magic cloak.",
+                options: ["make", "makes", "is made", "have made"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Subject-Verb Agreement. ประธานของประโยคย่อยหลัง but also คือ 'it' (เอกพจน์) ดังนั้นกริยาต้องเติม s -> makes"
+            },
+            {
+                question: "Students who are motivated can produce higher quality effort, learn more deeply, and ________ better in classes and on proficiency tests.",
+                options: ["perform", "performing", "to perform", "are performing"],
+                correctIndex: 0,
+                explanation: "จุดตาย: Parallelism (โครงสร้างคู่ขนาน). หลัง and ต้องเป็นคำชนิดเดียวกันกับตัวหน้า (can + produce, learn, และ perform เป็น V.1 ไม่ผันทั้งหมด)"
+            },
+            {
+                question: "According to the news, two men ________ buyer.",
+                options: ["arrested", "are arresting", "were arrested", "would arrest"],
+                correctIndex: 2,
+                explanation: "จุดตาย: Passive Voice (ประธานถูกกระทำ). 'two men' (ชายสองคน) ถูกจับ ทำกริยาเองไม่ได้ ต้องใช้ Verb to be + V.3 -> were arrested"
+            },
+            {
+                question: "By the time everyone arrives at the airport, the plane ________",
+                options: ["will take off", "has taken off", "is going to take off", "will have taken off"],
+                correctIndex: 3,
+                explanation: "จุดตาย: Tense & Time Marker. เจอคำว่า 'By the time' มักคู่กับ Future Perfect Tense (will have + V.3) เพื่อบอกว่าเหตุการณ์จะเสร็จสิ้นในอนาคต"
+            },
+            {
+                question: "Today, Mount Everest is so overcrowded and full of trash that it has been called the \"world's ________ garbage dump.\"",
+                options: ["higher", "more higher", "highest", "most highest"],
+                correctIndex: 2,
+                explanation: "จุดตาย: Comparison. มีคำว่า the world's (ที่สุดในโลก) เป็นการเปรียบเทียบขั้นสุด (Superlative) ต้องเติม -est -> highest"
+            },
+            {
+                question: "In 2022, the United States ________ over 25 natural disasters, like hurricanes and wildfires, or earthquakes, destroying houses and killing a huge number of its people and animals.",
+                options: ["encounters", "encountered", "was encountering", "has encountered"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Tense & Time Marker. ระบุปีในอดีตชัดเจน (In 2022) ต้องใช้ Past Simple Tense (V.2) เท่านั้น -> encountered"
+            },
+            {
+                question: "Having a lot of homework and assignments, my friends and I ________ after studying in this prestigious university.",
+                options: ["always", "usually", "often", "seldom"],
+                correctIndex: 3,
+                explanation: "จุดตาย: Context & Adverb. จากบริบท 'มีการบ้านเยอะมาก' จึงแทบจะไม่ (seldom) ได้พักผ่อนเลย (seldom เป็น adverb บอกความถี่)"
+            },
+            {
+                question: "Not only can the study of foreign language broaden your perspectives of the world, but it also ________ more positive attitudes and less prejudice toward people who are different.",
+                options: ["create", "creates", "creating", "creation"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Subject-Verb Agreement. โครงสร้าง Not only A but also B กริยาผันตามประธาน B ('it' เป็นเอกพจน์) กริยาต้องเติม s -> creates"
+            },
+            {
+                question: "People who ________ alcohol can become dependent on the drug, and they may need it to go about their normal activities like working, studying and socializing.",
+                options: ["regular drink", "regularly drink", "drink regular", "drink regularly"],
+                correctIndex: 1, 
+                explanation: "จุดตาย: Adverbs. Adverb (ลงท้ายด้วย -ly) ใช้ขยายกริยา มักวางหน้ากริยาแท้ -> regularly drink"
+            },
+            {
+                question: "The huge number of car accidents ________ when the drivers used their smartphones for texting while driving.",
+                options: ["occur", "occurs", "occurred", "have occurred"],
+                correctIndex: 2,
+                explanation: "จุดตาย: Sequence of Tenses. ประโยคหลังใช้ used (V.2 อดีต) ประโยคหน้าก็ต้องเป็นเหตุการณ์ในอดีตให้สอดคล้องกัน -> occurred (V.2)"
+            },
+            {
+                question: "Nowadays, GPS ________ as a navigation and positioning tool in airplanes, cars, or ships and for some outdoor recreational activities such as hiking or Marathon running.",
+                options: ["is using", "will use", "has been used", "which is used"],
+                correctIndex: 2,
+                explanation: "จุดตาย: Passive Voice. GPS เป็นสิ่งของ ทำกริยา use(ใช้) เองไม่ได้ ต้อง 'ถูกใช้' (Verb to be + V.3) -> has been used"
+            },
+            {
+                question: "The best-known benefit of sunlight is its ability to boost the body's vitamin D supply; most cases of vitamin D deficiency are ________ the lack of outdoor sun exposure.",
+                options: ["in case of", "thanks to", "in spite of", "in addition to"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Conjunctions (คำเชื่อม). บริบทบอกว่าอาการขาดวิตามินดี เกิดจาก (เนื่องจาก) การขาดแสงแดด -> thanks to (เนื่องจาก/เพราะว่า)"
+            },
+            {
+                question: "Having various kinds of problems to deal with, some university students are likely ________ from mental problems.",
+                options: ["to suffer", "suffer", "suffering", "suffered"],
+                correctIndex: 0,
+                explanation: "จุดตาย: กริยาเฉพาะกลุ่ม. เจอคำว่า 'be likely' (มีแนวโน้มที่จะ) ต้องตามด้วย to + V.inf เสมอ -> to suffer"
+            },
+            {
+                question: "Since he, together with his friends, ________ Facebook when he was just nineteen years old, Mark Zuckerberg didn't have a career prior to his roles as co-founder and CEO.",
+                options: ["found", "founded", "was founding", "had been founded"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Tense/Vocab. บริบทเป็นอดีต (when he was 19) กริยา 'ก่อตั้ง' คือ found (ช่อง 1) ผันเป็น founded (ช่อง 2) ไม่ใช่ found ที่แปลว่าพบ"
+            },
+            {
+                question: "While my friends and I ________ our study notes in the school library, we heard an explosion coming from the experiment room.",
+                options: ["review", "are reviewing", "have reviewed", "were reviewing"],
+                correctIndex: 3,
+                explanation: "จุดตาย: Tense & Time Marker. เจอคำว่า 'While' มักตามด้วยเหตุการณ์ที่กำลังดำเนินอยู่ในอดีต (Past Continuous: was/were + V.ing) -> were reviewing"
+            },
+            {
+                question: "Nowadays, it is undeniable that online shopping is ________ than in-store shopping due to its convenience and simplicity.",
+                options: ["more popular", "the most popular", "as popular", "so much popular"],
+                correctIndex: 0,
+                explanation: "จุดตาย: Comparison. เจอคำว่า 'than' อยู่หลังช่องว่าง แสดงว่าต้องใช้การเปรียบเทียบขั้นกว่า (more + adj) -> more popular"
+            },
+            {
+                question: "Although almost all spiders produce venom, only a few ________ as venomous and able to cause significant harm to humans as well as other living creatures.",
+                options: ["classify", "is classifying", "are classified", "will classify"],
+                correctIndex: 2,
+                explanation: "จุดตาย: Passive Voice. แมงมุม (a few หมายถึง a few spiders) ถูกจัดประเภท ทำกริยาจัดประเภทเองไม่ได้ ต้องเป็น V.be + V.3 -> are classified"
+            },
+            {
+                question: "In fact, there are slight differences between type and kind, but ________ can often be used interchangeably, especially when talking about food",
+                options: ["it", "they", "theirs", "them"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Pronouns. สรรพนามต้องแทนคำนามพหูพจน์ (type and kind) และทำหน้าที่เป็นประธานของประโยค (อยู่หน้า can) -> they"
+            },
+            {
+                question: "If the committee ________ any scientific evidence, they wouldn't have changed the regulations to allow men to compete with women.",
+                options: ["reviews", "have reviewed", "was reviewing", "had reviewed"],
+                correctIndex: 3,
+                explanation: "จุดตาย: If-clause (Type 3). ประโยคหลัก (Main clause) เป็น wouldn't have + V.3 (อดีตสมมติ) ประโยค If ต้องเป็น Past Perfect (had + V.3) -> had reviewed"
+            },
+            {
+                question: "Apples, rich in vitamins, minerals, and fiber, ________ an incredibly nutritious fruit that offers multiple health benefits.",
+                options: ["is", "are", "have", "has"],
+                correctIndex: 1,
+                explanation: "จุดตาย: Subject-Verb Agreement. ประธานคือ 'Apples' (พหูพจน์เติม s) ส่วนที่อยู่ระหว่างจุลภาค (,) เป็นแค่ส่วนขยาย กริยาแท้ต้องเป็นพหูพจน์ -> are"
+            }
+        ];
+
+        const clozeData = [
+            {
+                title: "The land of smiles",
+                passage: "Thailand is one of the most favorite countries among travelers or tourists from around the world to visit for many reasons. One of those reasons is that Thai people are very nice and friendly. They're always happy, always smiling, extremely polite, and always [BLANK_21].\n\nWe can see them smiling everywhere, especially when they see us walking along the street, sitting on the train, eating at restaurants, [BLANK_22] even buying things at the 7-Eleven convenient stores. Not only do they smile to us pleasantly, but they often greet us with heart-warming gestures. When we are in trouble, they will [BLANK_23] help us out although we cannot communicate with them in Thai. They always lend a hand when the occasion arises. They have a heart of gold and are extremely helpful.\n\n[BLANK_24] the renowned kindness and hospitality of the Thais, their ways of life are also incredibly amazing. The cost of living here is also reasonable. The foods, the prices, the beautiful hotels or cheap hostels, the beautiful beaches or islands, and various kinds of the tourist attractions here are out of the world. That's the reason why this land of smiles can always [BLANK_25] the hearts of a massive numbers of the travelers and tourists worldwide.",
+                questions: {
+                    21: { options: ["entertain", "entertainment", "entertaining", "entertained"], correctIndex: 2, explanation: "จุดตาย: Parallelism มีคำเชื่อม and คั่น หน้าและหลังต้องเป็นคำชนิดเดียวกัน (happy, smiling, polite เป็น adjective -> entertaining)" },
+                    22: { options: ["or", "but", "so", "also"], correctIndex: 0, explanation: "จุดตาย: Parallelism เชื่อมกลุ่มคำที่มี V.ing เหมือนกัน (walking, sitting, eating, __ buying) ใช้ or เพื่อให้ความหมายสอดคล้อง 'หรือแม้แต่'" },
+                    23: { options: ["active", "actively", "activeness", "activity"], correctIndex: 1, explanation: "จุดตาย: Adverbs ช่องว่างอยู่หน้ากริยาแท้ (help) ต้องใช้ Adverb (-ly) ขยายกริยา -> actively" },
+                    24: { options: ["Due to", "In case of", "Despite", "In addition to"], correctIndex: 3, explanation: "จุดตาย: Conjunctions ประโยคหลังมี also (their ways of life are also...) เป็นการเสริมข้อมูลทิศทางเดียวกัน -> In addition to (นอกเหนือจาก...)" },
+                    25: { options: ["embrace", "embraces", "embracing", "embracement"], correctIndex: 0, explanation: "จุดตาย: กริยาเฉพาะกลุ่ม หลัง can (Modal Verb) ต้องตามด้วยกริยาไม่เปลี่ยนรูป (V.inf) เสมอ -> embrace" }
+                }
+            },
+            {
+                title: "How to Prepare for a Job Interview",
+                passage: "The job interview is probably one of the most challenging steps you will take before getting your dream job. It's considered your best chance to express how talented you really are and [BLANK_26] a hiring personnel manager or convince a recruitment team that you are qualified and suitable for the job. Therefore, getting ready for it or knowing how to prepare for the job interview is highly recommended in order not to miss your change to get your desired job.\n\nFirstly, you should read and review the job description, for example, what kinds of jobs you are going to do when hired, what duties or tasks you will be specially assigned, or what skills [BLANK_27] for the job. This can provide an understanding of the major purpose of the position and where the role fits into the organization. Try to read it thoroughly and be sure to align your abilities and competencies with the skills required for the job.\n\nNext, research the company or organization you are going to apply for your job. In general, organizations look to hire applicants [BLANK_28] have similar values to those of the company culture. This will give you an insight into the organization's future goals and plans. Last but not least, prepare for questions you will be asked so that you can give them the proper answers. Hesitation or lack [BLANK_29] your self-confidence while getting interviewed may lead to failure. During the interview, be confident, be honest and be positive. Remember that no one likes a complainer, so don't dwell on negative experiences while expressing your ideas or attitudes. [BLANK_30] , you should plan your journey to the interview. Make sure you arrive on time, or better yet, at least 30 minutes early. Think of what you are going to wear. Make sure your clothes are clean, ironed and presentable. Finally, drink or eat good foods, go to bed early the night before and wake up early to give yourself plenty of time.",
+                questions: {
+                    26: { options: ["show", "showing", "to show", "be shown"], correctIndex: 0, explanation: "จุดตาย: Parallelism โครงสร้างคู่ขนาน (express... and show)" },
+                    27: { options: ["requires", "requiring", "are required", "have required"], correctIndex: 2, explanation: "จุดตาย: Passive Voice ทักษะ (skills) ทำกริยา require เองไม่ได้ ต้องใช้ V.be + V.3 -> are required" },
+                    28: { options: ["who", "whom", "whose", "which"], correctIndex: 0, explanation: "จุดตาย: Relative Pronoun สรรพนามแทน 'คน' (applicants) และเป็นประธานประโยคย่อย -> who" },
+                    29: { options: ["with", "for", "in", "of"], correctIndex: 3, explanation: "จุดตาย: Prepositions เจอคำว่า lack (ขาดแคลน) มักตามด้วย of เสมอ -> lack of" },
+                    30: { options: ["However", "Moreover", "On the contrary", "As a result"], correctIndex: 1, explanation: "จุดตาย: Conjunctions ประโยคหลังเป็นการเสริมข้อมูลหรือคำแนะนำเพิ่มเติมทิศทางเดียวกัน -> Moreover (นอกจากนี้)" }
+                }
+            },
+            {
+                title: "The Importance of the English Language",
+                passage: "As the world continues to move in a globalized direction, English is one of the most important languages to know. English is considered crucial not only in Thailand but also in many countries across the world. Knowing English can bring a lot of benefits to everyone, no matter who you are or where you live. Simply said, speaking English is incredibly sexy and it can make you more [BLANK_31] , interesting, and gives you an air of intelligence.\n\nIt is undeniable that English is the main language for studying any subject all over the world. If you want to broaden your minds, develop your skills, and [BLANK_32] the quality of life, you shouldn't leave your English behind. Make sure you keep practicing all four skills every day: reading, listening, speaking and writing.\n\nOne of the best ways is to try out as many resources as you can. Discard the ones that are too easy or too difficult. This may discourage and demotivate you to learn or even waste your time. Choose and keep using the ones that meet your interests and are just right to your English level. For example, a lot of people enjoy [BLANK_33] their English skills by watching English movies, listening to English songs, or reading English novels, magazines, articles, and news.\n\nIn Thailand, those who can speak English are likely to get [BLANK_34] desired job. Also, a number of well-known jobs or occupations require good English speakers. Proficiency in English is a critical component of a successful modern society. The more proficient you are, the [BLANK_35] you can get hired. In addition to opening up your employment opportunities, being able to speak English provides you an endless advantage. You can make use of your English skills to make a real connection with people around the world and know more about their diverse cultures, places and lifestyles.",
+                questions: {
+                    31: { options: ["charisma", "charismatic", "charismatically", "charismas"], correctIndex: 1, explanation: "จุดตาย: Parallelism โครงสร้างคู่ขนาน (charismatic, interesting ให้เป็น Adj. เหมือนกัน)" },
+                    32: { options: ["improve", "improving", "improvable", "improvement"], correctIndex: 0, explanation: "จุดตาย: Parallelism โครงสร้างคู่ขนาน (broaden, develop, and improve ให้เป็น V.inf เหมือนกัน)" },
+                    33: { options: ["practices", "to practice", "practicing", "for practicing"], correctIndex: 2, explanation: "จุดตาย: กริยาเฉพาะกลุ่ม เจอคำว่า enjoy ตามด้วย V.ing เสมอ -> practicing" },
+                    34: { options: ["his", "her", "his or her", "their"], correctIndex: 3, explanation: "จุดตาย: Pronouns สรรพนามต้องแทนคำนามพหูพจน์ (those) -> their" },
+                    35: { options: ["better", "more better", "best", "most best"], correctIndex: 0, explanation: "จุดตาย: Comparison โครงสร้าง The more..., the + ขั้นกว่า -> the better" }
+                }
+            }
+        ];
+
         // ================= 2. State Management =================
         const STORAGE_KEY = 'yru-tep-master-state';
+        const SCHEMA_VERSION = 1;
+        
         let appState = {
-            schemaVersion: 2,
+            schemaVersion: SCHEMA_VERSION,
             currentCardIndex: 0,
-            flippedCardId: null,
             cardProgress: {},
             theme: 'system',
             updatedAt: null
@@ -585,6 +961,20 @@
         let isFlipping = false;
         let appInitialized = false;
         let countdownInterval = null;
+
+        let quizState = {
+            currentIndex: 0,
+            score: 0,
+            answered: false
+        };
+
+        // Cloze State
+        let clozeState = {
+            currentPassage: 0,
+            answers: {}, // Format: { qNum: { selectedIndex, isCorrect } }
+            score: 0,
+            currentQNumOpen: null
+        };
 
         const DOM = {
             frontText: () => document.getElementById('card-front-text'),
@@ -603,37 +993,33 @@
 
         function loadState() {
             try {
-                let raw = localStorage.getItem(STORAGE_KEY);
-                
-                if (!raw) {
-                    const oldRaw = localStorage.getItem('yru_tep_state_v1') || localStorage.getItem('yru_tep_state');
-                    if (oldRaw) {
-                        raw = oldRaw;
-                        localStorage.removeItem('yru_tep_state_v1');
-                        localStorage.removeItem('yru_tep_state');
-                    }
-                }
-
+                const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    if (parsed.currentCardIndex !== undefined) {
-                        appState.currentCardIndex = Math.min(Math.max(0, Number(parsed.currentCardIndex) || 0), flashcardsData.length - 1);
-                    }
-                    if (parsed.theme && ['light', 'dark', 'system'].includes(parsed.theme)) {
-                        appState.theme = parsed.theme;
-                    }
-                    if (parsed.cardProgress && typeof parsed.cardProgress === 'object') {
-                        Object.keys(parsed.cardProgress).forEach(key => {
-                            const k = parseInt(key);
-                            const status = parsed.cardProgress[key];
-                            if (!isNaN(k) && k >= 0 && k < flashcardsData.length && ['unsure', 'learning', 'mastered'].includes(status)) {
-                                appState.cardProgress[k] = status;
-                            }
-                        });
+                    if (parsed.schemaVersion === SCHEMA_VERSION) {
+                        // Safe merge
+                        if (typeof parsed.currentCardIndex === 'number') {
+                            let maxIndex = flashcardsData.length - 1;
+                            appState.currentCardIndex = Math.min(Math.max(0, parsed.currentCardIndex), maxIndex);
+                        }
+                        if (['light', 'dark', 'system'].includes(parsed.theme)) {
+                            appState.theme = parsed.theme;
+                        }
+                        if (parsed.cardProgress && typeof parsed.cardProgress === 'object') {
+                            appState.cardProgress = {};
+                            const validStatuses = ['unsure', 'learning', 'mastered'];
+                            Object.keys(parsed.cardProgress).forEach(key => {
+                                const k = parseInt(key);
+                                const status = parsed.cardProgress[key];
+                                if (!isNaN(k) && k >= 0 && k < flashcardsData.length && validStatuses.includes(status)) {
+                                    appState.cardProgress[k] = status;
+                                }
+                            });
+                        }
                     }
                 }
             } catch (e) {
-                console.warn("Storage read error, using default state.", e);
+                console.warn("Storage read error, using default state.");
             }
         }
 
@@ -642,7 +1028,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
             } catch (e) {
-                console.error("Storage save error.", e);
+                console.error("Storage save error.");
             }
         }
 
@@ -661,8 +1047,10 @@
             
             if (isDark) {
                 root.setAttribute('data-theme', 'dark');
+                root.classList.add('dark');
             } else {
                 root.setAttribute('data-theme', 'light');
+                root.classList.remove('dark');
             }
             updateThemeUI();
         }
@@ -679,15 +1067,7 @@
         });
 
         // ================= 4. Dashboard Rendering =================
-        function renderDashboard() {
-            const hour = new Date().getHours();
-            let greeting = 'สวัสดี';
-            if (hour >= 5 && hour < 12) greeting = 'อรุณสวัสดิ์';
-            else if (hour >= 12 && hour < 17) greeting = 'สวัสดีตอนบ่าย';
-            else greeting = 'สวัสดีตอนเย็น';
-            const greetEl = document.getElementById('greeting-text');
-            if (greetEl) greetEl.textContent = greeting;
-
+        function getProgressSummary() {
             const total = flashcardsData.length;
             let mastered = 0, learning = 0, unsure = 0;
             
@@ -700,19 +1080,35 @@
                 else if (status === 'unsure') unsure++;
             });
             const unattempted = total - (mastered + learning + unsure);
-            const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
+            let percentage = 0;
+            if (total > 0) percentage = Math.round((mastered / total) * 100);
+            percentage = Math.min(Math.max(percentage, 0), 100);
+            
+            return { total, mastered, learning, unsure, unattempted, percentage };
+        }
 
+        function renderDashboard() {
+            const hour = new Date().getHours();
+            let greeting = 'สวัสดี';
+            if (hour >= 5 && hour < 12) greeting = 'อรุณสวัสดิ์';
+            else if (hour >= 12 && hour < 17) greeting = 'สวัสดีตอนบ่าย';
+            else greeting = 'สวัสดีตอนเย็น';
+            const greetEl = document.getElementById('greeting-text');
+            if (greetEl) greetEl.textContent = greeting;
+
+            const stats = getProgressSummary();
             const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-            safeSetText('stat-mastered', mastered);
-            safeSetText('stat-learning', learning);
-            safeSetText('stat-unsure', unsure);
-            safeSetText('stat-unattempted', unattempted);
-            safeSetText('progress-percentage', `${percentage}%`);
-            safeSetText('progress-fraction', `${mastered}/${total} จำได้แล้ว`);
+            
+            safeSetText('stat-mastered', stats.mastered);
+            safeSetText('stat-learning', stats.learning);
+            safeSetText('stat-unsure', stats.unsure);
+            safeSetText('stat-unattempted', stats.unattempted);
+            safeSetText('progress-percentage', `${stats.percentage}%`);
+            safeSetText('progress-fraction', `${stats.mastered}/${stats.total} จำได้แล้ว`);
 
             const ring = document.getElementById('progress-ring-circle');
             if (ring) {
-                const dashVal = Math.min(percentage, 100);
+                const dashVal = Math.min(stats.percentage, 100);
                 ring.setAttribute('stroke-dasharray', `${dashVal}, 100`);
                 let ringColor = 'var(--color-primary)';
                 if (dashVal === 100) ringColor = 'var(--color-success)';
@@ -720,14 +1116,14 @@
             }
             
             const ringContainer = document.getElementById('progress-ring-container');
-            if (ringContainer) ringContainer.setAttribute('aria-valuenow', percentage);
+            if (ringContainer) ringContainer.setAttribute('aria-valuenow', stats.percentage);
 
             const btnContinue = document.getElementById('btn-continue-learning');
             if (btnContinue) {
                 if (Object.keys(appState.cardProgress).length === 0 && appState.currentCardIndex === 0) {
                     btnContinue.textContent = 'เริ่มเรียน Flashcard';
                 } else {
-                    btnContinue.textContent = `เรียนต่อข้อ ${appState.currentCardIndex + 1} จาก ${total}`;
+                    btnContinue.textContent = `เรียนต่อข้อ ${appState.currentCardIndex + 1} จาก ${stats.total}`;
                 }
             }
         }
@@ -751,11 +1147,9 @@
             
             setupKeyboardListeners();
             initCountdown();
-            renderDashboard();
             applyTheme();
             
             showView('view-lobby', true);
-            ensureCardFrontAndLoad(appState.currentCardIndex, true);
         }
 
         // ================= 6. Navigation =================
@@ -777,7 +1171,7 @@
         }
 
         function showView(viewId, isInit) {
-            const views = ['view-lobby', 'view-flashcards', 'view-coming-soon'];
+            const views = ['view-lobby', 'view-flashcards', 'view-coming-soon', 'view-practice-menu', 'view-quiz', 'view-cloze', 'view-quiz-summary'];
             views.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -791,6 +1185,7 @@
                     }
                 }
             });
+            window.scrollTo(0,0);
         }
 
         // ================= 7. Countdown Logic =================
@@ -827,7 +1222,7 @@
             safeSet('cd-mins', minutes);
         }
 
-        // ================= 8. Flashcard Rendering & Logic =================
+        // ================= 8. Flashcard Logic =================
         function setTextWithBreaksSafely(element, text) {
             if(!element) return;
             element.textContent = ''; 
@@ -851,7 +1246,7 @@
                     setTimeout(() => {
                         populateCardData(index);
                         isTransitioning = false;
-                    }, 400); 
+                    }, 350); 
                 } else {
                     populateCardData(index);
                     isTransitioning = false;
@@ -914,10 +1309,8 @@
 
         function setCardState(status) {
             if (!['unsure', 'learning', 'mastered'].includes(status)) return;
-            
             appState.cardProgress[appState.currentCardIndex] = status;
             saveState();
-            
             updateStateButtonsUI();
             updateProgressBar();
             
@@ -926,13 +1319,12 @@
                    if (appState.currentCardIndex < flashcardsData.length - 1) {
                        nextCard();
                    } else {
-                       checkAchievement();
+                       showToast("ยินดีด้วย! คุณเรียนจบเซ็ตนี้แล้ว");
                    }
                 }, 400);
             }
         }
 
-        // ================= 9. UI Updates =================
         function updateNavButtons() {
             const prev = DOM.prevBtn();
             const next = DOM.nextBtn();
@@ -974,52 +1366,380 @@
         }
 
         function updateProgressBar() {
-            const total = flashcardsData.length;
-            if (total === 0) return;
-            
-            let masteredCount = 0;
-            Object.keys(appState.cardProgress).forEach(key => {
-                if(parseInt(key) < total && appState.cardProgress[key] === 'mastered') {
-                    masteredCount++;
-                }
-            });
-
-            let percentage = (masteredCount / total) * 100;
-            if (percentage > 100) percentage = 100; 
-            
+            const stats = getProgressSummary();
             const pBar = DOM.progressBar();
             const pContainer = DOM.progressContainer();
             const lCount = DOM.learnedCount();
 
-            if(pBar) pBar.style.width = percentage + '%';
-            if(pContainer) pContainer.setAttribute('aria-valuenow', Math.round(percentage));
-            if(lCount) lCount.textContent = masteredCount;
+            if(pBar) pBar.style.width = stats.percentage + '%';
+            if(pContainer) pContainer.setAttribute('aria-valuenow', Math.round(stats.percentage));
+            if(lCount) lCount.textContent = stats.mastered;
         }
 
-        // ================= 10. Modals, Toasts & Keyboard =================
-        function checkAchievement() {
-            const total = flashcardsData.length;
-            let masteredCount = 0;
-            Object.keys(appState.cardProgress).forEach(key => {
-                if(parseInt(key) < total && appState.cardProgress[key] === 'mastered') {
-                    masteredCount++;
+        // ================= 9. Quiz Engine (Grammar) =================
+        function startQuiz() {
+            quizState.currentIndex = 0;
+            quizState.score = 0;
+            quizState.answered = false;
+            
+            navigateTo('view-quiz');
+            loadQuizQuestion();
+        }
+
+        function quitQuiz() { goBack(); }
+
+        function loadQuizQuestion() {
+            quizState.answered = false;
+            const q = quizData[quizState.currentIndex];
+            const total = quizData.length;
+            
+            document.getElementById('quiz-current-num').textContent = quizState.currentIndex + 1;
+            document.getElementById('quiz-score-display').textContent = `คะแนน: ${quizState.score}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((quizState.currentIndex) / total) * 100}%`;
+            document.getElementById('quiz-question-text').textContent = q.question;
+            
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = ''; 
+            
+            const labels = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option w-full text-left p-4 rounded-xl font-medium surface-solid flex items-center gap-3';
+                btn.onclick = () => selectQuizAnswer(idx);
+                btn.id = `quiz-opt-${idx}`;
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center font-bold text-sm shrink-0 transition-colors';
+                labelSpan.textContent = labels[idx];
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = opt;
+                textSpan.className = 'flex-1';
+                
+                const iconSpan = document.createElement('span');
+                iconSpan.id = `quiz-icon-${idx}`;
+                iconSpan.className = 'w-6 h-6 flex items-center justify-center hidden shrink-0';
+                
+                btn.appendChild(labelSpan);
+                btn.appendChild(textSpan);
+                btn.appendChild(iconSpan);
+                container.appendChild(btn);
+            });
+            
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+        }
+
+        function selectQuizAnswer(selectedIndex) {
+            if (quizState.answered) return;
+            quizState.answered = true;
+            
+            const q = quizData[quizState.currentIndex];
+            const isCorrect = selectedIndex === q.correctIndex;
+            
+            if (isCorrect) {
+                quizState.score++;
+                document.getElementById('quiz-score-display').textContent = `คะแนน: ${quizState.score}`;
+            }
+            
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`quiz-opt-${idx}`);
+                const icon = document.getElementById(`quiz-icon-${idx}`);
+                btn.disabled = true;
+                
+                if (idx === q.correctIndex) {
+                    btn.classList.add('correct');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                    icon.classList.remove('hidden');
+                    btn.querySelector('span:first-child').classList.add('bg-emerald-500', 'text-white');
+                    btn.querySelector('span:first-child').classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('incorrect');
+                    icon.innerHTML = '<i class="fas fa-times"></i>';
+                    icon.classList.remove('hidden');
+                    btn.querySelector('span:first-child').classList.add('bg-rose-500', 'text-white');
+                    btn.querySelector('span:first-child').classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
                 }
             });
-
-            if(masteredCount === total && total > 0) {
-                setTimeout(() => {
-                    const modal = document.getElementById('achievement-modal');
-                    if(modal) modal.classList.remove('hidden');
-                }, 200);
+            
+            document.getElementById('quiz-explanation-text').textContent = q.explanation;
+            document.getElementById('quiz-explanation-box').classList.remove('hidden');
+            
+            const nextBtn = document.getElementById('quiz-next-btn');
+            nextBtn.classList.remove('hidden');
+            if (quizState.currentIndex === quizData.length - 1) {
+                nextBtn.innerHTML = 'ดูสรุปผลคะแนน <i class="fas fa-flag-checkered ml-1"></i>';
+            } else {
+                nextBtn.innerHTML = 'ถัดไป <i class="fas fa-arrow-right ml-1"></i>';
             }
         }
-        
-        function closeAchievementModal() {
-            const modal = document.getElementById('achievement-modal');
-            if(modal) modal.classList.add('hidden');
-            goBack();
+
+        function nextQuizQuestion() {
+            if (quizState.currentIndex < quizData.length - 1) {
+                quizState.currentIndex++;
+                loadQuizQuestion();
+            } else {
+                showQuizSummary(quizState.score, quizData.length, "Grammar & Structure");
+            }
         }
 
+        // ================= 10. Cloze Test Engine =================
+        function startClozeTest() {
+            clozeState = {
+                currentPassage: 0,
+                answers: {},
+                score: 0,
+                currentQNumOpen: null
+            };
+            navigateTo('view-cloze');
+            loadClozePassage();
+        }
+
+        function quitClozeTest() { goBack(); }
+
+        function loadClozePassage() {
+            const p = clozeData[clozeState.currentPassage];
+            
+            document.getElementById('cloze-title').textContent = p.title;
+            updateClozeProgress();
+
+            const container = document.getElementById('cloze-passage-container');
+            container.innerHTML = ''; // Clear previous
+
+            // Safe parsing of the passage string
+            const parts = p.passage.split(/\[BLANK_(\d+)\]/g);
+            for(let i = 0; i < parts.length; i++) {
+                if (i % 2 === 0) {
+                    // Normal text, handle newlines
+                    const lines = parts[i].split('\n');
+                    lines.forEach((line, idx) => {
+                        container.appendChild(document.createTextNode(line));
+                        if (idx < lines.length - 1) {
+                            container.appendChild(document.createElement('br'));
+                        }
+                    });
+                } else {
+                    // Blank (Button)
+                    const qNum = parts[i];
+                    const btn = document.createElement('button');
+                    btn.id = `cloze-btn-${qNum}`;
+                    btn.onclick = () => openClozeModal(qNum);
+                    
+                    // Check if already answered
+                    if (clozeState.answers[qNum]) {
+                        const ans = clozeState.answers[qNum];
+                        const qData = p.questions[qNum];
+                        const word = qData.options[ans.selectedIndex];
+                        
+                        btn.textContent = word + (ans.isCorrect ? ' ✓' : ' ✗');
+                        if (ans.isCorrect) {
+                            btn.className = 'inline-block mx-1 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 font-bold rounded-lg border border-emerald-300 shadow-sm transition-all hover:opacity-80 leading-none focus-visible:ring-2';
+                        } else {
+                            btn.className = 'inline-block mx-1 px-3 py-1 bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 font-bold rounded-lg border border-rose-300 shadow-sm transition-all hover:opacity-80 leading-none focus-visible:ring-2 line-through decoration-rose-500';
+                        }
+                    } else {
+                        btn.textContent = `[ ข้อ ${qNum} ]`;
+                        btn.className = 'cloze-btn-unanswered inline-block mx-1 px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold rounded-lg border border-[var(--color-primary)]/30 shadow-sm transition-all hover:bg-[var(--color-primary)]/20 active:scale-95 leading-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]';
+                    }
+                    container.appendChild(btn);
+                }
+            }
+            
+            checkClozePassageCompletion();
+        }
+
+        function openClozeModal(qNum) {
+            clozeState.currentQNumOpen = qNum;
+            const p = clozeData[clozeState.currentPassage];
+            const qData = p.questions[qNum];
+            const isAlreadyAnswered = !!clozeState.answers[qNum];
+            
+            document.getElementById('cloze-qnum-display').textContent = qNum;
+            
+            const container = document.getElementById('cloze-options-container');
+            container.innerHTML = '';
+            
+            const labels = ['A', 'B', 'C', 'D'];
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option w-full text-left p-3 rounded-xl font-medium surface-solid flex items-center gap-3 text-sm sm:text-base';
+                btn.id = `cloze-opt-${idx}`;
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center font-bold text-xs shrink-0 transition-colors';
+                labelSpan.textContent = labels[idx];
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = opt;
+                textSpan.className = 'flex-1';
+                
+                const iconSpan = document.createElement('span');
+                iconSpan.id = `cloze-icon-${idx}`;
+                iconSpan.className = 'w-5 h-5 flex items-center justify-center hidden shrink-0';
+                
+                btn.appendChild(labelSpan);
+                btn.appendChild(textSpan);
+                btn.appendChild(iconSpan);
+                
+                if (isAlreadyAnswered) {
+                    btn.disabled = true;
+                    const ans = clozeState.answers[qNum];
+                    if (idx === qData.correctIndex) {
+                        btn.classList.add('correct');
+                        iconSpan.innerHTML = '<i class="fas fa-check"></i>';
+                        iconSpan.classList.remove('hidden');
+                        labelSpan.classList.add('bg-emerald-500', 'text-white');
+                        labelSpan.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
+                    } else if (idx === ans.selectedIndex && !ans.isCorrect) {
+                        btn.classList.add('incorrect');
+                        iconSpan.innerHTML = '<i class="fas fa-times"></i>';
+                        iconSpan.classList.remove('hidden');
+                        labelSpan.classList.add('bg-rose-500', 'text-white');
+                        labelSpan.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
+                    }
+                } else {
+                    btn.onclick = () => selectClozeAnswer(qNum, idx);
+                }
+                
+                container.appendChild(btn);
+            });
+            
+            const expBox = document.getElementById('cloze-explanation-box');
+            const expText = document.getElementById('cloze-explanation-text');
+            const closeBtn = document.getElementById('cloze-modal-close-btn');
+            
+            if (isAlreadyAnswered) {
+                expText.textContent = qData.explanation;
+                expBox.classList.remove('hidden');
+                closeBtn.classList.remove('hidden');
+            } else {
+                expBox.classList.add('hidden');
+                closeBtn.classList.add('hidden');
+            }
+            
+            document.getElementById('cloze-modal').classList.remove('hidden');
+        }
+
+        function selectClozeAnswer(qNum, selectedIndex) {
+            const p = clozeData[clozeState.currentPassage];
+            const qData = p.questions[qNum];
+            const isCorrect = selectedIndex === qData.correctIndex;
+            
+            clozeState.answers[qNum] = { selectedIndex, isCorrect };
+            if (isCorrect) clozeState.score++;
+            
+            qData.options.forEach((_, idx) => {
+                const btn = document.getElementById(`cloze-opt-${idx}`);
+                const icon = document.getElementById(`cloze-icon-${idx}`);
+                const labelSpan = btn.querySelector('span:first-child');
+                btn.disabled = true;
+                
+                if (idx === qData.correctIndex) {
+                    btn.classList.add('correct');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                    icon.classList.remove('hidden');
+                    labelSpan.classList.add('bg-emerald-500', 'text-white');
+                    labelSpan.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('incorrect');
+                    icon.innerHTML = '<i class="fas fa-times"></i>';
+                    icon.classList.remove('hidden');
+                    labelSpan.classList.add('bg-rose-500', 'text-white');
+                    labelSpan.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-[var(--text-muted)]');
+                }
+            });
+            
+            document.getElementById('cloze-explanation-text').textContent = qData.explanation;
+            document.getElementById('cloze-explanation-box').classList.remove('hidden');
+            document.getElementById('cloze-modal-close-btn').classList.remove('hidden');
+            
+            // Re-render passage in background to update the button
+            loadClozePassage(); 
+        }
+
+        function closeClozeModal() {
+            document.getElementById('cloze-modal').classList.add('hidden');
+            clozeState.currentQNumOpen = null;
+            checkClozePassageCompletion();
+        }
+
+        function updateClozeProgress() {
+            const p = clozeData[clozeState.currentPassage];
+            const totalQInPassage = Object.keys(p.questions).length;
+            
+            // Count answered in this passage
+            let answeredCount = 0;
+            Object.keys(p.questions).forEach(q => {
+                if(clozeState.answers[q]) answeredCount++;
+            });
+            
+            document.getElementById('cloze-progress-text').textContent = `บทความ ${clozeState.currentPassage + 1}/${clozeData.length} (ตอบแล้ว ${answeredCount}/${totalQInPassage} ข้อ)`;
+            
+            let totalQAll = 0;
+            clozeData.forEach(pass => { totalQAll += Object.keys(pass.questions).length; });
+            let totalAnsweredAll = Object.keys(clozeState.answers).length;
+            
+            document.getElementById('cloze-progress-bar').style.width = `${(totalAnsweredAll / totalQAll) * 100}%`;
+        }
+
+        function checkClozePassageCompletion() {
+            const p = clozeData[clozeState.currentPassage];
+            const totalQInPassage = Object.keys(p.questions).length;
+            let answeredCount = 0;
+            Object.keys(p.questions).forEach(q => {
+                if(clozeState.answers[q]) answeredCount++;
+            });
+            
+            updateClozeProgress();
+            
+            const nextBtn = document.getElementById('cloze-next-passage-btn');
+            if (answeredCount === totalQInPassage) {
+                nextBtn.classList.remove('hidden');
+                if (clozeState.currentPassage === clozeData.length - 1) {
+                    nextBtn.innerHTML = 'ดูสรุปผลคะแนน <i class="fas fa-flag-checkered ml-1"></i>';
+                } else {
+                    nextBtn.innerHTML = 'บทความถัดไป <i class="fas fa-arrow-right ml-1"></i>';
+                }
+            } else {
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function nextClozePassage() {
+            if (clozeState.currentPassage < clozeData.length - 1) {
+                clozeState.currentPassage++;
+                loadClozePassage();
+                document.getElementById('cloze-passage-container').parentElement.scrollTop = 0;
+            } else {
+                // Done with Cloze
+                let totalQAll = 0;
+                clozeData.forEach(pass => { totalQAll += Object.keys(pass.questions).length; });
+                showQuizSummary(clozeState.score, totalQAll, "Cloze Test (Reading)");
+            }
+        }
+
+        // ================= 11. Summary =================
+        function showQuizSummary(score, total, title) {
+            navigateTo('view-quiz-summary');
+            document.getElementById('summary-desc').textContent = `คุณทำแบบทดสอบ ${title} เสร็จสิ้นแล้ว`;
+            document.getElementById('quiz-final-score').textContent = score;
+            document.getElementById('quiz-total-score').textContent = `/ ${total}`;
+            
+            const feedback = document.getElementById('quiz-feedback-msg');
+            const percent = score / total;
+            
+            if (percent === 1) {
+                feedback.textContent = "เพอร์เฟกต์! คุณแม่นจุดตายโครงสร้าง 100%";
+            } else if (percent >= 0.7) {
+                feedback.textContent = "ยอดเยี่ยม! พื้นฐานโครงสร้างของคุณแน่นมาก";
+            } else if (percent >= 0.5) {
+                feedback.textContent = "ทำได้ดี! แต่ยังกลับไปทบทวน Flashcard เพิ่มได้อีกนะ";
+            } else {
+                feedback.textContent = "ไม่เป็นไร! กลับไปซ้อมในคลังอาวุธอีกนิดรับรองเก่งขึ้นแน่";
+            }
+        }
+
+        // ================= 12. Modals & Keyboard =================
         function openResetModal() {
             const modal = document.getElementById('reset-modal');
             if(modal) modal.classList.remove('hidden');
@@ -1033,17 +1753,19 @@
         function confirmReset() {
             localStorage.removeItem(STORAGE_KEY);
             appState = {
-                schemaVersion: 2,
+                schemaVersion: SCHEMA_VERSION,
                 currentCardIndex: 0,
-                flippedCardId: null,
                 cardProgress: {},
                 theme: appState.theme,
                 updatedAt: Date.now()
             };
             closeResetModal();
             renderDashboard();
-            ensureCardFrontAndLoad(0, true);
-            showToast("รีเซ็ตข้อมูลแล้ว");
+            
+            if (viewHistory[viewHistory.length - 1] === 'view-flashcards') {
+                ensureCardFrontAndLoad(0, true);
+            }
+            showToast("รีเซ็ตความคืบหน้าแล้ว");
         }
 
         function showToast(msg) {
@@ -1052,7 +1774,11 @@
             if(container && msgEl) {
                 msgEl.textContent = msg;
                 container.classList.remove('hidden');
-                setTimeout(() => { container.classList.add('hidden'); }, 3000);
+                
+                if(window.toastTimeout) clearTimeout(window.toastTimeout);
+                window.toastTimeout = setTimeout(() => { 
+                    container.classList.add('hidden'); 
+                }, 3000);
             }
         }
 
@@ -1062,38 +1788,39 @@
                 if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) {
                     return;
                 }
+                
                 const currentView = viewHistory[viewHistory.length - 1];
-                if (currentView !== 'view-flashcards') return;
-
-                switch(e.code) {
-                    case 'Space':
-                    case 'Enter':
-                        e.preventDefault(); 
-                        flipCard();
-                        break;
-                    case 'ArrowLeft':
-                        prevCard();
-                        break;
-                    case 'ArrowRight':
-                        nextCard();
-                        break;
-                    case 'Digit1':
-                    case 'Numpad1':
-                        setCardState('unsure');
-                        break;
-                    case 'Digit2':
-                    case 'Numpad2':
-                        setCardState('learning');
-                        break;
-                    case 'Digit3':
-                    case 'Numpad3':
-                        setCardState('mastered');
-                        break;
+                
+                if (currentView === 'view-flashcards') {
+                    switch(e.code) {
+                        case 'Space':
+                        case 'Enter':
+                            e.preventDefault(); 
+                            flipCard();
+                            break;
+                        case 'ArrowLeft':
+                            prevCard();
+                            break;
+                        case 'ArrowRight':
+                            nextCard();
+                            break;
+                        case 'Digit1':
+                        case 'Numpad1':
+                            setCardState('unsure');
+                            break;
+                        case 'Digit2':
+                        case 'Numpad2':
+                            setCardState('learning');
+                            break;
+                        case 'Digit3':
+                        case 'Numpad3':
+                            setCardState('mastered');
+                            break;
+                    }
                 }
             });
         }
 
-        // ================= 11. Boot =================
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initApp);
         } else {
