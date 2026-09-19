@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: กฎไวยากรณ์ (Grammar Rules)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            /* พื้นหลังสีพาสเทลไล่ระดับ */
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+        }
+
+        /* เอฟเฟกต์กระจกสำหรับคอนเทนเนอร์หลัก */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 3D Flip Card CSS */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1); /* แอนิเมชันนุ่มนวลขึ้น */
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari fallback */
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+        }
+        
+        .flip-card-front {
+            background: #ffffff;
+            /* เพิ่มลวดลายบางๆ ให้ด้านหน้า */
+            background-image: radial-gradient(#f3f4f6 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+        
+        .flip-card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border: 2px solid #a78bfa; /* สีขอบตอนพลิกกลับ */
+        }
+
+        /* Scrollbar สำหรับข้อความที่ยาวเกินไป */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        /* Hint Animation */
+        .hint-text {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+            margin-top: 0;
+        }
+        .show-hint .hint-text {
+            max-height: 100px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        /* Hover effect สำหรับปุ่ม */
+        .btn-hover-effect {
+            transition: all 0.2s ease;
+        }
+        .btn-hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -10px rgba(0,0,0,0.3);
+        }
+        .btn-hover-effect:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 text-gray-800">
+
+    <div class="glass-container max-w-3xl w-full rounded-[2rem] p-6 md:p-10 relative overflow-hidden">
+        
+        <!-- ของตกแต่งลอยๆ (Decorative blobs) -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+
+        <!-- Header -->
+        <div class="text-center mb-8 relative z-10">
+            <div class="inline-block bg-white px-4 py-1.5 rounded-full text-xs font-bold text-purple-600 tracking-wide uppercase mb-3 shadow-sm border border-purple-100">
+                <i class="fas fa-rocket mr-1"></i> Grammar Mastery
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-blue-600 mb-2">
+                เจาะจุดตาย ไวยากรณ์
+            </h1>
+            <p class="text-gray-500 font-medium">จำจุดสังเกตเหล่านี้ให้แม่น แล้วกวาดคะแนนเต็ม!</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8 relative z-10">
+            <div class="flex justify-between items-end mb-2 text-sm font-semibold">
+                <div class="text-blue-700">
+                    <i class="fas fa-layer-group mr-1"></i> การ์ดที่ <span id="current-card-num" class="text-xl">1</span> / <span id="total-cards">0</span>
+                </div>
+                <div class="text-green-600 flex items-center">
+                    <i class="fas fa-brain mr-1"></i> จำได้แล้ว: <span id="learned-count" class="ml-1 text-xl">0</span>
+                </div>
+            </div>
+            <!-- หลอดพลัง -->
+            <div class="w-full bg-gray-200/80 rounded-full h-3.5 shadow-inner">
+                <div id="progress-bar" class="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 h-3.5 rounded-full transition-all duration-700 shadow-md" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Flashcard Container -->
+        <div class="relative w-full h-80 md:h-96 mb-8 cursor-pointer perspective-1000 group z-10" id="flashcard-container" onclick="flipCard()">
+            <div class="flip-card-inner" id="flashcard-inner">
+                
+                <!-- Front Side (โจทย์) -->
+                <div class="flip-card-front">
+                    <div class="absolute top-5 left-5 right-5 flex justify-between items-start">
+                        <span class="bg-gray-100 text-gray-500 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-gray-200 shadow-sm">
+                            จุดสังเกต (Trigger)
+                        </span>
+                        <i class="fas fa-search text-gray-300 text-xl"></i>
+                    </div>
+                    
+                    <div class="w-full max-h-[60%] overflow-y-auto custom-scrollbar px-2 mt-4">
+                        <p id="card-front-text" class="text-xl md:text-2xl font-semibold text-gray-800 text-center leading-relaxed"></p>
+                    </div>
+
+                    <div id="card-hint-container" class="absolute bottom-6 w-full text-center px-6">
+                         <button onclick="toggleHint(event)" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium text-sm py-1.5 px-4 rounded-full transition-colors border border-blue-200 focus:outline-none">
+                             <i class="fas fa-lightbulb text-yellow-400 mr-1"></i> อ้างอิงข้อสอบ
+                         </button>
+                         <div class="hint-text text-sm text-gray-500 font-medium bg-gray-50 p-2 rounded-lg border border-gray-100 mx-auto max-w-xs shadow-inner">
+                             <span id="card-hint-text"></span>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Back Side (คำตอบ) -->
+                <div class="flip-card-back">
+                    <div class="absolute top-5 left-5 right-5 flex justify-between items-start">
+                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                            กฎไวยากรณ์ (Rule)
+                        </span>
+                        <i class="fas fa-check-circle text-purple-300 text-xl"></i>
+                    </div>
+                    
+                    <div class="w-full max-h-[75%] overflow-y-auto custom-scrollbar px-2 mt-6">
+                        <p id="card-back-text" class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-gray-800 to-gray-600 text-center leading-relaxed"></p>
+                    </div>
+                    
+                    <div class="absolute bottom-6 text-gray-400 text-xs flex items-center">
+                        <i class="fas fa-sync-alt mr-1"></i> คลิกเพื่อพลิกกลับ
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 relative z-10">
+            <button onclick="prevCard()" id="prev-btn" class="btn-hover-effect w-full sm:w-auto flex-1 py-3.5 px-6 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-semibold focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none">
+                <i class="fas fa-arrow-left mr-2"></i> ก่อนหน้า
+            </button>
+            
+            <button onclick="markLearned()" id="mark-learned-btn" class="btn-hover-effect w-full sm:w-auto flex-[1.5] py-3.5 px-6 bg-gradient-to-r from-emerald-400 to-green-500 text-white rounded-full shadow-lg font-bold focus:outline-none transition-all border border-green-400">
+                <i class="fas fa-check-double mr-1"></i> จำกฎข้อนี้ได้แล้ว!
+            </button>
+
+            <button onclick="nextCard()" id="next-btn" class="btn-hover-effect w-full sm:w-auto flex-1 py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 border border-transparent rounded-full shadow-lg text-white font-semibold focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none">
+                ถัดไป <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+        
+        <!-- Restart Button -->
+         <div class="text-center mt-8 relative z-10">
+            <button onclick="restartCards()" class="text-sm font-medium text-gray-400 hover:text-purple-600 focus:outline-none transition-colors border-b border-transparent hover:border-purple-600 pb-0.5">
+                <i class="fas fa-redo-alt mr-1"></i> เริ่มต้นใหม่ทั้งหมด
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // ข้อมูล 19 จุดตายจากไฟล์ที่ผู้ใช้อัปโหลด
+        const flashcardsData = [
+            {
+                front: "มีคำเชื่อม and หรือ or คั่นกลาง\n(เช่น can produce, learn, and _____ หรือ happy, smiling, and _____)",
+                back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(V.1 คู่ V.1 / Adjective คู่ Adjective / V.ing คู่ V.ing)",
+                hint: "อ้างอิงข้อ 2, 21, 26, 31, 32"
+            },
+            {
+                front: "ประธานทำกริยาเองไม่ได้\nเช่น ผู้ชาย(ถูกจับ), GPS(ถูกใช้), แมงมุม(ถูกจัดประเภท), ทักษะ(ถูกต้องการ)",
+                back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ\n(เช่น were arrested, has been used, are classified, are required)",
+                hint: "อ้างอิงข้อ 3, 11, 17, 27"
+            },
+            {
+                front: "โครงสร้าง 'Not only A but also B'\nหรือ ประธานเติม s เช่น 'Apples'",
+                back: "Not only A but also B -> กริยาผันตามประธาน B (ตัวหลังสุด)\nประธานเติม s (พหูพจน์) -> กริยาต้องเป็นพหูพจน์ (are, have, V.1 ไม่เติม s)",
+                hint: "อ้างอิงข้อ 1, 8, 20"
+            },
+            {
+                front: "เจอคำว่า 'By the time'",
+                back: "จับคู่กับ Future Perfect\n(will have + V.3)",
+                hint: "อ้างอิงข้อ 4"
+            },
+            {
+                front: "ระบุปีในอดีตชัดเจน เช่น 'In 2022'",
+                back: "ใช้ Past Simple (V.2)\nห้ามใช้ Tense อื่น!",
+                hint: "อ้างอิงข้อ 6"
+            },
+            {
+                front: "ประโยคหนึ่งใช้ช่อง 2 (อดีต)\nแล้วมีอีกเหตุการณ์เกิดตามมา (เช่น used)",
+                back: "อีกประโยคต้องเป็น 'อดีต (V.2)' ให้สอดคล้องกัน\n(เช่น occurred)",
+                hint: "อ้างอิงข้อ 10, 14"
+            },
+            {
+                front: "เจอคำว่า 'While'",
+                back: "ตามด้วยเหตุการณ์ที่กำลังดำเนินอยู่ในอดีต\nPast Continuous (was/were + V.ing)",
+                hint: "อ้างอิงข้อ 15"
+            },
+            {
+                front: "ช่องว่างอยู่หลังกริยา หรือต้องหาคำมาขยายกริยา\n(เช่น drink _____ หรือ _____ help)",
+                back: "ตอบ Adverb (คำที่ลงท้ายด้วย -ly)\nเช่น regularly, actively",
+                hint: "อ้างอิงข้อ 7, 9, 23"
+            },
+            {
+                front: "เจอคำว่า 'than' อยู่หลังช่องว่าง",
+                back: "ใช้ 'ขั้นกว่า'\n(เติม -er หรือ more)",
+                hint: "อ้างอิงข้อ 5"
+            },
+            {
+                front: "เจอโครงสร้าง 'The more..., _____' ",
+                back: "ครึ่งหลังต้องเป็น 'the + ขั้นกว่า'\n(เช่น the better)",
+                hint: "อ้างอิงข้อ 16, 35"
+            },
+            {
+                front: "ต้องการคำเชื่อมบอก 'สาเหตุ' เชิงบวก",
+                back: "ตอบ 'thanks to'\n(เนื่องจาก / ขอบคุณที่)",
+                hint: "อ้างอิงข้อ 12, 22, 30"
+            },
+            {
+                front: "ประโยคหลังมี 'also' หรือเสริมข้อมูลทิศทางเดียวกัน",
+                back: "ตอบ 'In addition to' (นอกเหนือจาก)\nหรือ 'Moreover' (นอกจากนี้)",
+                hint: "อ้างอิงข้อ 24"
+            },
+            {
+                front: "เจอคำว่า 'lack' (ขาดแคลน)",
+                back: "ต้องตามด้วยบุพบท 'of' เสมอ",
+                hint: "อ้างอิงข้อ 29"
+            },
+            {
+                front: "สรรพนามต้องแทนคำนามพหูพจน์\n(เช่น type and kind หรือ those)",
+                back: "ใช้กลุ่มพหูพจน์ 'they' (เป็นประธาน)\nหรือ 'their' (แสดงความเป็นเจ้าของ)",
+                hint: "อ้างอิงข้อ 18, 34"
+            },
+            {
+                front: "สรรพนามแทน 'คน' และเป็นประธานประโยคย่อย",
+                back: "ใช้ 'who'",
+                hint: "อ้างอิงข้อ 28"
+            },
+            {
+                front: "เจอคำว่า 'be likely'",
+                back: "ตามด้วย 'to + V.inf'\n(เช่น to suffer)",
+                hint: "อ้างอิงข้อ 13"
+            },
+            {
+                front: "เจอคำว่า 'enjoy'",
+                back: "ตามด้วย 'V.ing' เสมอ\n(เช่น practicing)",
+                hint: "อ้างอิงข้อ 33"
+            },
+            {
+                front: "หลัง 'can'",
+                back: "ต้องเป็นกริยาไม่เปลี่ยนรูป (V.inf)\n(เช่น embrace)",
+                hint: "อ้างอิงข้อ 25"
+            },
+            {
+                front: "ประโยคหลัก (Main clause) เป็น would have + V.3 (อดีตสมมติ)",
+                back: "ประโยค If ต้องเป็น 'Past Perfect'\n(had + V.3)",
+                hint: "อ้างอิงข้อ 19"
+            }
+        ];
+
+        let currentIndex = 0;
+        let learnedCards = new Set();
+        let isFlipped = false;
+
+        // DOM Elements
+        const frontText = document.getElementById('card-front-text');
+        const backText = document.getElementById('card-back-text');
+        const hintText = document.getElementById('card-hint-text');
+        const hintContainer = document.getElementById('card-hint-container');
+        const flashcardInner = document.getElementById('flashcard-inner');
+        const currentCardNum = document.getElementById('current-card-num');
+        const totalCards = document.getElementById('total-cards');
+        const learnedCountDisplay = document.getElementById('learned-count');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+
+        function init() {
+            document.getElementById('total-cards').innerText = flashcardsData.length;
+            loadCard(currentIndex);
+            updateLearnedStatus();
+        }
+
+        function loadCard(index) {
+            if (isFlipped) {
+                flashcardInner.classList.remove('is-flipped');
+                isFlipped = false;
+                setTimeout(() => {
+                    populateCardData(index);
+                }, 350); // รอให้พลิกกลับเสร็จก่อนเปลี่ยนเนื้อหา
+            } else {
+                 populateCardData(index);
+            }
+        }
+        
+        function populateCardData(index) {
+            const card = flashcardsData[index];
+            frontText.innerHTML = card.front.replace(/\n/g, '<br>');
+            backText.innerHTML = card.back.replace(/\n/g, '<br>');
+            
+            if (card.hint) {
+                hintContainer.classList.remove('show-hint'); 
+                hintText.innerText = card.hint;
+                hintContainer.style.display = 'block';
+            } else {
+                hintContainer.style.display = 'none';
+            }
+            
+            currentCardNum.innerText = index + 1;
+            updateButtons();
+            updateProgressBar();
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                flashcardInner.classList.add('is-flipped');
+            } else {
+                flashcardInner.classList.remove('is-flipped');
+            }
+        }
+
+        function toggleHint(event) {
+            event.stopPropagation(); // ป้องกันไม่ให้การ์ดพลิกเวลากดปุ่มคำใบ้
+            hintContainer.classList.toggle('show-hint');
+        }
+
+        function nextCard() {
+            if (currentIndex < flashcardsData.length - 1) {
+                currentIndex++;
+                loadCard(currentIndex);
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadCard(currentIndex);
+            }
+        }
+
+        function markLearned() {
+            if (!learnedCards.has(currentIndex)) {
+                learnedCards.add(currentIndex);
+                updateLearnedStatus();
+                updateProgressBar();
+                
+                // ให้เวลาดูแอนิเมชันปุ่มนิดนึง แล้วเปลี่ยนการ์ดอัตโนมัติ
+                setTimeout(() => {
+                   if (currentIndex < flashcardsData.length - 1) {
+                       nextCard();
+                   }
+                }, 600);
+            }
+        }
+
+        function restartCards() {
+            currentIndex = 0;
+            learnedCards.clear();
+            updateLearnedStatus();
+            updateProgressBar();
+            loadCard(currentIndex);
+        }
+
+        function updateButtons() {
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === flashcardsData.length - 1;
+        }
+
+        function updateProgressBar() {
+            // คำนวณความคืบหน้าจากจำนวนการ์ดที่ "จำได้แล้ว"
+            const percentage = (learnedCards.size / flashcardsData.length) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+
+        function updateLearnedStatus() {
+            learnedCountDisplay.innerText = learnedCards.size;
+            const markBtn = document.getElementById('mark-learned-btn');
+            
+            if (learnedCards.has(currentIndex)) {
+                // สถานะ: จำได้แล้ว (ปุ่มสีเทา)
+                markBtn.className = 'btn-hover-effect w-full sm:w-auto flex-[1.5] py-3.5 px-6 bg-gray-100 text-gray-500 rounded-full shadow-inner font-semibold border border-gray-200 cursor-default';
+                markBtn.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> เก็บลงสมองแล้ว';
+                markBtn.onclick = (e) => e.stopPropagation(); // ยกเลิกการคลิก
+            } else {
+                // สถานะ: ยังไม่จำ (ปุ่มสีเขียว)
+                markBtn.className = 'btn-hover-effect w-full sm:w-auto flex-[1.5] py-3.5 px-6 bg-gradient-to-r from-emerald-400 to-green-500 text-white rounded-full shadow-lg font-bold focus:outline-none transition-all border border-green-400';
+                markBtn.innerHTML = '<i class="fas fa-check-double mr-1"></i> จำกฎข้อนี้ได้แล้ว!';
+                markBtn.onclick = markLearned; // คืนค่าการคลิก
+            }
+        }
+
+        // เริ่มต้นการทำงาน
+        init();
+
+    </script>
+</body>
+</html>
