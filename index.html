@@ -149,7 +149,7 @@
         .scene {
             perspective: 1000px;
             width: 100%;
-            min-height: clamp(20rem, 50vh, 28rem); /* Responsive height */
+            min-height: 24rem; /* Changed to fixed min-height for content */
             position: relative;
         }
         .card {
@@ -279,16 +279,17 @@
         </div>
     </div>
 
+    <!-- MAIN CONTAINER (Updated for Dashboard Expansion) -->
     <div class="max-w-7xl mx-auto min-h-screen flex flex-col p-4 md:p-6 lg:p-8 relative z-10 w-full">
         
         <!-- ================= VIEW 1: LOBBY (Learning Dashboard) ================= -->
-        <main id="view-lobby" class="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8 fade-in">
+        <main id="view-lobby" class="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 fade-in">
             
             <!-- Header & Theme Toggle -->
-            <header class="flex items-center justify-between mt-2 lg:col-span-3 order-1">
+            <header class="flex items-center justify-between mt-1 sm:mt-2 lg:col-span-3 order-1">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-[var(--color-primary)]">YRU TEP Master</h1>
-                    <p class="text-sm font-medium text-[var(--text-muted)]" id="greeting-text">สวัสดี</p>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-primary)]">YRU TEP Master</h1>
+                    <p class="text-xs sm:text-sm font-medium text-[var(--text-muted)]" id="greeting-text">สวัสดี</p>
                 </div>
                 
                 <div class="theme-toggle-container" role="group" aria-label="เลือกธีมแอปพลิเคชัน">
@@ -305,27 +306,27 @@
             </header>
 
             <!-- Overview Dashboard Card -->
-            <section class="surface-panel p-6 flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
+            <section class="surface-panel p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
                 <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-5">
                     <i class="fas fa-graduation-cap text-9xl"></i>
                 </div>
                 
                 <!-- Progress Ring -->
-                <div class="w-32 h-32 relative flex-shrink-0" id="progress-ring-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 relative flex-shrink-0" id="progress-ring-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <svg viewBox="0 0 36 36" class="circular-chart w-full h-full">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                         <path id="progress-ring-circle" class="circle stroke-[var(--color-primary)]" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-2xl font-bold" id="progress-percentage">0%</span>
+                        <span class="text-xl sm:text-2xl font-bold" id="progress-percentage">0%</span>
                     </div>
                 </div>
 
                 <!-- Learning Call to Action -->
                 <div class="flex-1 text-center sm:text-left z-10 w-full">
-                    <h2 class="text-lg font-bold mb-1">ความคืบหน้าของคุณ</h2>
-                    <p class="text-sm text-[var(--text-muted)] mb-4" id="progress-fraction">0/19 จำได้แล้ว</p>
-                    <button id="btn-continue-learning" onclick="navigateTo('view-flashcards')" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect">
+                    <h2 class="text-base sm:text-lg font-bold mb-0.5 sm:mb-1">ความคืบหน้าของคุณ</h2>
+                    <p class="text-xs sm:text-sm text-[var(--text-muted)] mb-3 sm:mb-4" id="progress-fraction">0/19 จำได้แล้ว</p>
+                    <button id="btn-continue-learning" onclick="navigateTo('view-flashcards')" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect min-h-[48px]">
                         เริ่มเรียน Flashcard
                     </button>
                 </div>
@@ -333,103 +334,103 @@
 
             <!-- Summary Stats Grid -->
             <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 lg:col-span-3 order-3 lg:order-4">
-                <div class="surface-panel p-4 flex flex-col justify-center items-center text-center">
-                    <span class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] flex items-center justify-center mb-2"><i class="fas fa-check"></i></span>
-                    <span class="text-2xl font-bold" id="stat-mastered">0</span>
-                    <span class="text-xs font-medium text-[var(--text-muted)]">จำได้แล้ว</span>
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                    <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-check"></i></span>
+                    <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-mastered">0</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">จำได้แล้ว</span>
                 </div>
-                <div class="surface-panel p-4 flex flex-col justify-center items-center text-center">
-                    <span class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-[var(--color-warning)] flex items-center justify-center mb-2"><i class="fas fa-spinner"></i></span>
-                    <span class="text-2xl font-bold" id="stat-learning">0</span>
-                    <span class="text-xs font-medium text-[var(--text-muted)]">กำลังฝึก</span>
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                    <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-[var(--color-warning)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-spinner"></i></span>
+                    <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-learning">0</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">กำลังฝึก</span>
                 </div>
-                <div class="surface-panel p-4 flex flex-col justify-center items-center text-center">
-                    <span class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] flex items-center justify-center mb-2"><i class="fas fa-times"></i></span>
-                    <span class="text-2xl font-bold" id="stat-unsure">0</span>
-                    <span class="text-xs font-medium text-[var(--text-muted)]">ไม่มั่นใจ</span>
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                    <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-times"></i></span>
+                    <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-unsure">0</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">ไม่มั่นใจ</span>
                 </div>
-                <div class="surface-panel p-4 flex flex-col justify-center items-center text-center">
-                    <span class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center mb-2"><i class="fas fa-minus"></i></span>
-                    <span class="text-2xl font-bold" id="stat-unattempted">19</span>
-                    <span class="text-xs font-medium text-[var(--text-muted)]">ยังไม่ได้เริ่ม</span>
+                <div class="surface-panel p-3 sm:p-4 flex flex-col justify-center items-center text-center">
+                    <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center mb-1.5 sm:mb-2 text-xs sm:text-base"><i class="fas fa-minus"></i></span>
+                    <span class="text-xl sm:text-2xl font-bold leading-tight" id="stat-unattempted">19</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">ยังไม่ได้เริ่ม</span>
                 </div>
             </section>
 
             <!-- Countdown Timer -->
-            <section class="surface-panel p-5 text-center relative overflow-hidden group lg:col-span-1 order-4 lg:order-3 flex flex-col justify-center h-full">
+            <section class="surface-panel py-3 px-4 sm:p-5 text-center relative overflow-hidden group lg:col-span-1 order-4 lg:order-3 flex flex-col justify-center h-full">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[var(--color-warning)] to-transparent opacity-10 rounded-bl-full -z-10"></div>
-                <h2 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">นับถอยหลังสู่วันสอบ YRU TEP</h2>
-                <div class="flex justify-center items-end gap-3 sm:gap-6" id="countdown-display">
-                    <div class="flex flex-col"><span id="cd-days" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black">00</span><span class="text-xs text-[var(--text-muted)] font-medium">วัน</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
-                    <div class="flex flex-col"><span id="cd-hours" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black">00</span><span class="text-xs text-[var(--text-muted)] font-medium">ชม.</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
-                    <div class="flex flex-col"><span id="cd-mins" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black">00</span><span class="text-xs text-[var(--text-muted)] font-medium">นาที</span></div>
+                <h2 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 sm:mb-3">นับถอยหลังสู่วันสอบ YRU TEP</h2>
+                <div class="flex justify-center items-end gap-2 sm:gap-6" id="countdown-display">
+                    <div class="flex flex-col"><span id="cd-days" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">วัน</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
+                    <div class="flex flex-col"><span id="cd-hours" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">ชม.</span></div><span class="text-2xl font-bold opacity-30 pb-4">:</span>
+                    <div class="flex flex-col"><span id="cd-mins" class="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black leading-none">00</span><span class="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium mt-1">นาที</span></div>
                 </div>
-                <div class="mt-4 text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center">3 ตุลาคม 2026</div>
+                <div class="mt-2 sm:mt-4 text-[10px] sm:text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center">3 ตุลาคม 2026</div>
             </section>
 
             <!-- Main Navigation Modes -->
-            <section class="lg:col-span-3 order-5 mt-2">
-                <div class="flex items-end justify-between mb-4 px-2">
+            <section class="lg:col-span-3 order-5 mt-1 sm:mt-2">
+                <div class="flex items-end justify-between mb-3 sm:mb-4 px-1 sm:px-2">
                     <div>
-                        <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">เลือกโหมดการฝึกฝน</h3>
-                        <p class="text-xs text-[var(--text-muted)] opacity-80 mt-0.5">เลือกบทเรียนเพื่อเริ่มเก็บคะแนนความคืบหน้า</p>
+                        <h3 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">เลือกโหมดการฝึกฝน</h3>
+                        <p class="text-[10px] sm:text-xs text-[var(--text-muted)] opacity-80 mt-0.5">เลือกบทเรียนเพื่อเริ่มเก็บคะแนนความคืบหน้า</p>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                     
-                    <!-- Card 1: คลังอาวุธ (Main) -->
-                    <button onclick="navigateTo('view-flashcards')" class="surface-panel p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-5 sm:gap-6 btn-hover-effect text-left group hover:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] w-full text-inherit h-full md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-br from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 shadow-sm hover:shadow-md">
+                    <!-- Card 1: คลังอาวุธ (Main) - Highlighted on Desktop -->
+                    <button onclick="navigateTo('view-flashcards')" class="surface-panel p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-3 sm:gap-5 lg:gap-6 btn-hover-effect text-left group hover:border-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] w-full text-inherit h-full lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-br from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 shadow-sm hover:shadow-md">
                         <!-- Background Decoration -->
                         <div class="absolute -right-8 -bottom-8 text-[var(--color-primary)] opacity-5 transition-transform group-hover:scale-110 group-hover:rotate-12 duration-700 pointer-events-none">
                             <i class="fas fa-brain text-9xl"></i>
                         </div>
                         
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl sm:rounded-3xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[var(--color-primary)] text-3xl sm:text-4xl lg:text-5xl shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
+                        <div class="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl sm:rounded-3xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[var(--color-primary)] text-2xl sm:text-4xl lg:text-5xl shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-brain"></i>
                         </div>
                         
                         <div class="flex-1 relative z-10 w-full text-center sm:text-left">
-                            <div class="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[10px] sm:text-xs font-bold rounded-full mb-3 uppercase tracking-wide shadow-sm">แนะนำสำหรับคุณ</div>
-                            <h4 class="font-bold text-xl sm:text-2xl lg:text-3xl leading-tight text-[var(--color-primary)] group-hover:text-[var(--color-primary-hover)] transition-colors">คลังอาวุธ (ทริคจำ)</h4>
-                            <p class="text-sm sm:text-base lg:text-lg text-[var(--text-muted)] mt-2 leading-relaxed max-w-md mx-auto sm:mx-0">ท่องจุดตาย Grammar 19 ข้อ พร้อมเทคนิคที่ออกสอบบ่อยที่สุด ดึงคะแนนได้ทันที</p>
+                            <div class="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-[var(--color-primary)] text-white text-[9px] sm:text-[10px] lg:text-xs font-bold rounded-full mb-2 sm:mb-3 uppercase tracking-wide shadow-sm">แนะนำสำหรับคุณ</div>
+                            <h4 class="font-bold text-lg sm:text-2xl lg:text-3xl leading-tight text-[var(--color-primary)] group-hover:text-[var(--color-primary-hover)] transition-colors">คลังอาวุธ (ทริคจำ)</h4>
+                            <p class="text-xs sm:text-base lg:text-lg text-[var(--text-muted)] mt-1 sm:mt-2 leading-relaxed max-w-md mx-auto sm:mx-0">ท่องจุดตาย Grammar 19 ข้อ พร้อมเทคนิคที่ออกสอบบ่อยที่สุด ดึงคะแนนได้ทันที</p>
                         </div>
                         
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 shrink-0 relative z-10 mt-4 sm:mt-0 shadow-sm group-hover:shadow-md group-active:scale-95">
-                            <i class="fas fa-arrow-right text-sm sm:text-base"></i>
+                        <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 shrink-0 relative z-10 mt-3 sm:mt-0 shadow-sm group-hover:shadow-md group-active:scale-95">
+                            <i class="fas fa-arrow-right text-xs sm:text-sm lg:text-base"></i>
                         </div>
                     </button>
         
                     <!-- Card 2: ห้องซ้อมรบ -->
-                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-4 sm:p-5 flex items-center gap-4 btn-hover-effect text-left group hover:border-[var(--color-secondary)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-purple-50/40 dark:to-purple-900/10 shadow-sm relative overflow-hidden">
-                        <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-[var(--color-secondary)] text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
+                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-secondary)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-purple-50/40 dark:to-purple-900/10 shadow-sm relative overflow-hidden">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-[var(--color-secondary)] text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-dumbbell"></i>
                         </div>
                         <div class="flex-1 relative z-10">
-                            <h4 class="font-bold text-base sm:text-lg leading-tight group-hover:text-[var(--color-secondary)] transition-colors">ห้องซ้อมรบ</h4>
-                            <p class="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">ตะลุยโจทย์แยกพาร์ท</p>
-                            <div class="flex gap-1.5 mt-2 flex-wrap">
-                                <span class="text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-headphones text-[8px]"></i> Listening</span>
-                                <span class="text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-book-reader text-[8px]"></i> Reading</span>
+                            <h4 class="font-bold text-sm sm:text-base lg:text-lg leading-tight group-hover:text-[var(--color-secondary)] transition-colors">ห้องซ้อมรบ</h4>
+                            <p class="text-[10px] sm:text-xs lg:text-sm text-[var(--text-muted)] mt-0.5">ตะลุยโจทย์แยกพาร์ท</p>
+                            <div class="flex gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
+                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-headphones text-[8px]"></i> Listening</span>
+                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-book-reader text-[8px]"></i> Reading</span>
                             </div>
                         </div>
-                        <i class="fas fa-lock text-[var(--border-color)] group-hover:text-[var(--color-secondary)] transition-colors relative z-10"></i>
+                        <i class="fas fa-lock text-xs sm:text-sm text-[var(--border-color)] group-hover:text-[var(--color-secondary)] transition-colors relative z-10"></i>
                     </button>
         
                     <!-- Card 3: ลงสนามจริง -->
-                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-4 sm:p-5 flex items-center gap-4 btn-hover-effect text-left group hover:border-[var(--color-warning)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10 shadow-sm relative overflow-hidden">
-                        <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-[var(--color-warning)] text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
+                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-3.5 sm:p-5 flex items-center gap-3 sm:gap-4 btn-hover-effect text-left group hover:border-[var(--color-warning)] opacity-95 hover:opacity-100 w-full text-inherit h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10 shadow-sm relative overflow-hidden">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-[var(--color-warning)] text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10">
                             <i class="fas fa-trophy"></i>
                         </div>
                         <div class="flex-1 relative z-10">
-                            <h4 class="font-bold text-base sm:text-lg leading-tight group-hover:text-[var(--color-warning)] transition-colors">ลงสนามจริง</h4>
-                            <p class="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">ข้อสอบเสมือนจริง 90 ข้อ</p>
-                            <div class="flex gap-1.5 mt-2 flex-wrap">
-                                <span class="text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-stopwatch text-[8px]"></i> 120 นาที</span>
-                                <span class="text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
+                            <h4 class="font-bold text-sm sm:text-base lg:text-lg leading-tight group-hover:text-[var(--color-warning)] transition-colors">ลงสนามจริง</h4>
+                            <p class="text-[10px] sm:text-xs lg:text-sm text-[var(--text-muted)] mt-0.5">ข้อสอบเสมือนจริง 90 ข้อ</p>
+                            <div class="flex gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
+                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-stopwatch text-[8px]"></i> 120 นาที</span>
+                                <span class="text-[9px] sm:text-[10px] font-semibold text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 sm:px-2 py-0.5 rounded flex items-center gap-1"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
                             </div>
                         </div>
-                        <i class="fas fa-lock text-[var(--border-color)] group-hover:text-[var(--color-warning)] transition-colors relative z-10"></i>
+                        <i class="fas fa-lock text-xs sm:text-sm text-[var(--border-color)] group-hover:text-[var(--color-warning)] transition-colors relative z-10"></i>
                     </button>
 
                 </div>
@@ -534,7 +535,7 @@
             </div>
             <h2 class="text-xl sm:text-2xl font-bold mb-2">กำลังก่อสร้าง</h2>
             <p class="text-[var(--text-muted)] text-sm sm:text-base mb-8 max-w-xs mx-auto">ฟีเจอร์นี้กำลังอยู่ในระหว่างการพัฒนา จะเปิดให้ใช้งานในเร็วๆ นี้ครับ</p>
-            <button onclick="goBack()" class="px-6 py-3 bg-[var(--text-main)] text-[var(--bg-main)] rounded-xl font-bold btn-hover-effect shadow-lg">
+            <button onclick="goBack()" class="px-6 py-3 bg-[var(--text-main)] text-[var(--bg-main)] rounded-xl font-bold btn-hover-effect shadow-lg min-h-[48px]">
                 <i class="fas fa-arrow-left mr-2"></i> กลับหน้าหลัก
             </button>
         </main>
@@ -572,7 +573,7 @@
         let appState = {
             schemaVersion: 2,
             currentCardIndex: 0,
-            flippedCardId: null, // Kept to respect prompt constraint
+            flippedCardId: null,
             cardProgress: {},
             theme: 'system',
             updatedAt: null
@@ -604,7 +605,6 @@
             try {
                 let raw = localStorage.getItem(STORAGE_KEY);
                 
-                // Migration from v1
                 if (!raw) {
                     const oldRaw = localStorage.getItem('yru_tep_state_v1') || localStorage.getItem('yru_tep_state');
                     if (oldRaw) {
@@ -616,7 +616,6 @@
 
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    // Merge and validate
                     if (parsed.currentCardIndex !== undefined) {
                         appState.currentCardIndex = Math.min(Math.max(0, Number(parsed.currentCardIndex) || 0), flashcardsData.length - 1);
                     }
@@ -681,7 +680,6 @@
 
         // ================= 4. Dashboard Rendering =================
         function renderDashboard() {
-            // Greeting
             const hour = new Date().getHours();
             let greeting = 'สวัสดี';
             if (hour >= 5 && hour < 12) greeting = 'อรุณสวัสดิ์';
@@ -690,13 +688,12 @@
             const greetEl = document.getElementById('greeting-text');
             if (greetEl) greetEl.textContent = greeting;
 
-            // Compute Stats
             const total = flashcardsData.length;
             let mastered = 0, learning = 0, unsure = 0;
             
             Object.keys(appState.cardProgress).forEach(key => {
                 const k = parseInt(key);
-                if (k >= total) return; // Prevent counting invalid indexes
+                if (k >= total) return; 
                 const status = appState.cardProgress[key];
                 if (status === 'mastered') mastered++;
                 else if (status === 'learning') learning++;
@@ -705,7 +702,6 @@
             const unattempted = total - (mastered + learning + unsure);
             const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
-            // Update DOM Stats
             const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
             safeSetText('stat-mastered', mastered);
             safeSetText('stat-learning', learning);
@@ -714,13 +710,10 @@
             safeSetText('progress-percentage', `${percentage}%`);
             safeSetText('progress-fraction', `${mastered}/${total} จำได้แล้ว`);
 
-            // Update SVG Ring
             const ring = document.getElementById('progress-ring-circle');
             if (ring) {
-                // Ensure length is 100 max
                 const dashVal = Math.min(percentage, 100);
                 ring.setAttribute('stroke-dasharray', `${dashVal}, 100`);
-                // Color adjustment based on percentage
                 let ringColor = 'var(--color-primary)';
                 if (dashVal === 100) ringColor = 'var(--color-success)';
                 ring.style.stroke = ringColor;
@@ -729,7 +722,6 @@
             const ringContainer = document.getElementById('progress-ring-container');
             if (ringContainer) ringContainer.setAttribute('aria-valuenow', percentage);
 
-            // Update Continue Button
             const btnContinue = document.getElementById('btn-continue-learning');
             if (btnContinue) {
                 if (Object.keys(appState.cardProgress).length === 0 && appState.currentCardIndex === 0) {
@@ -760,6 +752,7 @@
             setupKeyboardListeners();
             initCountdown();
             renderDashboard();
+            applyTheme();
             
             showView('view-lobby', true);
             ensureCardFrontAndLoad(appState.currentCardIndex, true);
@@ -869,7 +862,6 @@
         }
 
         function populateCardData(index) {
-            // Safety bound clamp
             if (index < 0 || index >= flashcardsData.length) {
                 index = 0;
                 appState.currentCardIndex = 0;
@@ -955,7 +947,6 @@
             const btnMastered = document.getElementById('btn-mastered');
             
             if(btnUnsure && btnLearning && btnMastered){
-                // Reset all
                 [btnUnsure, btnLearning, btnMastered].forEach(btn => {
                     btn.setAttribute('aria-pressed', 'false');
                     btn.classList.remove('ring-2', 'ring-offset-0');
@@ -963,7 +954,6 @@
                     btn.style.backgroundColor = 'var(--bg-surface-solid)';
                 });
 
-                // Apply active state styles safely with tokens
                 if (status === 'unsure') {
                     btnUnsure.setAttribute('aria-pressed', 'true');
                     btnUnsure.classList.add('ring-2', 'ring-[var(--color-danger)]');
@@ -1047,7 +1037,7 @@
                 currentCardIndex: 0,
                 flippedCardId: null,
                 cardProgress: {},
-                theme: appState.theme, // Retain theme preference
+                theme: appState.theme,
                 updatedAt: Date.now()
             };
             closeResetModal();
