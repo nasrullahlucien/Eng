@@ -628,21 +628,14 @@
                 </div>
             </section>
 
-            <!-- Export / Import Section (V1.1 Offline Tools) -->
-            <section class="lg:col-span-3 order-6 mt-2">
-                <div class="surface-panel p-4 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--text-muted)]"><i class="fas fa-database"></i></div>
-                        <div>
-                            <h3 class="font-bold text-sm">การจัดการข้อมูล</h3>
-                            <p class="text-xs text-[var(--text-muted)]">สำรองและกู้คืนความคืบหน้า (ออฟไลน์)</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <button onclick="exportData()" class="flex-1 sm:flex-none px-4 py-2 bg-[var(--bg-surface-solid)] border border-[var(--border-color)] hover:border-[var(--color-primary)] text-[var(--text-main)] rounded-lg text-xs font-bold transition-all shadow-sm"><i class="fas fa-download mr-1"></i> สำรองข้อมูล</button>
-                        <button onclick="document.getElementById('import-file-input').click()" class="flex-1 sm:flex-none px-4 py-2 bg-[var(--bg-surface-solid)] border border-[var(--border-color)] hover:border-[var(--color-primary)] text-[var(--text-main)] rounded-lg text-xs font-bold transition-all shadow-sm"><i class="fas fa-upload mr-1"></i> กู้คืนข้อมูล</button>
-                        <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
-                    </div>
+            <!-- Export / Import Section (V1.1 Offline Tools) - ยุบเป็นแคปซูลเล็ก -->
+            <section class="lg:col-span-3 order-6 mt-4 mb-2 flex justify-center lg:justify-start">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-surface)] opacity-50 hover:opacity-100 transition-opacity shadow-sm backdrop-blur-sm cursor-default">
+                    <span class="text-[10px] font-bold text-[var(--text-muted)] tracking-wide"><i class="fas fa-database mr-1"></i> ข้อมูลออฟไลน์</span>
+                    <div class="w-px h-3 bg-[var(--text-muted)] opacity-30"></div>
+                    <button onclick="exportData()" class="text-[10px] font-semibold text-[var(--text-main)] hover:text-[var(--color-primary)] transition-colors"><i class="fas fa-download mr-1"></i> สำรอง</button>
+                    <button onclick="document.getElementById('import-file-input').click()" class="text-[10px] font-semibold text-[var(--text-main)] hover:text-[var(--color-primary)] transition-colors"><i class="fas fa-upload mr-1"></i> กู้คืน</button>
+                    <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
                 </div>
             </section>
         </main>
