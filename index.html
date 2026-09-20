@@ -378,13 +378,13 @@
 
             <section class="surface-panel p-4 sm:p-5 md:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
                 <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-5"><i class="fas fa-graduation-cap text-9xl"></i></div>
-                <div class="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 relative flex-shrink-0" role="progressbar" id="progress-ring-container">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 relative flex-shrink-0" role="progressbar" id="progress-ring-container">
                     <svg viewBox="0 0 36 36" class="circular-chart w-full h-full drop-shadow-sm">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                         <path id="progress-ring-circle" class="circle stroke-[var(--color-primary)]" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-xl sm:text-2xl lg:text-3xl font-bold" id="progress-percentage">0%</span>
+                        <span class="text-lg sm:text-xl lg:text-3xl font-bold" id="progress-percentage">0%</span>
                     </div>
                 </div>
                 <div class="flex-1 text-center sm:text-left z-10 w-full flex flex-col justify-center">
@@ -434,7 +434,7 @@
                             <h4 class="font-bold text-base lg:text-lg">ห้องซ้อมรบ</h4>
                             <p class="text-xs text-[var(--text-muted)] mt-1 mb-2">ตะลุยโจทย์แยกพาร์ท</p>
                             <div class="flex gap-1.5 flex-wrap justify-center lg:justify-start">
-                                <span class="text-[9px] text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium"><i class="fas fa-check text-[8px]"></i> Grammar & Cloze</span>
+                                <span class="text-[9px] text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium"><i class="fas fa-check text-[8px]"></i> Grammar & Error</span>
                             </div>
                         </div>
                     </button>
@@ -552,7 +552,7 @@
                 <button onclick="startQuiz('grammar')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all overflow-hidden relative">
                     <div class="flex items-center gap-4 relative z-10">
                         <div class="w-12 h-12 rounded-xl bg-[var(--color-secondary)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-secondary)] group-hover:text-white text-xl"><i class="fas fa-spell-check"></i></div>
-                        <div><h4 class="font-bold text-lg">Grammar & Structure</h4><p class="text-xs opacity-70">ข้อสอบ 20 ข้อ (จับคู่ Flashcard)</p></div>
+                        <div><h4 class="font-bold text-lg">Grammar & Structure</h4><p class="text-xs opacity-70">ข้อสอบ 20 ข้อ (สุ่มช้อยส์)</p></div>
                     </div>
                     <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
                 </button>
@@ -564,10 +564,18 @@
                     </div>
                     <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
                 </button>
+
+                <button onclick="startQuiz('error')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-danger)] hover:bg-[var(--color-danger)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-danger)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-danger)] group-hover:text-white text-xl"><i class="fas fa-search"></i></div>
+                        <div><h4 class="font-bold text-lg">Error Identification</h4><p class="text-xs opacity-70">หาจุดผิด 15 ข้อ (A, B, C, D)</p></div>
+                    </div>
+                    <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
+                </button>
             </div>
         </main>
 
-        <!-- ================= VIEW 4: QUIZ (Grammar) ================= -->
+        <!-- ================= VIEW 4: QUIZ (Grammar & Error) ================= -->
         <main id="view-quiz" class="hidden flex-1 flex flex-col fade-in max-w-2xl mx-auto w-full">
             <header class="flex justify-between items-center mb-4">
                 <button onclick="abortQuiz()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--color-danger)] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors btn-hover-effect"><i class="fas fa-times"></i></button>
@@ -656,7 +664,7 @@
             // หมวด Grammar (0 - 18)
             { category: 'grammar', front: "มีคำเชื่อม and หรือ or คั่นกลาง", back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(เช่น Noun คู่ Noun, V.ing คู่ V.ing)", hint: "Parallelism (อ้างอิงข้อ 2, 8, 21, 26, 32)" },
             { category: 'grammar', front: "ประธานทำกริยาเองไม่ได้", back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ", hint: "Passive Voice (อ้างอิงข้อ 3, 11, 17, 27)" },
-            { category: 'grammar', front: "โครงสร้าง Not only A but also B", back: "กริยาผันตาม 'ประธาน B' (ตัวหลังสุด)\nและแปลว่า 'ไม่เพียงแต่...แต่อีกด้วย'", hint: "Correlative Conjunction (อ้างอิงข้อ 8)" },
+            { category: 'grammar', front: "โครงสร้าง Not only A but also B", back: "กริยาผันตาม 'ประธาน B' (ตัวหลังสุด)\nและแปลว่า 'ไม่เพียงแต่...แต่อีกด้วย'", hint: "Correlative Conjunction (อ้างอิงข้อ 8, 50)" },
             { category: 'grammar', front: "เจอคำว่า By the time", back: "จับคู่กับ Future Perfect\n(will have + V.3)", hint: "Tense & Time Marker (อ้างอิงข้อ 4)" },
             { category: 'grammar', front: "ระบุปีในอดีตชัดเจน\n(เช่น In 2022)", back: "ใช้ Past Simple (V.2)", hint: "Tense & Time Marker (อ้างอิงข้อ 6)" },
             { category: 'grammar', front: "ประโยคหนึ่งใช้ช่อง 2 (อดีต)", back: "อีกประโยคต้องเป็น อดีต (V.2)\nให้สอดคล้องกัน", hint: "Sequence of Tenses (อ้างอิงข้อ 10, 15)" },
@@ -675,22 +683,22 @@
             { category: 'grammar', front: "ประโยคหลักเป็น would have + V.3", back: "ประโยค If ต้องเป็น Past Perfect\n(had + V.3)", hint: "If-clause Type 3 (อ้างอิงข้อ 19)" },
             
             // หมวด Error Identification (19 - 31)
-            { category: 'error', front: "เจอ more higher หรือ more bigger", back: "ผิด! ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด\n(ต้องแก้เป็น higher / bigger)", hint: "Double Comparative" },
-            { category: 'error', front: "ประธานคือ Cinnamon หรือ Japan (เอกพจน์)\nแต่กริยาใช้ have หรือ are", back: "ผิด! ประธานเอกพจน์ต้องใช้กริยาเอกพจน์\n(ต้องแก้เป็น has หรือ is)", hint: "Subject-Verb Agreement" },
-            { category: 'error', front: "ประธานคือ Nocturnal bats (พหูพจน์เติม s)\nแต่ใช้สรรพนาม its", back: "ผิด! ค้างคาวหลายตัวต้องใช้สรรพนาม their\n(ของพวกมัน)", hint: "Pronoun Agreement" },
-            { category: 'error', front: "ประธานหลักคือ Per capita income (รายได้ - นับไม่ได้)\nแต่เผลอดูคำขยายข้างหลังแล้วใช้กริยา are", back: "ผิด! นามนับไม่ได้คือเอกพจน์\nต้องใช้ is เสมอ", hint: "Subject-Verb Agreement" },
-            { category: 'error', front: "เจอ If you... (เงื่อนไขแบบที่ 1)\nแต่ตามด้วยกริยาอดีต เช่น got ill", back: "ผิด! ประโยคเงื่อนไขที่เป็นจริงได้ต้องใช้ Present Simple V.1\n(ต้องแก้เป็น get ill)", hint: "If-clause Type 1" },
-            { category: 'error', front: "โครงสร้าง need to...\nแต่ตามด้วยคำนาม เช่น response", back: "ผิด! หลัง to ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น respond)", hint: "Infinitive with to" },
-            { category: 'error', front: "ตัวเลข five ตามด้วยคำนามเอกพจน์ person", back: "ผิด! 5 คนต้องตามด้วยนามพหูพจน์\n(ต้องแก้เป็น people)", hint: "Plural Nouns" },
-            { category: 'error', front: "โครงสร้าง Present Perfect (has/have)\nแต่ตามด้วย V.2 เช่น became", back: "ผิด! หลัง has/have ต้องเป็น V.3 เสมอ\n(ต้องแก้เป็น become)", hint: "Present Perfect Tense" },
-            { category: 'error', front: "หน้าคำนาม (chemicals)\nขยายด้วย Adverb ที่ลงท้ายด้วย -ly (harshly)", back: "ผิด! หน้าคำนามต้องเป็น Adjective เท่านั้น\n(ต้องแก้เป็น harsh)", hint: "Adjective vs Adverb" },
-            { category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism" },
-            { category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf" },
-            { category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident) โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism" },
-            { category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix" }
+            { category: 'error', front: "เจอ more higher หรือ more bigger", back: "ผิด! ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด\n(ต้องแก้เป็น higher / bigger)", hint: "Double Comparative (อ้างอิงข้อ 36, 48)" },
+            { category: 'error', front: "ประธานคือ Cinnamon หรือ Japan (เอกพจน์)\nแต่กริยาใช้ have หรือ are", back: "ผิด! ประธานเอกพจน์ต้องใช้กริยาเอกพจน์\n(ต้องแก้เป็น has หรือ is)", hint: "Subject-Verb Agreement (อ้างอิงข้อ 38, 45)" },
+            { category: 'error', front: "ประธานคือ Nocturnal bats (พหูพจน์เติม s)\nแต่ใช้สรรพนาม its", back: "ผิด! ค้างคาวหลายตัวต้องใช้สรรพนาม their\n(ของพวกมัน)", hint: "Pronoun Agreement (อ้างอิงข้อ 40)" },
+            { category: 'error', front: "ประธานหลักคือ Per capita income (รายได้ - นับไม่ได้)\nแต่เผลอดูคำขยายข้างหลังแล้วใช้กริยา are", back: "ผิด! นามนับไม่ได้คือเอกพจน์\nต้องใช้ is เสมอ", hint: "Subject-Verb Agreement (อ้างอิงข้อ 43)" },
+            { category: 'error', front: "เจอ If you... (เงื่อนไขแบบที่ 1)\nแต่ตามด้วยกริยาอดีต เช่น got ill", back: "ผิด! ประโยคเงื่อนไขที่เป็นจริงได้ต้องใช้ Present Simple V.1\n(ต้องแก้เป็น get ill)", hint: "If-clause Type 1 (อ้างอิงข้อ 37)" },
+            { category: 'error', front: "โครงสร้าง need to...\nแต่ตามด้วยคำนาม เช่น response", back: "ผิด! หลัง to ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น respond)", hint: "Infinitive with to (อ้างอิงข้อ 39)" },
+            { category: 'error', front: "ตัวเลข five ตามด้วยคำนามเอกพจน์ person", back: "ผิด! 5 คนต้องตามด้วยนามพหูพจน์\n(ต้องแก้เป็น people)", hint: "Plural Nouns (อ้างอิงข้อ 41)" },
+            { category: 'error', front: "โครงสร้าง Present Perfect (has/have)\nแต่ตามด้วย V.2 เช่น became", back: "ผิด! หลัง has/have ต้องเป็น V.3 เสมอ\n(ต้องแก้เป็น become)", hint: "Present Perfect Tense (อ้างอิงข้อ 42)" },
+            { category: 'error', front: "หน้าคำนาม (chemicals)\nขยายด้วย Adverb ที่ลงท้ายด้วย -ly (harshly)", back: "ผิด! หน้าคำนามต้องเป็น Adjective เท่านั้น\n(ต้องแก้เป็น harsh)", hint: "Adjective vs Adverb (อ้างอิงข้อ 44)" },
+            { category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism (อ้างอิงข้อ 46)" },
+            { category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf (อ้างอิงข้อ 47)" },
+            { category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident) โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
+            { category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" }
         ];
 
-        const quizData = [
+        const grammarQuizData = [
             { q: "1. Blocking some people on Facebook not only prevents them from contacting or communicating with you, but it also ________ you invisible to them - like Harry Potter's magic cloak.", options: ["make", "makes", "is made", "have made"], ans: 1, exp: "จุดตาย: โครงสร้าง Not only... but also กริยาคล้อยตามประธานหลัง (it) จึงต้องเติม -s (makes)" },
             { q: "2. Students who are motivated can produce higher quality effort, learn more deeply, and ________ better in classes and on proficiency tests.", options: ["perform", "performing", "to perform", "are performing"], ans: 0, exp: "จุดตาย: Parallelism หน้า and เป็น V.inf (produce, learn) หลัง and ก็ต้องเป็น V.inf (perform)" },
             { q: "3. According to the news, two men ________ buyer.", options: ["arrested", "are arresting", "were arrested", "would arrest"], ans: 2, exp: "จุดตาย: ผู้ชายสองคนถูกจับ (ประธานทำกริยาเองไม่ได้) ต้องใช้ Passive Voice (Verb to be + V.3) และเป็นอดีต (were arrested)" },
@@ -711,6 +719,24 @@
             { q: "18. In fact, there are slight differences between type and kind, but ________ can often be used interchangeably, especially when talking about food", options: ["it", "they", "theirs", "them"], ans: 1, exp: "จุดตาย: สรรพนามทำหน้าที่ประธาน แทนคำนามพหูพจน์ (differences) ต้องใช้ they" },
             { q: "19. If the committee ________ any scientific evidence, they wouldn't have changed the regulations to allow men to compete with women.", options: ["reviews", "have reviewed", "was reviewing", "had reviewed"], ans: 3, exp: "จุดตาย: ประโยคหลักเป็น wouldn't have + V.3 แสดงว่าเป็น If-clause type 3 ประโยค If ต้องเป็น Past Perfect (had + V.3)" },
             { q: "20. Apples, rich in vitamins, minerals, and fiber, ________ an incredibly nutritious fruit that offers multiple health benefits.", options: ["is", "are", "have", "has"], ans: 1, exp: "ความสอดคล้อง: ประธานคือ Apples (พหูพจน์) ส่วนที่คั่นจุลภาคเป็นแค่ส่วนขยาย กริยาแท้ต้องสอดคล้องกับพหูพจน์คือ are" }
+        ];
+
+        const errorQuizData = [
+            { q: "36. (A) Most types of instant noodles (B) tend to be low in calories, fiber and protein, with (C) more higher (D) amounts of fat, carbs, sodium and select micronutrients.", options: ["Most types", "tend to be", "more higher", "amounts of fat"], ans: 2, exp: "จุดตาย: more higher (แก้ไขเป็น higher) - ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด (Double Comparative)" },
+            { q: "37. Steroid treatment can stop the body producing (A) natural hormones, (B) which can be (C) dangerous if you (D) got ill, have an accident or need an operation.", options: ["natural hormones", "which can be", "dangerous", "got ill"], ans: 3, exp: "จุดตาย: got ill (แก้ไขเป็น get ill) - ประโยคเงื่อนไข If-clause Type 1 ที่เป็นความจริงทั่วไป ต้องใช้ Present Simple (V.1)" },
+            { q: "38. Cinnamon has (A) potent antioxidant activity, (B) helps fight inflammation and (C) have been shown (D) to lower cholesterol and triglycerides in the blood.", options: ["potent antioxidant", "helps fight", "have been shown", "to lower cholesterol"], ans: 2, exp: "จุดตาย: have been shown (แก้ไขเป็น has been shown) - ประธานคือ Cinnamon เป็นเอกพจน์ กริยาต้องใช้ has (Subject-Verb Agreement)" },
+            { q: "39. If you want to get (A) more views on YouTube, you need (B) to response to viewer comments, (C) create video playlists, design attention-grabbing thumbnails (D) and more.", options: ["more views", "to response", "create video", "and more"], ans: 1, exp: "จุดตาย: to response (แก้ไขเป็น to respond) - โครงสร้าง need to ต้องตามด้วยกริยาช่อง 1 (Infinitive) แต่ response เป็นคำนาม" },
+            { q: "40. Nocturnal bats find (A) its food by using sound, (B) while some snakes (C) hunt by sensing body (D) warmth.", options: ["its food", "while some", "hunt by sensing", "warmth"], ans: 0, exp: "จุดตาย: its food (แก้ไขเป็น their food) - ค้างคาว (bats) เป็นพหูพจน์ สรรพนามแสดงความเป็นเจ้าของต้องใช้ their (Pronoun Agreement)" },
+            { q: "41. A deep-sea submersible (A) carrying five (B) person on a voyage to the century-old wreck of the Titanic (C) was found in pieces from a catastrophic implosion that (D) killed everyone aboard.", options: ["carrying five", "person", "was found in pieces", "killed everyone"], ans: 1, exp: "จุดตาย: person (แก้ไขเป็น people) - ตัวเลข 5 ต้องตามด้วยคำนามพหูพจน์ (Plural Nouns)" },
+            { q: "42. Social welfare is an (A) essential service system for (B) the elderly in Thailand, (C) especially when Thailand (D) has became an 'Aging Society'.", options: ["essential service", "the elderly", "especially", "has became"], ans: 3, exp: "จุดตาย: has became (แก้ไขเป็น has become) - โครงสร้าง Present Perfect (has/have + V.3) กริยาช่อง 3 ของ become คือ become (ไม่ใช่ became)" },
+            { q: "43. Per capita income of (A) all the countries (B) are calculated in dollars because US dollar (C) is considered (D) as the medium of international exchange.", options: ["all the countries", "are calculated", "is considered", "as the medium"], ans: 1, exp: "จุดตาย: are calculated (แก้ไขเป็น is calculated) - ประธานหลักคือ Per capita income (รายได้) เป็นนามนับไม่ได้ถือเป็นเอกพจน์ ต้องใช้ is" },
+            { q: "44. Shampoos containing (A) harshly chemicals can strip off the natural oils from your scalp and hair, (B) so wash your hair (C) less often and use shampoos that (D) suit your hair type.", options: ["harshly", "so wash your hair", "less often", "suit your hair"], ans: 0, exp: "จุดตาย: harshly (แก้ไขเป็น harsh) - หน้าคำนาม (chemicals) ต้องขยายด้วย Adjective ไม่ใช่ Adverb (-ly)" },
+            { q: "45. Japan, (A) one of the world's most literate and (B) technically advanced countries, (C) are an East Asian archipelago country (D) made up of four primary islands and more than 6,800 others.", options: ["one of the world's", "technically advanced", "are an", "made up of"], ans: 2, exp: "จุดตาย: are an (แก้ไขเป็น is an) - ประธานของประโยคคือ Japan (เอกพจน์) ดังนั้นกริยาต้องใช้ is" },
+            { q: "46. If you (A) drank alcohol or smoke cigarettes (B) while you're pregnant, you (C) can put your unborn baby's health (D) at risk, as well as your own.", options: ["drank", "while you're", "can put your", "at risk"], ans: 0, exp: "จุดตาย: drank (แก้ไขเป็น drink) - โครงสร้างคู่ขนาน (Parallelism) เชื่อมด้วย or ข้างหลังเป็น smoke (V.1) ข้างหน้าก็ต้องเป็น drink (V.1)" },
+            { q: "47. Education helps you (A) development a variety of (B) skills (C) like decision-making, problem-solving, or logical and critical (D) thinking.", options: ["development", "skills", "like decision-making", "thinking"], ans: 0, exp: "จุดตาย: development (แก้ไขเป็น develop) - โครงสร้าง help someone... ต้องตามด้วยกริยาช่อง 1 (V.inf) แต่ development เป็นคำนาม" },
+            { q: "48. Planetary researchers (A) have found that the Lava tubes on Mars and the Moon are up to 1,000 times (B) more bigger than (C) those on the Earth, and can host entire planetary bases (D) for future space exploration.", options: ["have found", "more bigger", "those on the Earth", "for future"], ans: 1, exp: "จุดตาย: more bigger (แก้ไขเป็น bigger) - เป็นการใช้ขั้นกว่าซ้ำซ้อน (Double Comparative) คำที่เติม -er แล้วห้ามใส่ more" },
+            { q: "49. From their (A) disconditional love to their ability (B) to combat loneliness and teach empathy, pets (C) provide physical, mental and emotional benefits (D) which can help their owners be better people.", options: ["disconditional", "to combat", "provide physical", "which can help"], ans: 0, exp: "จุดตาย: disconditional (แก้ไขเป็น unconditional) - เป็นการใช้ Prefix ผิดความหมาย คำว่าไม่มีเงื่อนไขในภาษาอังกฤษคือ unconditional" },
+            { q: "50. (A) Not only does exercise (B) relieve depression and anxiety, (C) but it also lowers stress levels, improves (D) confident, memory and overall mood.", options: ["Not only does", "relieve depression", "but it also lowers", "confident"], ans: 3, exp: "จุดตาย: confident (แก้ไขเป็น confidence) - โครงสร้างคู่ขนาน (Parallelism) หลัง and เป็นคำนาม (memory, mood) ดังนั้นหน้า and ต้องเป็นนามด้วย" }
         ];
 
         const clozeData = [
@@ -1115,7 +1141,7 @@
             document.getElementById('learned-count').textContent = catMastered;
         }
 
-        // ================= 6. Quiz Logic (Grammar & Cloze - Randomized Options) =================
+        // ================= 6. Quiz Logic (Grammar, Error & Cloze) =================
         let currentQuizMode = null; 
         let quizIdx = 0;
         let qScore = 0;
@@ -1124,8 +1150,9 @@
         let activeClozePassageIdx = 0;
         let currentClozeAnswers = {}; 
         
-        let grammarOrder = []; 
-        let grammarOptionsMap = {}; 
+        let activeQuizData = null; // To hold either grammarQuizData or errorQuizData
+        let quizOrder = []; // Array to hold indices
+        let quizOptionsMap = {}; // Maps question index to its shuffled options array
         let clozeOptionsMap = {}; 
 
         function shuffleArray(array) {
@@ -1142,12 +1169,23 @@
             quizIdx = 0;
             qScore = 0;
             
-            if (mode === 'grammar') {
-                qTotal = quizData.length;
-                grammarOrder = Array.from({length: qTotal}, (_, i) => i);
+            if (mode === 'grammar' || mode === 'error') {
+                activeQuizData = mode === 'grammar' ? grammarQuizData : errorQuizData;
+                qTotal = activeQuizData.length;
                 
-                grammarOptionsMap = {};
-                quizData.forEach((_, i) => { grammarOptionsMap[i] = shuffleArray([0, 1, 2, 3]); });
+                // ไม่สุ่มลำดับข้อ ให้เรียงข้อ 1, 2, 3...
+                quizOrder = Array.from({length: qTotal}, (_, i) => i);
+                
+                quizOptionsMap = {};
+                activeQuizData.forEach((_, i) => { 
+                    if (mode === 'grammar') {
+                        // หมวด Grammar: สุ่มช้อยส์ได้
+                        quizOptionsMap[i] = shuffleArray([0, 1, 2, 3]); 
+                    } else {
+                        // หมวด Error: ห้ามสุ่มช้อยส์เด็ดขาด! ต้องเรียง A, B, C, D เสมอ
+                        quizOptionsMap[i] = [0, 1, 2, 3];
+                    }
+                });
                 
                 navigateTo('view-quiz');
                 renderQuizQuestion();
@@ -1183,9 +1221,9 @@
         }
 
         function renderQuizQuestion() {
-            const realQIndex = grammarOrder[quizIdx];
-            const q = quizData[realQIndex];
-            const optMap = grammarOptionsMap[realQIndex];
+            const realQIndex = quizOrder[quizIdx];
+            const q = activeQuizData[realQIndex];
+            const optMap = quizOptionsMap[realQIndex];
             
             document.getElementById('quiz-current-num').textContent = quizIdx + 1;
             document.getElementById('quiz-total-num').textContent = qTotal;
@@ -1210,9 +1248,9 @@
         }
 
         function handleQuizAnswer(renderIdx, clickedBtn) {
-            const realQIndex = grammarOrder[quizIdx];
-            const q = quizData[realQIndex];
-            const optMap = grammarOptionsMap[realQIndex];
+            const realQIndex = quizOrder[quizIdx];
+            const q = activeQuizData[realQIndex];
+            const optMap = quizOptionsMap[realQIndex];
             const selectedOrigIdx = optMap[renderIdx];
             
             const optsContainer = document.getElementById('quiz-options-container');
