@@ -546,14 +546,13 @@
                         <span class="bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide font-bold tabular-nums" id="header-pin-display">USER</span>
                     </p>
                 </div>
-                <!-- ปุ่มสลับภาษา TH/EN และ Theme -->
-                <div class="flex items-center gap-2">
-                    <button id="lang-btn" onclick="toggleLanguage()" class="theme-btn btn-hover-effect font-bold text-[10px] uppercase tracking-widest bg-[var(--color-primary)]/10 text-[var(--color-primary)]" aria-label="Toggle Language">TH</button>
-                    <div class="theme-toggle-container" role="group">
-                        <button id="theme-btn-light" onclick="setTheme('light')" class="theme-btn btn-hover-effect" aria-label="ธีมสว่าง"><i class="fas fa-sun"></i></button>
-                        <button id="theme-btn-system" onclick="setTheme('system')" class="theme-btn btn-hover-effect" aria-label="ธีมตามระบบ"><i class="fas fa-desktop"></i></button>
-                        <button id="theme-btn-dark" onclick="setTheme('dark')" class="theme-btn btn-hover-effect" aria-label="ธีมมืด"><i class="fas fa-moon"></i></button>
-                    </div>
+                <!-- ปุ่มสลับภาษา TH/EN และ Theme รวมในแคปซูลเดียวกัน -->
+                <div class="theme-toggle-container flex items-center shadow-sm" role="group">
+                    <button id="lang-btn" onclick="toggleLanguage()" class="theme-btn btn-hover-effect font-bold text-[11px] uppercase tracking-widest text-[var(--color-primary)] px-3" aria-label="Toggle Language">TH</button>
+                    <div class="w-px h-4 bg-[var(--text-muted)] opacity-30 mx-1"></div>
+                    <button id="theme-btn-light" onclick="setTheme('light')" class="theme-btn btn-hover-effect" aria-label="Light Theme"><i class="fas fa-sun"></i></button>
+                    <button id="theme-btn-system" onclick="setTheme('system')" class="theme-btn btn-hover-effect" aria-label="System Theme"><i class="fas fa-desktop"></i></button>
+                    <button id="theme-btn-dark" onclick="setTheme('dark')" class="theme-btn btn-hover-effect" aria-label="Dark Theme"><i class="fas fa-moon"></i></button>
                 </div>
             </header>
 
