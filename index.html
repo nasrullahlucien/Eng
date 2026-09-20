@@ -277,19 +277,15 @@
     <!-- ================= VIEW 0: LOGIN MODAL ================= -->
     <div id="auth-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 backdrop-blur-md transition-opacity" role="dialog" aria-modal="true">
         <div class="relative max-w-sm w-full mx-4">
-            <!-- Decorative blur elements behind the modal -->
             <div class="absolute -inset-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-[2rem] blur opacity-30 dark:opacity-20 animate-pulse" style="animation-duration: 4s;"></div>
             
             <div class="surface-solid rounded-3xl p-6 md:p-8 w-full transform transition-all shadow-2xl relative overflow-hidden border border-white/20 dark:border-white/5">
-                <!-- Top decoration glow -->
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"></div>
-                
                 <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-[0.03] dark:opacity-5 pointer-events-none transition-transform duration-1000 rotate-12 scale-110">
                     <i class="fas fa-graduation-cap text-9xl"></i>
                 </div>
                 
                 <div class="text-center relative z-10">
-                    <!-- Icon with pulse ring -->
                     <div class="relative w-20 h-20 mx-auto mb-5">
                         <div class="absolute inset-0 bg-[var(--color-primary)] rounded-2xl rotate-45 opacity-10 animate-pulse"></div>
                         <div class="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl opacity-20 shadow-inner"></div>
@@ -662,40 +658,40 @@
         // ================= 1. Data Definitions =================
         const flashcardsData = [
             // หมวด Grammar (0 - 18)
-            { category: 'grammar', front: "มีคำเชื่อม and หรือ or คั่นกลาง", back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(เช่น Noun คู่ Noun, V.ing คู่ V.ing)", hint: "Parallelism (อ้างอิงข้อ 2, 8, 21, 26, 32)" },
-            { category: 'grammar', front: "ประธานทำกริยาเองไม่ได้", back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ", hint: "Passive Voice (อ้างอิงข้อ 3, 11, 17, 27)" },
-            { category: 'grammar', front: "โครงสร้าง Not only A but also B", back: "กริยาผันตาม 'ประธาน B' (ตัวหลังสุด)\nและแปลว่า 'ไม่เพียงแต่...แต่อีกด้วย'", hint: "Correlative Conjunction (อ้างอิงข้อ 8, 50)" },
-            { category: 'grammar', front: "เจอคำว่า By the time", back: "จับคู่กับ Future Perfect\n(will have + V.3)", hint: "Tense & Time Marker (อ้างอิงข้อ 4)" },
-            { category: 'grammar', front: "ระบุปีในอดีตชัดเจน\n(เช่น In 2022)", back: "ใช้ Past Simple (V.2)", hint: "Tense & Time Marker (อ้างอิงข้อ 6)" },
-            { category: 'grammar', front: "ประโยคหนึ่งใช้ช่อง 2 (อดีต)", back: "อีกประโยคต้องเป็น อดีต (V.2)\nให้สอดคล้องกัน", hint: "Sequence of Tenses (อ้างอิงข้อ 10, 15)" },
-            { category: 'grammar', front: "เจอคำว่า While", back: "มักตามด้วย Past Continuous\n(was/were + V.ing)", hint: "Tense & Time Marker (อ้างอิงข้อ 15)" },
-            { category: 'grammar', front: "ช่องว่างอยู่หน้าหรือหลังกริยาแท้", back: "ตอบ Adverb (คำที่ลงท้ายด้วย -ly)\nเพื่อไปขยายกริยานั้น", hint: "Adverb (อ้างอิงข้อ 9, 23)" },
-            { category: 'grammar', front: "เจอคำว่า than อยู่หลังช่องว่าง", back: "ใช้ 'ขั้นกว่า'\n(เติม -er หรือ more)", hint: "Comparison (อ้างอิงข้อ 16)" },
-            { category: 'grammar', front: "เจอโครงสร้าง The more..., _____", back: "ครึ่งหลังต้องเป็น\n'the + ขั้นกว่า' (เช่น the better...)", hint: "Double Comparative (อ้างอิงข้อ 35)" },
-            { category: 'grammar', front: "ต้องการคำเชื่อมบอก 'สาเหตุ' เชิงบวก", back: "ตอบ 'thanks to'\n(เนื่องจาก/ขอบคุณที่)", hint: "Preposition (อ้างอิงข้อ 12)" },
-            { category: 'grammar', front: "ประโยคหลังมี also", back: "อาจใช้คู่กับ Not only\nหรือใช้เชื่อมความเพิ่มเติม (Moreover)", hint: "Conjunction (อ้างอิงข้อ 1, 30)" },
-            { category: 'grammar', front: "เจอคำว่า lack (ขาดแคลน)", back: "ต้องตามด้วยบุพบท 'of' เสมอ\n(lack of ...)", hint: "Preposition (อ้างอิงข้อ 29)" },
-            { category: 'grammar', front: "สรรพนามต้องแทน 'คำนามพหูพจน์'", back: "ใช้กลุ่มพหูพจน์ they\nหรือ their", hint: "Pronoun (อ้างอิงข้อ 18, 34)" },
-            { category: 'grammar', front: "สรรพนามแทน 'คน'\nและทำหน้าที่เป็นประธาน", back: "ใช้ 'who'", hint: "Relative Pronoun (อ้างอิงข้อ 28)" },
-            { category: 'grammar', front: "เจอคำว่า be likely", back: "ตามด้วย 'to + V.inf'\n(แปลว่า มีแนวโน้มที่จะ)", hint: "Infinitive (อ้างอิงข้อ 13)" },
-            { category: 'grammar', front: "เจอคำว่า enjoy", back: "ตามด้วย 'V.ing' เสมอ", hint: "Gerund (อ้างอิงข้อ 33)" },
-            { category: 'grammar', front: "หลัง Modal Verbs\n(can, will, should)", back: "ต้องเป็นกริยาไม่เปลี่ยนรูป (V.inf)\nห้ามเติม -s, -ed, -ing เด็ดขาด", hint: "Modal Verbs (อ้างอิงข้อ 25)" },
-            { category: 'grammar', front: "ประโยคหลักเป็น would have + V.3", back: "ประโยค If ต้องเป็น Past Perfect\n(had + V.3)", hint: "If-clause Type 3 (อ้างอิงข้อ 19)" },
+            { id: 'g1', category: 'grammar', front: "มีคำเชื่อม and หรือ or คั่นกลาง", back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(เช่น Noun คู่ Noun, V.ing คู่ V.ing)", hint: "Parallelism (อ้างอิงข้อ 2, 8, 21, 26, 32)" },
+            { id: 'g2', category: 'grammar', front: "ประธานทำกริยาเองไม่ได้", back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ", hint: "Passive Voice (อ้างอิงข้อ 3, 11, 17, 27)" },
+            { id: 'g3', category: 'grammar', front: "โครงสร้าง Not only A but also B", back: "กริยาผันตาม 'ประธาน B' (ตัวหลังสุด)\nและแปลว่า 'ไม่เพียงแต่...แต่อีกด้วย'", hint: "Correlative Conjunction (อ้างอิงข้อ 8, 50)" },
+            { id: 'g4', category: 'grammar', front: "เจอคำว่า By the time", back: "จับคู่กับ Future Perfect\n(will have + V.3)", hint: "Tense & Time Marker (อ้างอิงข้อ 4)" },
+            { id: 'g5', category: 'grammar', front: "ระบุปีในอดีตชัดเจน\n(เช่น In 2022)", back: "ใช้ Past Simple (V.2)", hint: "Tense & Time Marker (อ้างอิงข้อ 6)" },
+            { id: 'g6', category: 'grammar', front: "ประโยคหนึ่งใช้ช่อง 2 (อดีต)", back: "อีกประโยคต้องเป็น อดีต (V.2)\nให้สอดคล้องกัน", hint: "Sequence of Tenses (อ้างอิงข้อ 10, 15)" },
+            { id: 'g7', category: 'grammar', front: "เจอคำว่า While", back: "มักตามด้วย Past Continuous\n(was/were + V.ing)", hint: "Tense & Time Marker (อ้างอิงข้อ 15)" },
+            { id: 'g8', category: 'grammar', front: "ช่องว่างอยู่หน้าหรือหลังกริยาแท้", back: "ตอบ Adverb (คำที่ลงท้ายด้วย -ly)\nเพื่อไปขยายกริยานั้น", hint: "Adverb (อ้างอิงข้อ 9, 23)" },
+            { id: 'g9', category: 'grammar', front: "เจอคำว่า than อยู่หลังช่องว่าง", back: "ใช้ 'ขั้นกว่า'\n(เติม -er หรือ more)", hint: "Comparison (อ้างอิงข้อ 16)" },
+            { id: 'g10', category: 'grammar', front: "เจอโครงสร้าง The more..., _____", back: "ครึ่งหลังต้องเป็น\n'the + ขั้นกว่า' (เช่น the better...)", hint: "Double Comparative (อ้างอิงข้อ 35)" },
+            { id: 'g11', category: 'grammar', front: "ต้องการคำเชื่อมบอก 'สาเหตุ' เชิงบวก", back: "ตอบ 'thanks to'\n(เนื่องจาก/ขอบคุณที่)", hint: "Preposition (อ้างอิงข้อ 12)" },
+            { id: 'g12', category: 'grammar', front: "ประโยคหลังมี also", back: "อาจใช้คู่กับ Not only\nหรือใช้เชื่อมความเพิ่มเติม (Moreover)", hint: "Conjunction (อ้างอิงข้อ 1, 30)" },
+            { id: 'g13', category: 'grammar', front: "เจอคำว่า lack (ขาดแคลน)", back: "ต้องตามด้วยบุพบท 'of' เสมอ\n(lack of ...)", hint: "Preposition (อ้างอิงข้อ 29)" },
+            { id: 'g14', category: 'grammar', front: "สรรพนามต้องแทน 'คำนามพหูพจน์'", back: "ใช้กลุ่มพหูพจน์ they\nหรือ their", hint: "Pronoun (อ้างอิงข้อ 18, 34)" },
+            { id: 'g15', category: 'grammar', front: "สรรพนามแทน 'คน'\nและทำหน้าที่เป็นประธาน", back: "ใช้ 'who'", hint: "Relative Pronoun (อ้างอิงข้อ 28)" },
+            { id: 'g16', category: 'grammar', front: "เจอคำว่า be likely", back: "ตามด้วย 'to + V.inf'\n(แปลว่า มีแนวโน้มที่จะ)", hint: "Infinitive (อ้างอิงข้อ 13)" },
+            { id: 'g17', category: 'grammar', front: "เจอคำว่า enjoy", back: "ตามด้วย 'V.ing' เสมอ", hint: "Gerund (อ้างอิงข้อ 33)" },
+            { id: 'g18', category: 'grammar', front: "หลัง Modal Verbs\n(can, will, should)", back: "ต้องเป็นกริยาไม่เปลี่ยนรูป (V.inf)\nห้ามเติม -s, -ed, -ing เด็ดขาด", hint: "Modal Verbs (อ้างอิงข้อ 25)" },
+            { id: 'g19', category: 'grammar', front: "ประโยคหลักเป็น would have + V.3", back: "ประโยค If ต้องเป็น Past Perfect\n(had + V.3)", hint: "If-clause Type 3 (อ้างอิงข้อ 19)" },
             
             // หมวด Error Identification (19 - 31)
-            { category: 'error', front: "เจอ more higher หรือ more bigger", back: "ผิด! ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด\n(ต้องแก้เป็น higher / bigger)", hint: "Double Comparative (อ้างอิงข้อ 36, 48)" },
-            { category: 'error', front: "ประธานคือ Cinnamon หรือ Japan (เอกพจน์)\nแต่กริยาใช้ have หรือ are", back: "ผิด! ประธานเอกพจน์ต้องใช้กริยาเอกพจน์\n(ต้องแก้เป็น has หรือ is)", hint: "Subject-Verb Agreement (อ้างอิงข้อ 38, 45)" },
-            { category: 'error', front: "ประธานคือ Nocturnal bats (พหูพจน์เติม s)\nแต่ใช้สรรพนาม its", back: "ผิด! ค้างคาวหลายตัวต้องใช้สรรพนาม their\n(ของพวกมัน)", hint: "Pronoun Agreement (อ้างอิงข้อ 40)" },
-            { category: 'error', front: "ประธานหลักคือ Per capita income (รายได้ - นับไม่ได้)\nแต่เผลอดูคำขยายข้างหลังแล้วใช้กริยา are", back: "ผิด! นามนับไม่ได้คือเอกพจน์\nต้องใช้ is เสมอ", hint: "Subject-Verb Agreement (อ้างอิงข้อ 43)" },
-            { category: 'error', front: "เจอ If you... (เงื่อนไขแบบที่ 1)\nแต่ตามด้วยกริยาอดีต เช่น got ill", back: "ผิด! ประโยคเงื่อนไขที่เป็นจริงได้ต้องใช้ Present Simple V.1\n(ต้องแก้เป็น get ill)", hint: "If-clause Type 1 (อ้างอิงข้อ 37)" },
-            { category: 'error', front: "โครงสร้าง need to...\nแต่ตามด้วยคำนาม เช่น response", back: "ผิด! หลัง to ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น respond)", hint: "Infinitive with to (อ้างอิงข้อ 39)" },
-            { category: 'error', front: "ตัวเลข five ตามด้วยคำนามเอกพจน์ person", back: "ผิด! 5 คนต้องตามด้วยนามพหูพจน์\n(ต้องแก้เป็น people)", hint: "Plural Nouns (อ้างอิงข้อ 41)" },
-            { category: 'error', front: "โครงสร้าง Present Perfect (has/have)\nแต่ตามด้วย V.2 เช่น became", back: "ผิด! หลัง has/have ต้องเป็น V.3 เสมอ\n(ต้องแก้เป็น become)", hint: "Present Perfect Tense (อ้างอิงข้อ 42)" },
-            { category: 'error', front: "หน้าคำนาม (chemicals)\nขยายด้วย Adverb ที่ลงท้ายด้วย -ly (harshly)", back: "ผิด! หน้าคำนามต้องเป็น Adjective เท่านั้น\n(ต้องแก้เป็น harsh)", hint: "Adjective vs Adverb (อ้างอิงข้อ 44)" },
-            { category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism (อ้างอิงข้อ 46)" },
-            { category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf (อ้างอิงข้อ 47)" },
-            { category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident) โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
-            { category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" }
+            { id: 'e1', category: 'error', front: "เจอ more higher หรือ more bigger", back: "ผิด! ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด\n(ต้องแก้เป็น higher / bigger)", hint: "Double Comparative (อ้างอิงข้อ 36, 48)" },
+            { id: 'e2', category: 'error', front: "ประธานคือ Cinnamon หรือ Japan (เอกพจน์)\nแต่กริยาใช้ have หรือ are", back: "ผิด! ประธานเอกพจน์ต้องใช้กริยาเอกพจน์\n(ต้องแก้เป็น has หรือ is)", hint: "Subject-Verb Agreement (อ้างอิงข้อ 38, 45)" },
+            { id: 'e3', category: 'error', front: "ประธานคือ Nocturnal bats (พหูพจน์เติม s)\nแต่ใช้สรรพนาม its", back: "ผิด! ค้างคาวหลายตัวต้องใช้สรรพนาม their\n(ของพวกมัน)", hint: "Pronoun Agreement (อ้างอิงข้อ 40)" },
+            { id: 'e4', category: 'error', front: "ประธานหลักคือ Per capita income (รายได้ - นับไม่ได้)\nแต่เผลอดูคำขยายข้างหลังแล้วใช้กริยา are", back: "ผิด! นามนับไม่ได้คือเอกพจน์\nต้องใช้ is เสมอ", hint: "Subject-Verb Agreement (อ้างอิงข้อ 43)" },
+            { id: 'e5', category: 'error', front: "เจอ If you... (เงื่อนไขแบบที่ 1)\nแต่ตามด้วยกริยาอดีต เช่น got ill", back: "ผิด! ประโยคเงื่อนไขที่เป็นจริงได้ต้องใช้ Present Simple V.1\n(ต้องแก้เป็น get ill)", hint: "If-clause Type 1 (อ้างอิงข้อ 37)" },
+            { id: 'e6', category: 'error', front: "โครงสร้าง need to...\nแต่ตามด้วยคำนาม เช่น response", back: "ผิด! หลัง to ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น respond)", hint: "Infinitive with to (อ้างอิงข้อ 39)" },
+            { id: 'e7', category: 'error', front: "ตัวเลข five ตามด้วยคำนามเอกพจน์ person", back: "ผิด! 5 คนต้องตามด้วยนามพหูพจน์\n(ต้องแก้เป็น people)", hint: "Plural Nouns (อ้างอิงข้อ 41)" },
+            { id: 'e8', category: 'error', front: "โครงสร้าง Present Perfect (has/have)\nแต่ตามด้วย V.2 เช่น became", back: "ผิด! หลัง has/have ต้องเป็น V.3 เสมอ\n(ต้องแก้เป็น become)", hint: "Present Perfect Tense (อ้างอิงข้อ 42)" },
+            { id: 'e9', category: 'error', front: "หน้าคำนาม (chemicals)\nขยายด้วย Adverb ที่ลงท้ายด้วย -ly (harshly)", back: "ผิด! หน้าคำนามต้องเป็น Adjective เท่านั้น\n(ต้องแก้เป็น harsh)", hint: "Adjective vs Adverb (อ้างอิงข้อ 44)" },
+            { id: 'e10', category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism (อ้างอิงข้อ 46)" },
+            { id: 'e11', category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf (อ้างอิงข้อ 47)" },
+            { id: 'e12', category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident) โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
+            { id: 'e13', category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" }
         ];
 
         const grammarQuizData = [
@@ -776,7 +772,7 @@
         ];
 
         // ================= 2. State Management =================
-        const SCHEMA_VERSION = 2;
+        const SCHEMA_VERSION = 3;
         let currentUserPIN = null;
         let isCloudActive = false;
         let db = null;
@@ -832,33 +828,93 @@
 
         async function loadState(pin) {
             const localKey = `yru-tep-state-${pin}`;
-            let loadedData = null;
+            let localData = null;
+            let cloudData = null;
+            
+            // 1. Load Local
+            const rawLocal = localStorage.getItem(localKey);
+            if (rawLocal) {
+                try { localData = JSON.parse(rawLocal); } catch(e){}
+            }
 
+            // 2. Load Cloud with Timeout Fallback
             if (isCloudActive && db) {
                 try {
-                    const doc = await db.collection('users').doc(pin).get();
-                    if (doc.exists) loadedData = doc.data();
-                } catch (error) { console.error("Cloud Error:", error); }
+                    const fetchPromise = db.collection('users').doc(pin).get();
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000));
+                    const doc = await Promise.race([fetchPromise, timeoutPromise]);
+                    if (doc && doc.exists) cloudData = doc.data();
+                } catch (error) { 
+                    console.warn("Cloud Sync Timeout/Error (using fallback):", error.message); 
+                }
             }
 
-            if (!loadedData) {
-                const rawLocal = localStorage.getItem(localKey);
-                if (rawLocal) try { loadedData = JSON.parse(rawLocal); } catch(e){}
+            // 3. Resolve Conflict
+            let finalData = localData; 
+            if (localData && cloudData) {
+                const localTime = localData.updatedAt || 0;
+                const cloudTime = cloudData.updatedAt || 0;
+                if (cloudTime > localTime) {
+                    finalData = cloudData;
+                    localStorage.setItem(localKey, JSON.stringify(finalData)); 
+                } else if (localTime > cloudTime) {
+                    if (isCloudActive && db) db.collection('users').doc(pin).set(localData).catch(()=>{});
+                }
+            } else if (cloudData) {
+                finalData = cloudData;
+                localStorage.setItem(localKey, JSON.stringify(finalData));
+            } else if (localData) {
+                if (isCloudActive && db) db.collection('users').doc(pin).set(localData).catch(()=>{});
             }
 
-            if (loadedData) {
-                appState.currentCardIndex = typeof loadedData.currentCardIndex === 'number' ? loadedData.currentCardIndex : 0;
-                appState.theme = ['light', 'dark', 'system'].includes(loadedData.theme) ? loadedData.theme : 'system';
-                if (loadedData.cardProgress && typeof loadedData.cardProgress === 'object') {
-                    appState.cardProgress = {};
-                    Object.keys(loadedData.cardProgress).forEach(key => {
-                        const k = parseInt(key);
-                        if (k >= 0 && k < flashcardsData.length && ['unsure', 'learning', 'mastered'].includes(loadedData.cardProgress[key])) {
-                            appState.cardProgress[k] = loadedData.cardProgress[key];
+            // 4. Validate & Migrate Data
+            if (finalData) {
+                if (finalData.schemaVersion === 2) {
+                    finalData = migrateV2toV3(finalData);
+                    localStorage.setItem(localKey, JSON.stringify(finalData));
+                    if (isCloudActive && db) db.collection('users').doc(pin).set(finalData).catch(()=>{});
+                }
+                
+                appState.currentCardIndex = typeof finalData.currentCardIndex === 'number' ? finalData.currentCardIndex : 0;
+                if (appState.currentCardIndex < 0 || appState.currentCardIndex >= flashcardsData.length) appState.currentCardIndex = 0;
+                
+                appState.theme = ['light', 'dark', 'system'].includes(finalData.theme) ? finalData.theme : 'system';
+                appState.cardProgress = {};
+                
+                if (finalData.cardProgress && typeof finalData.cardProgress === 'object') {
+                    Object.keys(finalData.cardProgress).forEach(key => {
+                        const isValidID = flashcardsData.some(c => c.id === key);
+                        const isValidStatus = ['unsure', 'learning', 'mastered'].includes(finalData.cardProgress[key]);
+                        if (isValidID && isValidStatus) {
+                            appState.cardProgress[key] = finalData.cardProgress[key];
                         }
                     });
                 }
+            } else {
+                appState = {
+                    schemaVersion: SCHEMA_VERSION,
+                    currentCardIndex: 0,
+                    cardProgress: {},
+                    theme: 'system',
+                    updatedAt: Date.now()
+                };
             }
+        }
+
+        function migrateV2toV3(oldData) {
+            const newData = { ...oldData, schemaVersion: 3, cardProgress: {} };
+            if (oldData.cardProgress && typeof oldData.cardProgress === 'object') {
+                Object.keys(oldData.cardProgress).forEach(key => {
+                    const k = parseInt(key);
+                    if (!isNaN(k) && k >= 0 && k < flashcardsData.length) {
+                        const card = flashcardsData[k];
+                        if (card && card.id) {
+                            newData.cardProgress[card.id] = oldData.cardProgress[key];
+                        }
+                    }
+                });
+            }
+            return newData;
         }
 
         function saveState() {
@@ -869,6 +925,15 @@
         }
 
         // ================= 3. Core Functions & Navigation =================
+        function announce(message) {
+            const announcer = document.getElementById('a11y-announcer');
+            if (announcer) {
+                announcer.textContent = message;
+                // Force screen reader reset
+                setTimeout(() => { if (announcer.textContent === message) announcer.textContent = ''; }, 1000);
+            }
+        }
+
         function setTheme(mode) {
             if (!['light', 'dark', 'system'].includes(mode)) return;
             appState.theme = mode;
@@ -889,7 +954,6 @@
         function navigateTo(viewId) {
             const existingIndex = viewHistory.indexOf(viewId);
             if (existingIndex !== -1) {
-                // Rewind history to prevent loop
                 viewHistory = viewHistory.slice(0, existingIndex + 1);
             } else {
                 viewHistory.push(viewId);
@@ -898,7 +962,31 @@
             if(viewId === 'view-lobby') renderDashboard();
         }
         
+        function cleanupTransientState() {
+            quizIdx = 0;
+            qScore = 0;
+            activeClozePassageIdx = 0;
+            currentClozeAnswers = {};
+            
+            const optsContainer = document.getElementById('quiz-options-container');
+            if(optsContainer) optsContainer.innerHTML = '';
+            
+            const expBox = document.getElementById('quiz-explanation-box');
+            if(expBox) expBox.classList.add('hidden');
+            
+            const nextBtn = document.getElementById('quiz-next-btn');
+            if(nextBtn) nextBtn.classList.add('hidden');
+            
+            const clozeOpts = document.getElementById('cloze-options-container');
+            if(clozeOpts) clozeOpts.innerHTML = '';
+            
+            document.getElementById('cloze-explanation-box').classList.add('hidden');
+            document.getElementById('cloze-modal-close-btn').classList.add('hidden');
+            closeClozeModal();
+        }
+
         function goToMenu() {
+            cleanupTransientState();
             navigateTo('view-practice-menu');
         }
 
@@ -945,13 +1033,16 @@
 
         // ================= 4. Dashboard Logic =================
         function getProgressSummary() {
-            const total = flashcardsData.length; // รวม 32 ข้อแล้ว
+            const total = flashcardsData.length; 
             let mastered = 0, learning = 0, unsure = 0;
-            Object.values(appState.cardProgress).forEach(status => {
+            
+            flashcardsData.forEach(card => {
+                const status = appState.cardProgress[card.id];
                 if (status === 'mastered') mastered++;
                 else if (status === 'learning') learning++;
                 else if (status === 'unsure') unsure++;
             });
+            
             const unattempted = total - (mastered + learning + unsure);
             const percentage = total > 0 ? Math.round((mastered / total) * 100) : 0;
             return { total, mastered, learning, unsure, unattempted, percentage };
@@ -1018,10 +1109,10 @@
 
         function startFlashcards(category) {
             setupFlashcardCategory(category);
-            // ค้นหาข้อที่ยังจำไม่ได้ในหมวดนี้
             let startIndex = categoryIndices[0];
             for (let i of categoryIndices) {
-                if (appState.cardProgress[i] !== 'mastered') {
+                const cardId = flashcardsData[i].id;
+                if (appState.cardProgress[cardId] !== 'mastered') {
                     startIndex = i;
                     break;
                 }
@@ -1045,7 +1136,10 @@
                 isFlipped = false;
                 innerCard.classList.remove('is-flipped');
                 setTimeout(() => { populateCardData(index); isTransitioning = false; }, 350); 
-            } else populateCardData(index);
+                setTimeout(() => { isTransitioning = false; }, 600); // Failsafe
+            } else {
+                populateCardData(index);
+            }
         }
 
         function populateCardData(index) {
@@ -1055,7 +1149,7 @@
             
             const setBrText = (id, text) => {
                 const el = document.getElementById(id);
-                el.textContent = ''; // clear safely
+                el.textContent = ''; 
                 text.split('\n').forEach((line, i, arr) => {
                     el.appendChild(document.createTextNode(line));
                     if (i < arr.length - 1) el.appendChild(document.createElement('br'));
@@ -1078,12 +1172,15 @@
 
         function flipCard() {
             if (isTransitioning) return;
+            isTransitioning = true;
             isFlipped = !isFlipped;
             document.getElementById('flashcard-inner').classList.toggle('is-flipped', isFlipped);
+            setTimeout(() => { isTransitioning = false; }, 600); // Wait for CSS flip duration
         }
 
         function setCardState(status) {
-            appState.cardProgress[appState.currentCardIndex] = status;
+            const cardId = flashcardsData[appState.currentCardIndex].id;
+            appState.cardProgress[cardId] = status;
             saveState();
             updateStateButtonsUI();
             updateProgressBar();
@@ -1121,7 +1218,8 @@
         }
 
         function updateStateButtonsUI() {
-            const status = appState.cardProgress[appState.currentCardIndex];
+            const cardId = flashcardsData[appState.currentCardIndex].id;
+            const status = appState.cardProgress[cardId];
             ['unsure', 'learning', 'mastered'].forEach(s => {
                 const btn = document.getElementById(`btn-${s}`);
                 btn.setAttribute('aria-pressed', status === s ? 'true' : 'false');
@@ -1135,7 +1233,7 @@
         }
 
         function updateProgressBar() {
-            const catMastered = categoryIndices.filter(i => appState.cardProgress[i] === 'mastered').length;
+            const catMastered = categoryIndices.filter(i => appState.cardProgress[flashcardsData[i].id] === 'mastered').length;
             const catPercentage = Math.round((catMastered / categoryIndices.length) * 100);
             document.getElementById('progress-bar').style.width = catPercentage + '%';
             document.getElementById('learned-count').textContent = catMastered;
@@ -1150,9 +1248,9 @@
         let activeClozePassageIdx = 0;
         let currentClozeAnswers = {}; 
         
-        let activeQuizData = null; // To hold either grammarQuizData or errorQuizData
-        let quizOrder = []; // Array to hold indices
-        let quizOptionsMap = {}; // Maps question index to its shuffled options array
+        let activeQuizData = null; 
+        let quizOrder = []; 
+        let quizOptionsMap = {}; 
         let clozeOptionsMap = {}; 
 
         function shuffleArray(array) {
@@ -1165,6 +1263,7 @@
         }
 
         function startQuiz(mode) {
+            cleanupTransientState(); // Ensure pristine state
             currentQuizMode = mode;
             quizIdx = 0;
             qScore = 0;
@@ -1173,16 +1272,13 @@
                 activeQuizData = mode === 'grammar' ? grammarQuizData : errorQuizData;
                 qTotal = activeQuizData.length;
                 
-                // ไม่สุ่มลำดับข้อ ให้เรียงข้อ 1, 2, 3...
                 quizOrder = Array.from({length: qTotal}, (_, i) => i);
                 
                 quizOptionsMap = {};
                 activeQuizData.forEach((_, i) => { 
                     if (mode === 'grammar') {
-                        // หมวด Grammar: สุ่มช้อยส์ได้
                         quizOptionsMap[i] = shuffleArray([0, 1, 2, 3]); 
                     } else {
-                        // หมวด Error: ห้ามสุ่มช้อยส์เด็ดขาด! ต้องเรียง A, B, C, D เสมอ
                         quizOptionsMap[i] = [0, 1, 2, 3];
                     }
                 });
@@ -1205,7 +1301,10 @@
             }
         }
 
-        function abortQuiz() { goBack(); }
+        function abortQuiz() { 
+            cleanupTransientState();
+            goBack(); 
+        }
 
         function showSummary() {
             document.getElementById('summary-score').textContent = qScore;
@@ -1221,6 +1320,7 @@
         }
 
         function renderQuizQuestion() {
+            if (quizIdx < 0 || quizIdx >= qTotal) return;
             const realQIndex = quizOrder[quizIdx];
             const q = activeQuizData[realQIndex];
             const optMap = quizOptionsMap[realQIndex];
@@ -1261,6 +1361,7 @@
                 clickedBtn.classList.add('correct');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
+                announce("ถูกต้อง");
             } else {
                 clickedBtn.classList.add('incorrect');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
@@ -1270,6 +1371,7 @@
                     correctBtn.classList.add('correct');
                     correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 }
+                announce("ไม่ถูกต้อง");
             }
             
             document.getElementById('quiz-explanation-text').textContent = q.exp;
@@ -1284,6 +1386,7 @@
         }
 
         function renderClozePassage() {
+            if (activeClozePassageIdx < 0 || activeClozePassageIdx >= clozeData.length) return;
             const passage = clozeData[activeClozePassageIdx];
             document.getElementById('cloze-title-display').textContent = passage.title;
             
@@ -1399,6 +1502,7 @@
                 clickedBtn.classList.add('correct');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
+                announce("ถูกต้อง");
             } else {
                 clickedBtn.classList.add('incorrect');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
@@ -1409,6 +1513,7 @@
                     correctBtn.classList.add('correct');
                     correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 }
+                announce("ไม่ถูกต้อง");
             }
             
             document.getElementById('cloze-explanation-text').textContent = q.exp;
@@ -1444,8 +1549,10 @@
             appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, theme: appState.theme, updatedAt: Date.now() };
             saveState();
             closeResetModal();
-            renderDashboard();
+            cleanupTransientState();
+            
             if (viewHistory[viewHistory.length - 1] === 'view-flashcards') ensureCardFrontAndLoad(0);
+            renderDashboard();
             showToast("รีเซ็ตความคืบหน้าแล้ว");
         }
 
