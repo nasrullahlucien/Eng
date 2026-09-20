@@ -1008,15 +1008,29 @@
                 const el = document.getElementById(id);
                 if(el) {
                     if(id === viewId) {
+                        // 1. แสดงหน้า (Show): เคลียร์ inline style เพื่อให้ Tailwind (flex, grid) ทำงาน
+                        el.style.display = ''; 
                         el.classList.remove('hidden');
+                        el.setAttribute('aria-hidden', 'false');
+                        
+                        // 2. Accessibility & Focus Management
+                        const heading = el.querySelector('h1, h2, h3');
+                        if (heading && !isInit) {
+                            heading.setAttribute('tabindex', '-1');
+                            heading.focus({ preventScroll: true });
+                        }
+
                         if (viewId === 'view-flashcards' && !isInit) ensureCardFrontAndLoad(appState.currentCardIndex);
                     } else {
-                        el.classList.add('hidden');
+                        // 3. บังคับซ่อน (Force Hide): ใช้ style.display = 'none' เพื่อเอาชนะ lg:grid บน Desktop
+                        el.style.display = 'none'; 
+                        el.setAttribute('aria-hidden', 'true');
                     }
                 }
             });
-            // Force scroll to top on every view change to ensure user starts at the top
-            window.scrollTo(0,0);
+            
+            // 4. บังคับเลื่อนหน้าจอกลับไปบนสุดเสมอเมื่อเปลี่ยนหน้า
+            window.scrollTo({ top: 0, behavior: 'auto' });
         }
 
         function showToast(msg) {
