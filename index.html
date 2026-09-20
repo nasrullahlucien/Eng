@@ -639,7 +639,6 @@
                 </div>
             </div>
             
-            <!-- ใช้ goToMenu() แทน navigateTo ปกติเพื่อแก้ปัญหา History Loop -->
             <button onclick="goToMenu()" class="w-full py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-[var(--text-main)] font-bold rounded-xl btn-hover-effect shadow-sm">กลับไปหน้าเมนูซ้อมรบ</button>
         </main>
 
@@ -785,6 +784,7 @@
             updatedAt: null
         };
 
+        // Navigation History Stack
         let viewHistory = ['view-lobby'];
         let isTransitioning = false;
         let isFlipped = false;
@@ -951,9 +951,11 @@
             });
         }
 
+        // The core navigation logic that prevents history loops
         function navigateTo(viewId) {
             const existingIndex = viewHistory.indexOf(viewId);
             if (existingIndex !== -1) {
+                // Prevent history loop by slicing the stack back to the target view
                 viewHistory = viewHistory.slice(0, existingIndex + 1);
             } else {
                 viewHistory.push(viewId);
@@ -985,6 +987,7 @@
             closeClozeModal();
         }
 
+        // Custom goToMenu to correctly trigger history cleanup and back logic
         function goToMenu() {
             cleanupTransientState();
             navigateTo('view-practice-menu');
@@ -1007,9 +1010,12 @@
                     if(id === viewId) {
                         el.classList.remove('hidden');
                         if (viewId === 'view-flashcards' && !isInit) ensureCardFrontAndLoad(appState.currentCardIndex);
-                    } else el.classList.add('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
                 }
             });
+            // Force scroll to top on every view change to ensure user starts at the top
             window.scrollTo(0,0);
         }
 
