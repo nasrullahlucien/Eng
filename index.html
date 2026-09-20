@@ -10,16 +10,24 @@
         tailwind.config = {
             darkMode: ['class', '[data-theme="dark"]'],
             theme: {
-                extend: {}
+                extend: {
+                    /* กำหนด Spacing Scale ใหม่ */
+                    spacing: {
+                        '1': 'var(--s-1)',
+                        '2': 'var(--s-2)',
+                        '3': 'var(--s-3)',
+                        '4': 'var(--s-4)',
+                        '6': 'var(--s-6)',
+                        '8': 'var(--s-8)',
+                        '10': 'var(--s-10)',
+                        '12': 'var(--s-12)'
+                    }
+                }
             }
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK (V8 Compat) สำหรับระบบ Cloud Database -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* ================= 1. Design Tokens ================= */
@@ -30,6 +38,8 @@
             --color-success: #10b981;
             --color-warning: #f59e0b;
             --color-danger: #f43f5e;
+            
+            --glow-primary: rgba(79, 70, 229, 0.4);
             
             --bg-main: #f8fafc;
             --bg-surface: rgba(255, 255, 255, 0.9);
@@ -50,13 +60,24 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition-duration: 200ms;
+            
+            /* Spacing Scale System */
+            --s-1: 4px;
+            --s-2: 8px;
+            --s-3: 12px;
+            --s-4: 16px;
+            --s-6: 24px;
+            --s-8: 32px;
+            --s-10: 40px;
+            --s-12: 48px;
         }
 
-        /* Dark Mode Tokens */
         [data-theme="dark"] {
             --color-primary: #6366f1;
             --color-primary-hover: #4f46e5;
             --color-secondary: #8b5cf6;
+            
+            --glow-primary: rgba(99, 102, 241, 0.6);
             
             --bg-main: #0f172a;
             --bg-surface: rgba(30, 41, 59, 0.85);
@@ -78,12 +99,54 @@
 
         /* ================= 2. Reset & Base ================= */
         body {
-            font-family: 'Prompt', sans-serif;
+            font-family: 'IBM Plex Sans Thai', system-ui, sans-serif;
+            line-height: 1.7; 
             background-color: var(--bg-main);
             color: var(--text-main);
             min-height: 100vh;
             transition: background-color var(--transition-duration), color var(--transition-duration);
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* ธีมทหารแบบจาง (Subtle HUD) */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                linear-gradient(to right, var(--text-main) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--text-main) 1px, transparent 1px);
+            background-size: 48px 48px;
+            opacity: 0.03; 
+        }
+        [data-theme="dark"] body::before {
+            opacity: 0.05; 
+        }
+
+        /* Typography & Headings */
+        h1, h2, h3, h4, h5, h6 { line-height: 1.3; }
+        h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); }
+        h2 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+        
+        .section-heading {
+            border-left: 3px solid var(--color-primary);
+            padding-left: var(--s-2);
+        }
+
+        .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        /* Tabular Nums */
+        #countdown-display, #cd-days, #cd-hours, #cd-mins, 
+        #progress-percentage, #progress-fraction, 
+        #stat-mastered, #stat-learning, #stat-unsure, #stat-unattempted {
+            font-variant-numeric: tabular-nums;
         }
 
         /* ================= 3. Components & Layout ================= */
@@ -106,16 +169,47 @@
 
         .btn-hover-effect {
             transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-duration), box-shadow var(--transition-duration);
+            touch-action: manipulation; 
         }
-        .btn-hover-effect:active { transform: scale(0.96); }
-        .btn-hover-effect:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+        .btn-hover-effect:active { transform: scale(0.97); } 
+        .btn-hover-effect:focus-visible, button:focus-visible { 
+            outline: 2px solid var(--color-secondary); 
+            outline-offset: 2px; 
+        }
 
-        /* Theme Toggle Segmented Control */
+        /* ขนาดปุ่มหลัก (Main Buttons) */
+        #auth-submit-btn, #btn-continue-learning, #prev-btn, #next-btn, 
+        #quiz-next-btn, #cloze-next-passage-btn, .quiz-option,
+        #btn-unsure, #btn-learning, #btn-mastered {
+            min-height: 48px;
+        }
+
+        #auth-pin-input {
+            font-size: 16px;
+        }
+
+        /* สีสื่อความหมายและ Active State */
+        #btn-unsure[aria-pressed="true"] {
+            background-color: rgba(244, 63, 94, 0.15) !important;
+            border-color: var(--color-danger) !important;
+            color: var(--color-danger);
+        }
+        #btn-learning[aria-pressed="true"] {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-color: var(--color-warning) !important;
+            color: var(--color-warning);
+        }
+        #btn-mastered[aria-pressed="true"] {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border-color: var(--color-success) !important;
+            color: var(--color-success);
+        }
+
         .theme-toggle-container {
             display: inline-flex;
             background: rgba(0, 0, 0, 0.05);
             border-radius: 999px;
-            padding: 0.25rem;
+            padding: var(--s-1);
         }
         [data-theme="dark"] .theme-toggle-container { background: rgba(255, 255, 255, 0.1); }
         .theme-btn {
@@ -129,6 +223,10 @@
             background: var(--bg-surface-solid);
             color: var(--color-primary);
             box-shadow: var(--shadow-sm);
+        }
+        
+        .pb-safe {
+            padding-bottom: max(var(--s-4), env(safe-area-inset-bottom));
         }
 
         /* ================= 4. Dashboard Progress Ring ================= */
@@ -147,7 +245,10 @@
             fill: none;
             stroke-width: 3.5;
             stroke-linecap: round;
-            transition: stroke-dasharray 0.8s ease-out;
+            stroke-dasharray: 100, 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 0 6px var(--color-primary));
         }
 
         /* ================= 5. Flashcard 3D Variables ================= */
@@ -163,10 +264,17 @@
             position: absolute;
             top: 0;
             left: 0;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 12px 24px -10px var(--glow-primary);
         }
         .card.is-flipped { transform: rotateY(180deg); }
+        .card.is-flipped:hover { transform: rotateY(180deg) translateY(-4px) scale(1.01); }
+        
         .card__face {
             position: absolute;
             width: 100%;
@@ -199,8 +307,8 @@
             overflow-y: auto;
             text-align: center;
             scrollbar-width: thin;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
+            margin-top: var(--s-8);
+            margin-bottom: var(--s-4);
         }
         
         .card-content-scroll::-webkit-scrollbar { width: 4px; }
@@ -213,24 +321,42 @@
 
         /* Quiz & Cloze Buttons */
         .quiz-option {
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             border: 2px solid var(--border-color);
         }
         .quiz-option:hover:not(:disabled) {
             border-color: var(--color-primary);
             background-color: rgba(79, 70, 229, 0.05);
+            transform: translateX(4px);
         }
+        .quiz-option:disabled { cursor: not-allowed; opacity: 0.9; }
+
+        /* Feedback Animations */
         .quiz-option.correct {
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
             border-color: var(--color-success);
             background-color: rgba(16, 185, 129, 0.1);
             color: var(--color-success);
         }
         .quiz-option.incorrect {
+            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
             border-color: var(--color-danger);
             background-color: rgba(244, 63, 94, 0.1);
             color: var(--color-danger);
         }
-        .quiz-option:disabled { cursor: not-allowed; opacity: 0.9; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+        
+        .slide-down-enter { animation: slideDown 0.3s ease-out forwards; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #quiz-progress-bar, #cloze-progress-bar { transition: width 0.3s ease-out; }
 
         @keyframes pulse-border {
             0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
@@ -242,8 +368,12 @@
         /* ================= 6. Animations ================= */
         .toast-enter { animation: slideInUp 0.3s forwards; }
         @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .fade-in { animation: fadeIn 0.25s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .fade-in { animation: fadeInSpring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes fadeInSpring { 
+            from { opacity: 0; transform: translateY(12px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
 
         @media (prefers-reduced-motion: reduce) {
             *, ::before, ::after {
@@ -252,21 +382,17 @@
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
+            .quiz-option.incorrect { animation: none !important; }
+            .slide-down-enter { animation: none !important; }
+            .circle { transition: none !important; }
+            .card { transition: transform 0.01ms !important; }
         }
     </style>
 </head>
 <body class="relative overflow-x-hidden antialiased">
 
-    <!-- Background Decoration -->
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-[-1] pointer-events-none transition-opacity duration-500" aria-hidden="true">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 dark:opacity-10"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 dark:opacity-10"></div>
-    </div>
-
-    <!-- A11y Announcer -->
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- Toast Notification -->
     <div id="toast-container" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 hidden" role="alert">
         <div class="surface-solid text-main px-6 py-3 rounded-full shadow-lg text-sm font-medium flex items-center gap-3 toast-enter border border-[var(--border-color)]">
             <i class="fas fa-check-circle text-[var(--color-success)] text-lg"></i>
@@ -275,7 +401,7 @@
     </div>
 
     <!-- ================= VIEW 0: LOGIN MODAL ================= -->
-    <div id="auth-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 backdrop-blur-md transition-opacity" role="dialog" aria-modal="true">
+    <main id="auth-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 backdrop-blur-md transition-opacity" role="dialog" aria-modal="true">
         <div class="relative max-w-sm w-full mx-4">
             <div class="absolute -inset-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-[2rem] blur opacity-30 dark:opacity-20 animate-pulse" style="animation-duration: 4s;"></div>
             
@@ -295,9 +421,9 @@
                     </div>
                     
                     <h3 class="text-2xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] tracking-tight">YRU TEP Master</h3>
-                    <p class="text-[var(--text-muted)] text-sm mb-6 font-medium">ระบุตัวตนเพื่อซิงค์ข้อมูลการเรียนของคุณ</p>
+                    <p class="text-[var(--text-muted)] text-sm mb-6 font-medium">ระบุตัวตนเพื่อโหลดข้อมูลการเรียนของคุณ</p>
                     
-                    <form id="auth-form" onsubmit="handleLogin(event)" class="flex flex-col gap-4">
+                    <form id="auth-form" action="javascript:void(0);" onsubmit="handleLogin(event)" class="flex flex-col gap-4">
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)]">
                                 <i class="fas fa-id-card"></i>
@@ -311,13 +437,13 @@
                         </button>
                     </form>
 
-                    <div class="mt-6 pt-3 border-t border-[var(--border-color)] flex items-center justify-center gap-2 text-[11px] sm:text-xs text-[var(--text-muted)] font-medium bg-[var(--bg-main)]/50 rounded-lg py-2.5" id="cloud-status-indicator">
-                        <i class="fas fa-database"></i> ตรวจสอบสถานะการเชื่อมต่อ...
+                    <div class="mt-6 pt-3 border-t border-[var(--border-color)] flex items-center justify-center gap-2 text-[11px] sm:text-xs text-[var(--text-muted)] font-medium bg-[var(--bg-main)]/50 rounded-lg py-2.5">
+                        <i class="fas fa-save text-[var(--color-primary)]"></i> บันทึกข้อมูลในเครื่อง (ออฟไลน์ 100%)
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Reset Confirmation Modal -->
     <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity" role="dialog" aria-modal="true">
@@ -327,7 +453,7 @@
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <h3 class="text-xl font-bold mb-2">ยืนยันการเริ่มต้นใหม่?</h3>
-                <p class="text-[var(--text-muted)] text-sm mb-6">ความคืบหน้าทั้งหมดของรหัส <span id="reset-pin-display" class="font-bold"></span> จะถูกลบถาวร</p>
+                <p class="text-[var(--text-muted)] text-sm mb-6">ความคืบหน้าทั้งหมดของรหัส <span id="reset-pin-display" class="font-bold"></span> จะถูกลบออกจากเครื่องนี้อย่างถาวร</p>
                 <div class="flex gap-3 justify-center">
                     <button onclick="closeResetModal()" class="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl font-semibold transition-colors w-full btn-hover-effect">ยกเลิก</button>
                     <button onclick="confirmReset()" class="px-5 py-2.5 bg-[var(--color-danger)] hover:opacity-90 text-white rounded-xl font-semibold transition-colors w-full shadow-md btn-hover-effect">เริ่มต้นใหม่</button>
@@ -340,7 +466,7 @@
     <div id="cloze-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity p-4" role="dialog" aria-modal="true">
         <div class="surface-solid rounded-3xl p-5 md:p-6 max-w-md w-full transform transition-all fade-in flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-[var(--color-primary)]">ข้อ <span id="cloze-qnum-display">XX</span></h3>
+                <h3 class="text-lg font-bold text-[var(--color-primary)] section-heading">ข้อ <span id="cloze-qnum-display">XX</span></h3>
                 <button onclick="closeClozeModal()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors"><i class="fas fa-times"></i></button>
             </div>
             <div class="flex flex-col gap-2 mb-4 overflow-y-auto shrink-0" id="cloze-options-container"></div>
@@ -348,7 +474,7 @@
                 <h4 class="font-bold text-xs sm:text-sm text-[var(--color-primary)] mb-1 flex items-center gap-2"><i class="fas fa-lightbulb"></i> คำอธิบาย</h4>
                 <p class="text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed" id="cloze-explanation-text"></p>
             </div>
-            <button id="cloze-modal-close-btn" onclick="closeClozeModal()" class="hidden w-full mt-4 py-3 bg-[var(--color-primary)] text-white rounded-xl shadow-md font-bold text-sm sm:text-base btn-hover-effect shrink-0">เข้าใจแล้ว (ปิดหน้าต่าง)</button>
+            <button id="cloze-modal-close-btn" onclick="closeClozeModal()" class="hidden w-full mt-4 py-3 bg-[var(--color-primary)] text-white rounded-xl shadow-md font-bold text-sm sm:text-base btn-hover-effect shrink-0 pb-safe">เข้าใจแล้ว (ปิดหน้าต่าง)</button>
         </div>
     </div>
 
@@ -356,13 +482,13 @@
     <div class="max-w-7xl mx-auto min-h-screen flex flex-col p-4 md:p-6 lg:p-8 relative z-10 w-full hidden" id="main-app-container">
         
         <!-- ================= VIEW 1: LOBBY ================= -->
-        <main id="view-lobby" class="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 fade-in">
+        <main id="view-lobby" class="flex-1 flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 fade-in pb-safe">
             <header class="flex items-center justify-between lg:col-span-3 order-1 mb-2 sm:mb-0">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-primary)]">YRU TEP Master</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-primary)]" tabindex="-1">YRU TEP Master</h1>
                     <p class="text-xs sm:text-sm font-medium text-[var(--text-muted)] flex items-center gap-2">
                         <span id="greeting-text">สวัสดี</span> 
-                        <span class="bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide font-bold" id="header-pin-display">USER</span>
+                        <span class="bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wide font-bold tabular-nums" id="header-pin-display">USER</span>
                     </p>
                 </div>
                 <div class="theme-toggle-container" role="group">
@@ -372,21 +498,21 @@
                 </div>
             </header>
 
-            <section class="surface-panel p-4 sm:p-5 md:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
+            <section class="surface-panel p-4 sm:p-5 md:p-6 flex flex-col sm:flex-row flex-wrap items-center gap-4 sm:gap-6 relative overflow-hidden lg:col-span-2 order-2 h-full">
                 <div class="absolute -right-10 -top-10 text-[var(--color-primary)] opacity-5"><i class="fas fa-graduation-cap text-9xl"></i></div>
                 <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 relative flex-shrink-0" role="progressbar" id="progress-ring-container">
                     <svg viewBox="0 0 36 36" class="circular-chart w-full h-full drop-shadow-sm">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                        <path id="progress-ring-circle" class="circle stroke-[var(--color-primary)]" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path id="progress-ring-circle" class="circle stroke-[var(--color-primary)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
                         <span class="text-lg sm:text-xl lg:text-3xl font-bold" id="progress-percentage">0%</span>
                     </div>
                 </div>
-                <div class="flex-1 text-center sm:text-left z-10 w-full flex flex-col justify-center">
-                    <h2 class="text-base sm:text-lg lg:text-xl font-bold mb-1">ความคืบหน้าของคุณ</h2>
+                <div class="flex-1 text-center sm:text-left z-10 w-full flex flex-col justify-center min-w-[200px]">
+                    <h2 class="text-base sm:text-lg lg:text-xl font-bold mb-1 section-heading">ความคืบหน้าของคุณ</h2>
                     <p class="text-xs sm:text-sm text-[var(--text-muted)] mb-3 sm:mb-4 lg:mb-5" id="progress-fraction">0/32 จำได้แล้ว</p>
-                    <button id="btn-continue-learning" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect min-h-[48px] text-sm sm:text-base">เริ่มเรียน Flashcard</button>
+                    <button id="btn-continue-learning" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect text-sm sm:text-base">เริ่มเรียน Flashcard</button>
                 </div>
             </section>
 
@@ -399,51 +525,48 @@
 
             <section class="surface-panel py-3 px-4 sm:p-5 md:p-6 text-center relative overflow-hidden group lg:col-span-1 order-4 lg:order-3 flex flex-col justify-center h-full">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[var(--color-warning)] to-transparent opacity-10 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
-                <h2 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 sm:mb-3">นับถอยหลังสู่วันสอบ</h2>
+                <h2 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 sm:mb-3 section-heading inline-block">นับถอยหลังสู่วันสอบ</h2>
                 <div class="flex justify-center items-end gap-2" id="countdown-display">
                     <div class="flex flex-col"><span id="cd-days" class="text-3xl font-black">00</span><span class="text-[10px] text-[var(--text-muted)] mt-1">วัน</span></div><span class="text-2xl opacity-30 pb-3">:</span>
                     <div class="flex flex-col"><span id="cd-hours" class="text-3xl font-black">00</span><span class="text-[10px] text-[var(--text-muted)] mt-1">ชม.</span></div><span class="text-2xl opacity-30 pb-3">:</span>
                     <div class="flex flex-col"><span id="cd-mins" class="text-3xl font-black">00</span><span class="text-[10px] text-[var(--text-muted)] mt-1">นาที</span></div>
                 </div>
-                <div class="mt-3 text-[10px] font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center">3 ตุลาคม 2026</div>
+                <div class="mt-3 text-[10px] font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] inline-block px-3 py-1 rounded-full self-center tabular-nums">3 ตุลาคม 2026</div>
             </section>
 
             <section class="lg:col-span-3 order-5 mt-2 sm:mt-0">
-                <div class="mb-3 px-1"><h3 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">เลือกโหมดการฝึกฝน</h3></div>
+                <div class="mb-3 px-1"><h3 class="text-xs sm:text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider section-heading">เลือกโหมดการฝึกฝน</h3></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
-                    <!-- คลังอาวุธ -->
-                    <button onclick="openFlashcardMenu()" class="surface-panel p-5 lg:p-8 flex flex-col items-center gap-3 btn-hover-effect text-center group h-full lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-b from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 justify-center">
+                    <button onclick="navigateTo('view-flashcard-menu')" class="surface-panel p-5 lg:p-8 flex flex-col items-center gap-3 btn-hover-effect text-center group h-full lg:col-span-2 lg:row-span-2 relative overflow-hidden bg-gradient-to-b from-[var(--bg-surface)] to-indigo-50/50 dark:to-indigo-900/10 justify-center">
                         <div class="absolute -right-8 -bottom-8 text-[var(--color-primary)] opacity-5 transition-transform group-hover:scale-110 group-hover:rotate-12 duration-700 pointer-events-none"><i class="fas fa-brain text-9xl"></i></div>
                         <div class="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[var(--color-primary)] text-3xl lg:text-4xl group-hover:scale-110 transition-transform relative z-10"><i class="fas fa-brain"></i></div>
                         <div class="relative z-10 w-full px-2">
-                            <div class="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-wide shadow-sm">แนะนำสำหรับคุณ</div>
+                            <div class="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-wide shadow-sm label text-white">แนะนำสำหรับคุณ</div>
                             <h4 class="font-bold text-lg lg:text-2xl text-[var(--color-primary)]">คลังอาวุธ (ทริคจำ)</h4>
                             <p class="text-xs lg:text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto leading-relaxed">ท่องจุดตาย Grammar และเทคนิคหา Error รวม 32 ข้อ ดึงคะแนนได้ทันที</p>
                         </div>
                     </button>
         
-                    <!-- ห้องซ้อมรบ -->
                     <button onclick="navigateTo('view-practice-menu')" class="surface-panel p-4 lg:p-6 flex flex-col lg:flex-row items-center lg:items-start lg:justify-start gap-4 btn-hover-effect text-center lg:text-left group h-full bg-gradient-to-br from-[var(--bg-surface)] to-purple-50/40 dark:to-purple-900/10">
                         <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-[var(--color-secondary)] text-xl group-hover:scale-110 transition-transform relative z-10 shrink-0"><i class="fas fa-dumbbell"></i></div>
                         <div class="flex-1 relative z-10">
                             <h4 class="font-bold text-base lg:text-lg">ห้องซ้อมรบ</h4>
                             <p class="text-xs text-[var(--text-muted)] mt-1 mb-2">ตะลุยโจทย์แยกพาร์ท</p>
                             <div class="flex gap-1.5 flex-wrap justify-center lg:justify-start">
-                                <span class="text-[9px] text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium"><i class="fas fa-check text-[8px]"></i> Grammar & Error</span>
+                                <span class="text-[9px] text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium label"><i class="fas fa-check text-[8px]"></i> Grammar & Error</span>
                             </div>
                         </div>
                     </button>
         
-                    <!-- ลงสนามจริง -->
                     <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-4 lg:p-6 flex flex-col lg:flex-row items-center lg:items-start lg:justify-start gap-4 btn-hover-effect text-center lg:text-left group opacity-95 h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10">
                         <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-[var(--color-warning)] text-xl group-hover:scale-110 transition-transform relative z-10 shrink-0"><i class="fas fa-trophy"></i></div>
                         <div class="flex-1 relative z-10">
                             <h4 class="font-bold text-base lg:text-lg text-[var(--text-main)]">ลงสนามจริง</h4>
                             <p class="text-xs text-[var(--text-muted)] mt-1 mb-2">ข้อสอบเสมือนจริง 90 ข้อ</p>
                             <div class="flex gap-1.5 flex-wrap justify-center lg:justify-start opacity-70">
-                                <span class="text-[9px] text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium"><i class="fas fa-lock text-[8px]"></i> 120 นาที</span>
-                                <span class="text-[9px] text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
+                                <span class="text-[9px] text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium label"><i class="fas fa-lock text-[8px]"></i> 120 นาที</span>
+                                <span class="text-[9px] text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-1.5 py-0.5 rounded flex items-center gap-1 font-medium label"><i class="fas fa-file-alt text-[8px]"></i> Mock Exam</span>
                             </div>
                         </div>
                     </button>
@@ -452,10 +575,10 @@
         </main>
 
         <!-- ================= VIEW: FLASHCARD MENU ================= -->
-        <main id="view-flashcard-menu" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full">
+        <main id="view-flashcard-menu" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full pb-safe">
             <header class="flex items-center justify-between mb-6">
                 <button onclick="goBack()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center btn-hover-effect"><i class="fas fa-arrow-left"></i></button>
-                <h2 class="font-bold text-lg text-center flex-1 mx-2">หมวดหมู่ Flashcard</h2>
+                <h2 class="font-bold text-lg text-center flex-1 mx-2 section-heading" tabindex="-1">หมวดหมู่ Flashcard</h2>
                 <div class="w-10 h-10 flex items-center justify-center text-[var(--border-color)]"><i class="fas fa-layer-group text-xl"></i></div>
             </header>
             
@@ -484,7 +607,7 @@
         <main id="view-flashcards" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full">
             <header class="flex items-center justify-between mb-4 sm:mb-6">
                 <button onclick="goBack()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center btn-hover-effect"><i class="fas fa-arrow-left"></i></button>
-                <h2 class="font-bold text-base sm:text-lg flex-1 text-center truncate" id="flashcard-category-title">Grammar & Structure</h2>
+                <h2 class="font-bold text-base sm:text-lg flex-1 text-center truncate section-heading" id="flashcard-category-title" tabindex="-1">Grammar & Structure</h2>
                 <div class="w-10 h-10 flex items-center justify-center text-[var(--border-color)]"><i class="fas fa-book-open text-xl"></i></div>
             </header>
 
@@ -517,7 +640,7 @@
                 </div>
             </section>
 
-            <section class="flex flex-col gap-3 relative z-10 mt-auto">
+            <section class="flex flex-col gap-3 relative z-10 mt-auto pb-safe">
                 <div class="flex justify-between gap-3">
                     <button onclick="prevCard()" id="prev-btn" class="btn-hover-effect flex-1 py-3 surface-solid rounded-xl font-bold disabled:opacity-40"><i class="fas fa-arrow-left mr-1"></i> ก่อนหน้า</button>
                     <button onclick="nextCard()" id="next-btn" class="btn-hover-effect flex-1 py-3 bg-[var(--color-primary)] text-white rounded-xl shadow-md font-bold disabled:opacity-40">ถัดไป <i class="fas fa-arrow-right ml-1"></i></button>
@@ -527,18 +650,18 @@
                     <button onclick="setCardState('learning')" id="btn-learning" class="btn-hover-effect py-2 px-1 rounded-xl font-bold border transition-all text-[11px] sm:text-sm surface-solid border-[var(--border-color)]"><i class="fas fa-spinner mb-1 block text-base text-[var(--color-warning)]"></i> กำลังฝึก (2)</button>
                     <button onclick="setCardState('mastered')" id="btn-mastered" class="btn-hover-effect py-2 px-1 rounded-xl font-bold border transition-all text-[11px] sm:text-sm surface-solid border-[var(--border-color)]"><i class="fas fa-check-circle mb-1 block text-base text-[var(--color-success)]"></i> จำได้แล้ว (3)</button>
                 </div>
+                
+                <footer class="text-center mt-2">
+                    <button onclick="openResetModal()" class="text-xs font-medium text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors underline">รีเซ็ตความคืบหน้า</button>
+                </footer>
             </section>
-            
-            <footer class="text-center mt-5 mb-2 pb-safe">
-                <button onclick="openResetModal()" class="text-xs font-medium text-[var(--text-muted)] hover:text-[var(--color-danger)] transition-colors underline">รีเซ็ตความคืบหน้า</button>
-            </footer>
         </main>
 
         <!-- ================= VIEW 3: PRACTICE MENU ================= -->
-        <main id="view-practice-menu" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full">
+        <main id="view-practice-menu" class="hidden flex-1 flex flex-col fade-in max-w-xl mx-auto w-full pb-safe">
             <header class="flex items-center justify-between mb-6">
                 <button onclick="goBack()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center btn-hover-effect"><i class="fas fa-arrow-left"></i></button>
-                <h2 class="font-bold text-lg text-center flex-1 mx-2">ห้องซ้อมรบ</h2>
+                <h2 class="font-bold text-lg text-center flex-1 mx-2 section-heading" tabindex="-1">ห้องซ้อมรบ</h2>
                 <div class="w-10 h-10 flex items-center justify-center text-[var(--border-color)]"><i class="fas fa-dumbbell text-xl"></i></div>
             </header>
             
@@ -572,10 +695,10 @@
         </main>
 
         <!-- ================= VIEW 4: QUIZ (Grammar & Error) ================= -->
-        <main id="view-quiz" class="hidden flex-1 flex flex-col fade-in max-w-2xl mx-auto w-full">
+        <main id="view-quiz" class="hidden flex-1 flex flex-col fade-in max-w-2xl mx-auto w-full pb-safe">
             <header class="flex justify-between items-center mb-4">
                 <button onclick="abortQuiz()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--color-danger)] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors btn-hover-effect"><i class="fas fa-times"></i></button>
-                <div class="font-bold text-[var(--text-muted)]">ข้อ <span id="quiz-current-num" class="text-[var(--text-main)] text-lg">1</span> / <span id="quiz-total-num">20</span></div>
+                <div class="font-bold text-[var(--text-muted)] section-heading" tabindex="-1">ข้อ <span id="quiz-current-num" class="text-[var(--text-main)] text-lg tabular-nums">1</span> / <span id="quiz-total-num" class="tabular-nums">20</span></div>
             </header>
             
             <div class="w-full bg-[var(--border-color)] rounded-full h-2 mb-6 overflow-hidden">
@@ -601,11 +724,11 @@
         </main>
 
         <!-- ================= VIEW 5: CLOZE TEST ================= -->
-        <main id="view-cloze" class="hidden flex-1 flex flex-col fade-in max-w-3xl mx-auto w-full">
+        <main id="view-cloze" class="hidden flex-1 flex flex-col fade-in max-w-3xl mx-auto w-full pb-safe">
             <header class="flex justify-between items-center mb-4">
                 <button onclick="abortQuiz()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--color-danger)] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors btn-hover-effect"><i class="fas fa-times"></i></button>
-                <div class="font-bold text-[var(--text-main)] text-lg"><span id="cloze-title-display">Passage 1</span></div>
-                <div class="font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-1 rounded-full text-sm"><span id="cloze-progress-text">0/5</span></div>
+                <div class="font-bold text-[var(--text-main)] text-lg section-heading" tabindex="-1"><span id="cloze-title-display">Passage 1</span></div>
+                <div class="font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-1 rounded-full text-sm tabular-nums"><span id="cloze-progress-text">0/5</span></div>
             </header>
             
             <div class="w-full bg-[var(--border-color)] rounded-full h-1.5 mb-4 overflow-hidden">
@@ -622,19 +745,19 @@
         </main>
 
         <!-- ================= VIEW 6: QUIZ SUMMARY ================= -->
-        <main id="view-quiz-summary" class="hidden flex-1 flex flex-col fade-in max-w-md mx-auto w-full items-center justify-center text-center">
+        <main id="view-quiz-summary" class="hidden flex-1 flex flex-col fade-in max-w-md mx-auto w-full items-center justify-center text-center pb-safe">
             <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner"><i class="fas fa-trophy"></i></div>
-            <h2 class="text-2xl md:text-3xl font-bold mb-2">ทำแบบทดสอบเสร็จสิ้น!</h2>
+            <h2 class="text-2xl md:text-3xl font-bold mb-2" tabindex="-1">ทำแบบทดสอบเสร็จสิ้น!</h2>
             <p class="text-[var(--text-muted)] mb-8" id="summary-subtitle">คุณได้ฝึกฝนทักษะไปอีกขั้น</p>
             
             <div class="surface-panel w-full p-6 md:p-8 mb-8 flex justify-around items-center border-t-4 border-t-[var(--color-primary)]">
                 <div>
-                    <div class="text-4xl font-black text-[var(--color-primary)]" id="summary-score">0</div>
+                    <div class="text-4xl font-black text-[var(--color-primary)] tabular-nums" id="summary-score">0</div>
                     <div class="text-sm text-[var(--text-muted)] font-medium mt-1">คะแนนที่ได้</div>
                 </div>
                 <div class="h-12 w-px bg-[var(--border-color)]"></div>
                 <div>
-                    <div class="text-4xl font-black text-[var(--text-main)]" id="summary-total">0</div>
+                    <div class="text-4xl font-black text-[var(--text-main)] tabular-nums" id="summary-total">0</div>
                     <div class="text-sm text-[var(--text-muted)] font-medium mt-1">คะแนนเต็ม</div>
                 </div>
             </div>
@@ -643,9 +766,9 @@
         </main>
 
         <!-- ================= VIEW 7: COMING SOON ================= -->
-        <main id="view-coming-soon" class="hidden flex-1 flex flex-col items-center justify-center text-center fade-in max-w-xl mx-auto w-full">
+        <main id="view-coming-soon" class="hidden flex-1 flex flex-col items-center justify-center text-center fade-in max-w-xl mx-auto w-full pb-safe">
             <div class="w-20 h-20 surface-solid rounded-full flex items-center justify-center mb-6 text-[var(--text-muted)] text-3xl"><i class="fas fa-tools"></i></div>
-            <h2 class="text-xl font-bold mb-2">กำลังก่อสร้าง</h2>
+            <h2 class="text-xl font-bold mb-2" tabindex="-1">กำลังก่อสร้าง</h2>
             <p class="text-[var(--text-muted)] mb-8 text-sm">ฟีเจอร์นี้จะเปิดให้ใช้งานในอนาคต</p>
             <button onclick="goBack()" class="px-6 py-3 surface-panel rounded-xl font-bold btn-hover-effect shadow-sm"><i class="fas fa-arrow-left mr-2"></i> กลับ</button>
         </main>
@@ -656,7 +779,6 @@
 
         // ================= 1. Data Definitions =================
         const flashcardsData = [
-            // หมวด Grammar (0 - 18)
             { id: 'g1', category: 'grammar', front: "มีคำเชื่อม and หรือ or คั่นกลาง", back: "หน้าและหลังคำเชื่อมต้องเป็น 'คำชนิดเดียวกันเป๊ะ'\n(เช่น Noun คู่ Noun, V.ing คู่ V.ing)", hint: "Parallelism (อ้างอิงข้อ 2, 8, 21, 26, 32)" },
             { id: 'g2', category: 'grammar', front: "ประธานทำกริยาเองไม่ได้", back: "ต้องใช้โครงสร้าง Passive Voice\n'Verb to be + V.3' เสมอ", hint: "Passive Voice (อ้างอิงข้อ 3, 11, 17, 27)" },
             { id: 'g3', category: 'grammar', front: "โครงสร้าง Not only A but also B", back: "กริยาผันตาม 'ประธาน B' (ตัวหลังสุด)\nและแปลว่า 'ไม่เพียงแต่...แต่อีกด้วย'", hint: "Correlative Conjunction (อ้างอิงข้อ 8, 50)" },
@@ -676,8 +798,6 @@
             { id: 'g17', category: 'grammar', front: "เจอคำว่า enjoy", back: "ตามด้วย 'V.ing' เสมอ", hint: "Gerund (อ้างอิงข้อ 33)" },
             { id: 'g18', category: 'grammar', front: "หลัง Modal Verbs\n(can, will, should)", back: "ต้องเป็นกริยาไม่เปลี่ยนรูป (V.inf)\nห้ามเติม -s, -ed, -ing เด็ดขาด", hint: "Modal Verbs (อ้างอิงข้อ 25)" },
             { id: 'g19', category: 'grammar', front: "ประโยคหลักเป็น would have + V.3", back: "ประโยค If ต้องเป็น Past Perfect\n(had + V.3)", hint: "If-clause Type 3 (อ้างอิงข้อ 19)" },
-            
-            // หมวด Error Identification (19 - 31)
             { id: 'e1', category: 'error', front: "เจอ more higher หรือ more bigger", back: "ผิด! ห้ามใช้ more ซ้อนกับคำที่เติม -er เด็ดขาด\n(ต้องแก้เป็น higher / bigger)", hint: "Double Comparative (อ้างอิงข้อ 36, 48)" },
             { id: 'e2', category: 'error', front: "ประธานคือ Cinnamon หรือ Japan (เอกพจน์)\nแต่กริยาใช้ have หรือ are", back: "ผิด! ประธานเอกพจน์ต้องใช้กริยาเอกพจน์\n(ต้องแก้เป็น has หรือ is)", hint: "Subject-Verb Agreement (อ้างอิงข้อ 38, 45)" },
             { id: 'e3', category: 'error', front: "ประธานคือ Nocturnal bats (พหูพจน์เติม s)\nแต่ใช้สรรพนาม its", back: "ผิด! ค้างคาวหลายตัวต้องใช้สรรพนาม their\n(ของพวกมัน)", hint: "Pronoun Agreement (อ้างอิงข้อ 40)" },
@@ -689,7 +809,7 @@
             { id: 'e9', category: 'error', front: "หน้าคำนาม (chemicals)\nขยายด้วย Adverb ที่ลงท้ายด้วย -ly (harshly)", back: "ผิด! หน้าคำนามต้องเป็น Adjective เท่านั้น\n(ต้องแก้เป็น harsh)", hint: "Adjective vs Adverb (อ้างอิงข้อ 44)" },
             { id: 'e10', category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism (อ้างอิงข้อ 46)" },
             { id: 'e11', category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf (อ้างอิงข้อ 47)" },
-            { id: 'e12', category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident) โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
+            { id: 'e12', category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident)โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
             { id: 'e13', category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" }
         ];
 
@@ -770,11 +890,9 @@
             }
         ];
 
-        // ================= 2. State Management =================
+        // ================= 2. State Management (Offline Only) =================
         const SCHEMA_VERSION = 3;
         let currentUserPIN = null;
-        let isCloudActive = false;
-        let db = null;
         
         let appState = {
             schemaVersion: SCHEMA_VERSION,
@@ -789,21 +907,16 @@
         let isTransitioning = false;
         let isFlipped = false;
         let countdownInterval = null;
+        let _isSwipingCard = false;
 
-        // Firebase Config (Placeholder)
-        const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_DOMAIN", projectId: "YOUR_PROJECT_ID" };
+        // Flashcard Spaced Repetition Queue
+        let currentFlashcardCategory = 'grammar';
+        let categoryIndices = [];
+        let activeQueue = []; 
+        let queuePointer = 0; 
 
-        function initCloudDB() {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY" && typeof firebase !== 'undefined') {
-                try {
-                    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    isCloudActive = true;
-                } catch (error) { console.error("Firebase Init Error:", error); }
-            }
-        }
-
-        async function handleLogin(e) {
+        // ระบบ Login ออฟไลน์ (ไม่มี Timeout โหลดเข้าทันที 100%)
+        function handleLogin(e) {
             e.preventDefault();
             const inputEl = document.getElementById('auth-pin-input');
             const btnEl = document.getElementById('auth-submit-btn');
@@ -811,93 +924,85 @@
             if(!rawPIN) return;
             
             currentUserPIN = rawPIN.toUpperCase();
-            inputEl.disabled = true;
+            
+            // Visual feedback
+            const originalText = btnEl.innerHTML;
+            btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
             btnEl.disabled = true;
-            btnEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> กำลังโหลดข้อมูล...';
 
-            await loadState(currentUserPIN);
-            
-            document.getElementById('header-pin-display').textContent = currentUserPIN;
-            document.getElementById('reset-pin-display').textContent = currentUserPIN;
-            document.getElementById('auth-modal').classList.add('hidden');
-            document.getElementById('main-app-container').classList.remove('hidden');
-            
-            renderDashboard();
-            applyTheme();
+            setTimeout(() => {
+                try {
+                    loadState(currentUserPIN);
+                    
+                    document.getElementById('header-pin-display').textContent = currentUserPIN;
+                    document.getElementById('reset-pin-display').textContent = currentUserPIN;
+                    
+                    // View switching logic (using strict View Separation)
+                    const views = document.querySelectorAll("main");
+                    for (let i = 0; i < views.length; i++) {
+                        views[i].style.display = 'none';
+                        views[i].classList.add('hidden');
+                        views[i].setAttribute('aria-hidden', 'true');
+                    }
+                    
+                    const lobby = document.getElementById('view-lobby');
+                    if (lobby) {
+                        lobby.style.display = '';
+                        lobby.classList.remove('hidden');
+                        lobby.setAttribute('aria-hidden', 'false');
+                    }
+                    
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    document.getElementById('main-app-container').classList.remove('hidden');
+                    
+                    renderDashboard();
+                    applyTheme();
+                    
+                    btnEl.innerHTML = originalText;
+                    btnEl.disabled = false;
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    alert("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + error.message);
+                    btnEl.innerHTML = originalText;
+                    btnEl.disabled = false;
+                }
+            }, 100);
         }
 
-        async function loadState(pin) {
+        function loadState(pin) {
             const localKey = `yru-tep-state-${pin}`;
-            let localData = null;
-            let cloudData = null;
+            let finalData = null;
             
-            // 1. Load Local
-            const rawLocal = localStorage.getItem(localKey);
-            if (rawLocal) {
-                try { localData = JSON.parse(rawLocal); } catch(e){}
+            try {
+                const rawLocal = localStorage.getItem(localKey);
+                if (rawLocal) finalData = JSON.parse(rawLocal);
+            } catch (e) {
+                console.warn("Local storage read error:", e);
             }
 
-            // 2. Load Cloud with Timeout Fallback
-            if (isCloudActive && db) {
-                try {
-                    const fetchPromise = db.collection('users').doc(pin).get();
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000));
-                    const doc = await Promise.race([fetchPromise, timeoutPromise]);
-                    if (doc && doc.exists) cloudData = doc.data();
-                } catch (error) { 
-                    console.warn("Cloud Sync Timeout/Error (using fallback):", error.message); 
-                }
-            }
-
-            // 3. Resolve Conflict
-            let finalData = localData; 
-            if (localData && cloudData) {
-                const localTime = localData.updatedAt || 0;
-                const cloudTime = cloudData.updatedAt || 0;
-                if (cloudTime > localTime) {
-                    finalData = cloudData;
-                    localStorage.setItem(localKey, JSON.stringify(finalData)); 
-                } else if (localTime > cloudTime) {
-                    if (isCloudActive && db) db.collection('users').doc(pin).set(localData).catch(()=>{});
-                }
-            } else if (cloudData) {
-                finalData = cloudData;
-                localStorage.setItem(localKey, JSON.stringify(finalData));
-            } else if (localData) {
-                if (isCloudActive && db) db.collection('users').doc(pin).set(localData).catch(()=>{});
-            }
-
-            // 4. Validate & Migrate Data
             if (finalData) {
                 if (finalData.schemaVersion === 2) {
                     finalData = migrateV2toV3(finalData);
-                    localStorage.setItem(localKey, JSON.stringify(finalData));
-                    if (isCloudActive && db) db.collection('users').doc(pin).set(finalData).catch(()=>{});
+                    try { localStorage.setItem(localKey, JSON.stringify(finalData)); } catch(e){}
                 }
                 
                 appState.currentCardIndex = typeof finalData.currentCardIndex === 'number' ? finalData.currentCardIndex : 0;
                 if (appState.currentCardIndex < 0 || appState.currentCardIndex >= flashcardsData.length) appState.currentCardIndex = 0;
                 
-                appState.theme = ['light', 'dark', 'system'].includes(finalData.theme) ? finalData.theme : 'system';
+                appState.theme = ['light', 'dark', 'system'].indexOf(finalData.theme) !== -1 ? finalData.theme : 'system';
                 appState.cardProgress = {};
                 
                 if (finalData.cardProgress && typeof finalData.cardProgress === 'object') {
                     Object.keys(finalData.cardProgress).forEach(key => {
                         const isValidID = flashcardsData.some(c => c.id === key);
-                        const isValidStatus = ['unsure', 'learning', 'mastered'].includes(finalData.cardProgress[key]);
+                        const isValidStatus = ['unsure', 'learning', 'mastered'].indexOf(finalData.cardProgress[key]) !== -1;
                         if (isValidID && isValidStatus) {
                             appState.cardProgress[key] = finalData.cardProgress[key];
                         }
                     });
                 }
             } else {
-                appState = {
-                    schemaVersion: SCHEMA_VERSION,
-                    currentCardIndex: 0,
-                    cardProgress: {},
-                    theme: 'system',
-                    updatedAt: Date.now()
-                };
+                appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, theme: 'system', updatedAt: Date.now() };
             }
         }
 
@@ -908,9 +1013,7 @@
                     const k = parseInt(key);
                     if (!isNaN(k) && k >= 0 && k < flashcardsData.length) {
                         const card = flashcardsData[k];
-                        if (card && card.id) {
-                            newData.cardProgress[card.id] = oldData.cardProgress[key];
-                        }
+                        if (card && card.id) newData.cardProgress[card.id] = oldData.cardProgress[key];
                     }
                 });
             }
@@ -920,8 +1023,11 @@
         function saveState() {
             if(!currentUserPIN) return;
             appState.updatedAt = Date.now();
-            localStorage.setItem(`yru-tep-state-${currentUserPIN}`, JSON.stringify(appState));
-            if (isCloudActive && db) db.collection('users').doc(currentUserPIN).set(appState).catch(e=>{});
+            try {
+                localStorage.setItem(`yru-tep-state-${currentUserPIN}`, JSON.stringify(appState));
+            } catch (e) {
+                console.error("Failed to save to local storage", e);
+            }
         }
 
         // ================= 3. Core Functions & Navigation =================
@@ -929,13 +1035,12 @@
             const announcer = document.getElementById('a11y-announcer');
             if (announcer) {
                 announcer.textContent = message;
-                // Force screen reader reset
                 setTimeout(() => { if (announcer.textContent === message) announcer.textContent = ''; }, 1000);
             }
         }
 
         function setTheme(mode) {
-            if (!['light', 'dark', 'system'].includes(mode)) return;
+            if (['light', 'dark', 'system'].indexOf(mode) === -1) return;
             appState.theme = mode;
             saveState();
             applyTheme();
@@ -943,19 +1048,20 @@
 
         function applyTheme() {
             const root = document.documentElement;
-            const isDark = appState.theme === 'dark' || (appState.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const prefersDark = (typeof window.matchMedia === 'function') ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
+            const isDark = appState.theme === 'dark' || (appState.theme === 'system' && prefersDark);
+            
             isDark ? root.setAttribute('data-theme', 'dark') : root.setAttribute('data-theme', 'light');
+            
             ['light', 'dark', 'system'].forEach(mode => {
                 const btn = document.getElementById(`theme-btn-${mode}`);
                 if (btn) btn.setAttribute('aria-pressed', mode === appState.theme ? 'true' : 'false');
             });
         }
 
-        // The core navigation logic that prevents history loops
         function navigateTo(viewId) {
             const existingIndex = viewHistory.indexOf(viewId);
             if (existingIndex !== -1) {
-                // Prevent history loop by slicing the stack back to the target view
                 viewHistory = viewHistory.slice(0, existingIndex + 1);
             } else {
                 viewHistory.push(viewId);
@@ -974,7 +1080,10 @@
             if(optsContainer) optsContainer.innerHTML = '';
             
             const expBox = document.getElementById('quiz-explanation-box');
-            if(expBox) expBox.classList.add('hidden');
+            if(expBox) {
+                expBox.classList.add('hidden');
+                expBox.classList.remove('slide-down-enter');
+            }
             
             const nextBtn = document.getElementById('quiz-next-btn');
             if(nextBtn) nextBtn.classList.add('hidden');
@@ -982,12 +1091,18 @@
             const clozeOpts = document.getElementById('cloze-options-container');
             if(clozeOpts) clozeOpts.innerHTML = '';
             
-            document.getElementById('cloze-explanation-box').classList.add('hidden');
-            document.getElementById('cloze-modal-close-btn').classList.add('hidden');
+            const clozeExpBox = document.getElementById('cloze-explanation-box');
+            if(clozeExpBox) {
+                clozeExpBox.classList.add('hidden');
+                clozeExpBox.classList.remove('slide-down-enter');
+            }
+            
+            const closeModalBtn = document.getElementById('cloze-modal-close-btn');
+            if(closeModalBtn) closeModalBtn.classList.add('hidden');
+            
             closeClozeModal();
         }
 
-        // Custom goToMenu to correctly trigger history cleanup and back logic
         function goToMenu() {
             cleanupTransientState();
             navigateTo('view-practice-menu');
@@ -1008,13 +1123,11 @@
                 const el = document.getElementById(id);
                 if(el) {
                     if(id === viewId) {
-                        // 1. แสดงหน้า (Show): เคลียร์ inline style เพื่อให้ Tailwind (flex, grid) ทำงาน
                         el.style.display = ''; 
                         el.classList.remove('hidden');
                         el.setAttribute('aria-hidden', 'false');
                         
-                        // 2. Accessibility & Focus Management
-                        const heading = el.querySelector('h1, h2, h3');
+                        const heading = el.querySelector('h1, h2, h3, .section-heading');
                         if (heading && !isInit) {
                             heading.setAttribute('tabindex', '-1');
                             heading.focus({ preventScroll: true });
@@ -1022,14 +1135,12 @@
 
                         if (viewId === 'view-flashcards' && !isInit) ensureCardFrontAndLoad(appState.currentCardIndex);
                     } else {
-                        // 3. บังคับซ่อน (Force Hide): ใช้ style.display = 'none' เพื่อเอาชนะ lg:grid บน Desktop
                         el.style.display = 'none'; 
+                        el.classList.add('hidden');
                         el.setAttribute('aria-hidden', 'true');
                     }
                 }
             });
-            
-            // 4. บังคับเลื่อนหน้าจอกลับไปบนสุดเสมอเมื่อเปลี่ยนหน้า
             window.scrollTo({ top: 0, behavior: 'auto' });
         }
 
@@ -1085,8 +1196,17 @@
 
             const ring = document.getElementById('progress-ring-circle');
             if (ring) {
-                ring.setAttribute('stroke-dasharray', `${stats.percentage}, 100`);
-                ring.style.stroke = stats.percentage === 100 ? 'var(--color-success)' : 'var(--color-primary)';
+                ring.style.transition = 'none';
+                ring.setAttribute('stroke-dashoffset', '100');
+                
+                ring.getBoundingClientRect(); 
+                
+                requestAnimationFrame(() => {
+                    ring.style.transition = '';
+                    const offset = 100 - stats.percentage;
+                    ring.setAttribute('stroke-dashoffset', offset.toString());
+                    ring.style.stroke = stats.percentage === 100 ? 'var(--color-success)' : 'var(--color-primary)';
+                });
             }
 
             const btnContinue = document.getElementById('btn-continue-learning');
@@ -1095,7 +1215,8 @@
                     btnContinue.textContent = 'เริ่มเรียน Flashcard';
                     btnContinue.setAttribute('onclick', "openFlashcardMenu()");
                 } else {
-                    const cat = flashcardsData[appState.currentCardIndex]?.category || 'grammar';
+                    const currentCard = flashcardsData[appState.currentCardIndex];
+                    const cat = (currentCard && currentCard.category) ? currentCard.category : 'grammar';
                     const catName = cat === 'grammar' ? 'Grammar' : 'Error';
                     
                     let relativeIdx = 1;
@@ -1111,10 +1232,7 @@
             }
         }
 
-        // ================= 5. Flashcard Logic & Multiple Categories =================
-        let currentFlashcardCategory = 'grammar';
-        let categoryIndices = [];
-
+        // ================= 5. Flashcard Logic (Spaced Repetition) =================
         function setupFlashcardCategory(category) {
             currentFlashcardCategory = category;
             categoryIndices = [];
@@ -1129,22 +1247,40 @@
 
         function startFlashcards(category) {
             setupFlashcardCategory(category);
-            let startIndex = categoryIndices[0];
-            for (let i of categoryIndices) {
-                const cardId = flashcardsData[i].id;
-                if (appState.cardProgress[cardId] !== 'mastered') {
-                    startIndex = i;
-                    break;
-                }
-            }
-            appState.currentCardIndex = startIndex;
+            
+            // สร้างกองการ์ด (Active Queue) ดึงเฉพาะใบที่ยังไม่ Mastered
+            activeQueue = categoryIndices.filter(i => appState.cardProgress[flashcardsData[i].id] !== 'mastered');
+            
+            // ถ้าจำได้หมดแล้วแต่อยากกดเข้ามาเล่นใหม่ ให้ดึงมาทั้งกอง
+            if (activeQueue.length === 0) activeQueue = [...categoryIndices];
+            
+            // สุ่มลำดับการ์ด
+            activeQueue = shuffleArray(activeQueue);
+            queuePointer = 0;
+            
+            appState.currentCardIndex = activeQueue[queuePointer];
             saveState();
             navigateTo('view-flashcards');
         }
 
         function resumeLearning() {
-            const cat = flashcardsData[appState.currentCardIndex]?.category || 'grammar';
+            const currentCard = flashcardsData[appState.currentCardIndex];
+            const cat = (currentCard && currentCard.category) ? currentCard.category : 'grammar';
             setupFlashcardCategory(cat);
+            
+            activeQueue = categoryIndices.filter(i => appState.cardProgress[flashcardsData[i].id] !== 'mastered');
+            if (activeQueue.length === 0) activeQueue = [...categoryIndices];
+            
+            activeQueue = shuffleArray(activeQueue);
+            
+            const savedIdxPos = activeQueue.indexOf(appState.currentCardIndex);
+            if (savedIdxPos !== -1) {
+                [activeQueue[0], activeQueue[savedIdxPos]] = [activeQueue[savedIdxPos], activeQueue[0]];
+            } else {
+                appState.currentCardIndex = activeQueue[0];
+            }
+            
+            queuePointer = 0;
             navigateTo('view-flashcards');
         }
 
@@ -1156,7 +1292,7 @@
                 isFlipped = false;
                 innerCard.classList.remove('is-flipped');
                 setTimeout(() => { populateCardData(index); isTransitioning = false; }, 350); 
-                setTimeout(() => { isTransitioning = false; }, 600); // Failsafe
+                setTimeout(() => { isTransitioning = false; }, 600); 
             } else {
                 populateCardData(index);
             }
@@ -1180,9 +1316,8 @@
             setBrText('card-back-text', card.back);
             document.getElementById('card-hint-text').textContent = card.hint;
             
-            const relativeIdx = categoryIndices.indexOf(index);
-            document.getElementById('current-card-num').textContent = relativeIdx + 1;
-            document.getElementById('total-cards').textContent = categoryIndices.length;
+            document.getElementById('current-card-num').textContent = queuePointer + 1;
+            document.getElementById('total-cards').textContent = activeQueue.length;
             document.getElementById('flashcard-category-title').textContent = currentFlashcardCategory === 'grammar' ? 'Grammar & Structure' : 'Error Identification';
             
             updateNavButtons();
@@ -1191,11 +1326,17 @@
         }
 
         function flipCard() {
+            if (_isSwipingCard) return; 
             if (isTransitioning) return;
             isTransitioning = true;
             isFlipped = !isFlipped;
-            document.getElementById('flashcard-inner').classList.toggle('is-flipped', isFlipped);
-            setTimeout(() => { isTransitioning = false; }, 600); // Wait for CSS flip duration
+            const innerCard = document.getElementById('flashcard-inner');
+            if (isFlipped) {
+                innerCard.classList.add('is-flipped');
+            } else {
+                innerCard.classList.remove('is-flipped');
+            }
+            setTimeout(() => { isTransitioning = false; }, 600);
         }
 
         function setCardState(status) {
@@ -1205,36 +1346,69 @@
             updateStateButtonsUI();
             updateProgressBar();
             
-            const relativeIdx = categoryIndices.indexOf(appState.currentCardIndex);
-            if (status === 'mastered') setTimeout(() => { if (relativeIdx < categoryIndices.length - 1) nextCard(); }, 400);
+            setTimeout(() => {
+                if (status === 'mastered') {
+                    // แยกการ์ดที่จำได้แล้วออกจากกอง
+                    activeQueue.splice(queuePointer, 1);
+                    
+                    if (activeQueue.length === 0) {
+                        showToast("🎉 ยอดเยี่ยม! คุณจำหมวดนี้ได้ครบทุกใบแล้ว");
+                        setTimeout(() => goBack(), 1500); 
+                        return;
+                    }
+                    
+                    if (queuePointer >= activeQueue.length) {
+                        queuePointer = 0;
+                        activeQueue = shuffleArray(activeQueue);
+                        showToast("🔄 เริ่มทบทวนการ์ดที่เหลือรอบใหม่");
+                    }
+                } else {
+                    // ถ้าไม่มั่นใจ/กำลังฝึก ให้ขยับไปข้อถัดไป
+                    queuePointer++;
+                    
+                    if (queuePointer >= activeQueue.length) {
+                        queuePointer = 0;
+                        activeQueue = shuffleArray(activeQueue);
+                        showToast("🔄 เริ่มทบทวนการ์ดที่เหลือรอบใหม่");
+                    }
+                }
+                
+                appState.currentCardIndex = activeQueue[queuePointer];
+                saveState();
+                ensureCardFrontAndLoad(appState.currentCardIndex);
+            }, 300);
         }
 
         function nextCard() { 
-            if (!isTransitioning) {
-                const relativeIdx = categoryIndices.indexOf(appState.currentCardIndex);
-                if(relativeIdx < categoryIndices.length - 1) {
-                    appState.currentCardIndex = categoryIndices[relativeIdx + 1]; 
-                    saveState(); 
-                    ensureCardFrontAndLoad(appState.currentCardIndex); 
+            if (!isTransitioning && activeQueue.length > 0) {
+                queuePointer++;
+                if (queuePointer >= activeQueue.length) {
+                    queuePointer = 0;
+                    activeQueue = shuffleArray(activeQueue); 
+                    showToast("🔄 เริ่มทบทวนรอบใหม่");
                 }
+                appState.currentCardIndex = activeQueue[queuePointer]; 
+                saveState(); 
+                ensureCardFrontAndLoad(appState.currentCardIndex); 
             } 
         }
         
         function prevCard() { 
-            if (!isTransitioning) {
-                const relativeIdx = categoryIndices.indexOf(appState.currentCardIndex);
-                if(relativeIdx > 0) {
-                    appState.currentCardIndex = categoryIndices[relativeIdx - 1]; 
-                    saveState(); 
-                    ensureCardFrontAndLoad(appState.currentCardIndex); 
+            if (!isTransitioning && activeQueue.length > 0) {
+                queuePointer--;
+                if (queuePointer < 0) {
+                    queuePointer = activeQueue.length - 1; 
                 }
+                appState.currentCardIndex = activeQueue[queuePointer]; 
+                saveState(); 
+                ensureCardFrontAndLoad(appState.currentCardIndex); 
             } 
         }
 
         function updateNavButtons() {
-            const relativeIdx = categoryIndices.indexOf(appState.currentCardIndex);
-            document.getElementById('prev-btn').disabled = relativeIdx === 0;
-            document.getElementById('next-btn').disabled = relativeIdx === categoryIndices.length - 1;
+            const isSingle = activeQueue.length <= 1;
+            document.getElementById('prev-btn').disabled = isSingle;
+            document.getElementById('next-btn').disabled = isSingle;
         }
 
         function updateStateButtonsUI() {
@@ -1259,14 +1433,11 @@
             document.getElementById('learned-count').textContent = catMastered;
         }
 
-        // ================= 6. Quiz Logic (Grammar, Error & Cloze) =================
+        // ================= 6. Quiz Logic =================
         let currentQuizMode = null; 
         let quizIdx = 0;
         let qScore = 0;
         let qTotal = 0;
-        
-        let activeClozePassageIdx = 0;
-        let currentClozeAnswers = {}; 
         
         let activeQuizData = null; 
         let quizOrder = []; 
@@ -1283,7 +1454,7 @@
         }
 
         function startQuiz(mode) {
-            cleanupTransientState(); // Ensure pristine state
+            cleanupTransientState(); 
             currentQuizMode = mode;
             quizIdx = 0;
             qScore = 0;
@@ -1352,6 +1523,7 @@
             
             const optsContainer = document.getElementById('quiz-options-container');
             optsContainer.innerHTML = '';
+            optsContainer.dataset.answered = 'false'; 
             
             const labels = ['A', 'B', 'C', 'D'];
             optMap.forEach((origIdx, renderIdx) => {
@@ -1363,17 +1535,23 @@
                 optsContainer.appendChild(btn);
             });
             
-            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            const expBox = document.getElementById('quiz-explanation-box');
+            expBox.classList.add('hidden');
+            expBox.classList.remove('slide-down-enter');
             document.getElementById('quiz-next-btn').classList.add('hidden');
         }
 
         function handleQuizAnswer(renderIdx, clickedBtn) {
+            const optsContainer = document.getElementById('quiz-options-container');
+            
+            if (optsContainer.dataset.answered === 'true') return;
+            optsContainer.dataset.answered = 'true';
+
             const realQIndex = quizOrder[quizIdx];
             const q = activeQuizData[realQIndex];
             const optMap = quizOptionsMap[realQIndex];
             const selectedOrigIdx = optMap[renderIdx];
             
-            const optsContainer = document.getElementById('quiz-options-container');
             const btns = optsContainer.querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
             
@@ -1381,6 +1559,7 @@
                 clickedBtn.classList.add('correct');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
+                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
                 announce("ถูกต้อง");
             } else {
                 clickedBtn.classList.add('incorrect');
@@ -1391,11 +1570,14 @@
                     correctBtn.classList.add('correct');
                     correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 }
+                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
                 announce("ไม่ถูกต้อง");
             }
             
+            const expBox = document.getElementById('quiz-explanation-box');
             document.getElementById('quiz-explanation-text').textContent = q.exp;
-            document.getElementById('quiz-explanation-box').classList.remove('hidden');
+            expBox.classList.remove('hidden');
+            expBox.classList.add('slide-down-enter');
             document.getElementById('quiz-next-btn').classList.remove('hidden');
         }
 
@@ -1459,7 +1641,6 @@
             });
         }
 
-        let activeClozeQNum = null;
         function openClozeModal(passageIdx, qNum) {
             activeClozeQNum = qNum;
             const passage = clozeData[passageIdx];
@@ -1495,6 +1676,9 @@
             });
             
             const expBox = document.getElementById('cloze-explanation-box');
+            expBox.classList.remove('slide-down-enter'); 
+            optsContainer.dataset.answered = isAlreadyAnswered ? 'true' : 'false';
+
             if (isAlreadyAnswered) {
                 document.getElementById('cloze-explanation-text').textContent = q.exp;
                 expBox.classList.remove('hidden');
@@ -1508,11 +1692,15 @@
         }
 
         function handleClozeAnswer(qNum, selectedOrigIdx, clickedBtn) {
+            const optsContainer = document.getElementById('cloze-options-container');
+            
+            if (optsContainer.dataset.answered === 'true') return;
+            optsContainer.dataset.answered = 'true';
+
             currentClozeAnswers[qNum] = selectedOrigIdx;
             const passage = clozeData[activeClozePassageIdx];
             const q = passage.questions.find(x => x.qNum === qNum);
             
-            const optsContainer = document.getElementById('cloze-options-container');
             const btns = optsContainer.querySelectorAll('button');
             const optMap = clozeOptionsMap[qNum];
             
@@ -1522,6 +1710,7 @@
                 clickedBtn.classList.add('correct');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
+                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
                 announce("ถูกต้อง");
             } else {
                 clickedBtn.classList.add('incorrect');
@@ -1533,11 +1722,14 @@
                     correctBtn.classList.add('correct');
                     correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 }
+                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
                 announce("ไม่ถูกต้อง");
             }
             
+            const expBox = document.getElementById('cloze-explanation-box');
             document.getElementById('cloze-explanation-text').textContent = q.exp;
-            document.getElementById('cloze-explanation-box').classList.remove('hidden');
+            expBox.classList.remove('hidden');
+            expBox.classList.add('slide-down-enter');
             document.getElementById('cloze-modal-close-btn').classList.remove('hidden');
             
             renderClozePassage();
@@ -1561,29 +1753,29 @@
         function openResetModal() { document.getElementById('reset-modal').classList.remove('hidden'); }
         function closeResetModal() { document.getElementById('reset-modal').classList.add('hidden'); }
         
-        async function confirmReset() {
+        function confirmReset() {
             if(!currentUserPIN) return;
-            localStorage.removeItem(`yru-tep-state-${currentUserPIN}`);
-            if(isCloudActive && db) try { await db.collection('users').doc(currentUserPIN).delete(); } catch(e){}
+            try {
+                localStorage.removeItem(`yru-tep-state-${currentUserPIN}`);
+            } catch(e) {
+                console.error(e);
+            }
             
             appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, theme: appState.theme, updatedAt: Date.now() };
             saveState();
             closeResetModal();
             cleanupTransientState();
             
-            if (viewHistory[viewHistory.length - 1] === 'view-flashcards') ensureCardFrontAndLoad(0);
+            if (viewHistory[viewHistory.length - 1] === 'view-flashcards') {
+                startFlashcards(currentFlashcardCategory); 
+            }
             renderDashboard();
             showToast("รีเซ็ตความคืบหน้าแล้ว");
         }
 
         // ================= 8. Init App =================
         window.addEventListener('DOMContentLoaded', () => {
-            initCloudDB();
             initCountdown();
-            
-            const statusIndicator = document.getElementById('cloud-status-indicator');
-            if(isCloudActive) statusIndicator.innerHTML = '<i class="fas fa-cloud text-[var(--color-primary)]"></i> เชื่อมต่อฐานข้อมูลคลาวด์แล้ว (บันทึกข้ามเครื่องได้)';
-            else statusIndicator.innerHTML = '<i class="fas fa-save text-[var(--color-warning)]"></i> บันทึกลงในเครื่อง (ออฟไลน์ 100%)';
 
             document.addEventListener('keydown', (e) => {
                 const activeEl = document.activeElement;
@@ -1598,6 +1790,38 @@
                     else if(['Digit3', 'Numpad3'].includes(e.code)) setCardState('mastered');
                 }
             });
+
+            // Swipe Gesture
+            const flashcardContainer = document.getElementById('flashcard-container');
+            if (flashcardContainer) {
+                let touchStartX = 0;
+                let touchStartY = 0;
+
+                flashcardContainer.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartY = e.changedTouches[0].screenY;
+                    _isSwipingCard = false;
+                }, { passive: true });
+
+                flashcardContainer.addEventListener('touchend', (e) => {
+                    const touchEndX = e.changedTouches[0].screenX;
+                    const touchEndY = e.changedTouches[0].screenY;
+                    const deltaX = touchEndX - touchStartX;
+                    const deltaY = touchEndY - touchStartY;
+
+                    if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                        _isSwipingCard = true; 
+                        if (deltaX > 0) {
+                            const prevBtn = document.getElementById('prev-btn');
+                            if (prevBtn && !prevBtn.disabled) prevCard();
+                        } else {
+                            const nextBtn = document.getElementById('next-btn');
+                            if (nextBtn && !nextBtn.disabled) nextCard();
+                        }
+                        setTimeout(() => { _isSwipingCard = false; }, 100);
+                    }
+                }, { passive: true });
+            }
         });
     </script>
 </body>
