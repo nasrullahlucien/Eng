@@ -42,8 +42,9 @@
             
             --glow-primary: rgba(79, 70, 229, 0.4);
             
-            --bg-main: #f8fafc;
-            --bg-surface: rgba(255, 255, 255, 0.9);
+            --bg-main: #f8fafc; /* ใช้สำหรับ Input ให้คงสีขาวไว้ */
+            --bg-body: linear-gradient(135deg, #e4d5ff 0%, #b8dcff 100%); /* Gradient ม่วง-ฟ้าพาสเทลตามภาพ */
+            --bg-surface: rgba(255, 255, 255, 0.8); /* ปรับกระจกให้ใสขึ้นนิดนึงเพื่อรับกับพื้นหลังสี */
             --bg-surface-solid: #ffffff;
             
             --bg-fallback: #ffffff;
@@ -81,7 +82,8 @@
             --glow-primary: rgba(99, 102, 241, 0.6);
             
             --bg-main: #0f172a;
-            --bg-surface: rgba(30, 41, 59, 0.85);
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #201a40 100%); /* ไล่สีโทนเข้มม่วงดำสำหรับ Dark Mode */
+            --bg-surface: rgba(30, 41, 59, 0.8);
             --bg-surface-solid: #1e293b;
             
             --bg-fallback: #1e293b;
@@ -102,10 +104,11 @@
         body {
             font-family: 'IBM Plex Sans Thai', system-ui, sans-serif;
             line-height: 1.7; 
-            background-color: var(--bg-main);
+            background: var(--bg-body); /* สลับมาใช้ background gradient ตัวใหม่ */
+            background-attachment: fixed; /* ล็อกพื้นหลังไว้กับที่เวลาไถหน้าจอ */
             color: var(--text-main);
             min-height: 100vh;
-            transition: background-color var(--transition-duration), color var(--transition-duration);
+            transition: color var(--transition-duration); /* ลบ transition background เนื่องจาก CSS เคลื่อนไหว gradient ไม่ได้ */
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
