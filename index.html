@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>YRU TEP Master - Comprehensive Test Prep</title>
+    <title>YRU TEP Master - แอปเตรียมสอบครบวงจร</title>
     
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,6 +39,7 @@
             --color-success: #10b981;
             --color-warning: #f59e0b;
             --color-danger: #f43f5e;
+            --color-info: #0ea5e9;
             
             --glow-primary: rgba(79, 70, 229, 0.4);
             
@@ -112,7 +113,6 @@
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
-        /* Subtle HUD Grid */
         body::before {
             content: '';
             position: fixed;
@@ -147,7 +147,7 @@
 
         /* Tabular Nums */
         #countdown-display, #cd-days, #cd-hours, #cd-mins, 
-        #progress-percentage, #prog-txt-flashcard, #prog-txt-training, 
+        #progress-percentage, #prog-txt-flashcard, #prog-txt-training, #prog-txt-mock,
         #stat-mastered, #stat-learning, #stat-unsure, #stat-unattempted {
             font-variant-numeric: tabular-nums;
         }
@@ -181,7 +181,7 @@
         }
 
         #auth-submit-btn, #btn-continue-learning, #prev-btn, #next-btn, 
-        #quiz-next-btn, #cloze-next-passage-btn, .quiz-option,
+        #quiz-next-btn, #cloze-next-passage-btn, #reading-next-btn, .quiz-option,
         #btn-unsure, #btn-learning, #btn-mastered {
             min-height: 48px;
         }
@@ -347,7 +347,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        #quiz-progress-bar, #cloze-progress-bar { transition: width 0.3s ease-out; }
+        #quiz-progress-bar, #cloze-progress-bar, #reading-progress-bar { transition: width 0.3s ease-out; }
 
         @keyframes pulse-border {
             0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
@@ -381,6 +381,11 @@
     </style>
 </head>
 <body class="relative overflow-x-hidden antialiased">
+
+    <!-- Mock Exam Global Timer -->
+    <div id="mock-timer-display" class="hidden fixed top-4 right-4 z-[70] bg-[var(--bg-surface-solid)] px-4 py-2 rounded-full shadow-lg font-bold text-[var(--color-danger)] text-sm sm:text-base tabular-nums border-2 border-[var(--color-danger)] flex items-center transition-all duration-300">
+        <i class="fas fa-clock mr-2 animate-pulse"></i><span id="mock-timer-text">120:00</span>
+    </div>
 
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
@@ -496,6 +501,23 @@
         </div>
     </div>
 
+    <!-- Abort Mock Exam Modal -->
+    <div id="abort-mock-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity" role="dialog" aria-modal="true">
+        <div class="surface-solid rounded-3xl p-6 md:p-8 max-w-sm w-full mx-4 transform transition-all fade-in">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner text-[var(--color-danger)] text-2xl">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2" data-i18n="abort_mock_title">ออกจากการสอบ?</h3>
+                <p class="text-[var(--text-muted)] text-sm mb-6" data-i18n="abort_mock_desc">คุณกำลังทำข้อสอบจำลองอยู่ หากออกตอนนี้ความคืบหน้าจะ<span class="font-bold text-[var(--color-danger)]">ไม่ถูกบันทึก</span></p>
+                <div class="flex gap-3 justify-center">
+                    <button onclick="closeAbortMockModal()" class="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl font-semibold transition-colors w-full btn-hover-effect" data-i18n="btn_resume_exam">ทำต่อ</button>
+                    <button onclick="confirmAbortMock()" class="px-5 py-2.5 bg-[var(--color-danger)] hover:opacity-90 text-white rounded-xl font-semibold transition-colors w-full shadow-md btn-hover-effect" data-i18n="btn_confirm_exit">ยืนยันออก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Cloze Question Modal -->
     <div id="cloze-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity p-4" role="dialog" aria-modal="true">
         <div class="surface-solid rounded-3xl p-5 md:p-6 max-w-md w-full transform transition-all fade-in flex flex-col max-h-[90vh]">
@@ -527,7 +549,7 @@
                 </div>
                 <!-- ปุ่มสลับภาษา TH/EN และ Theme รวมในแคปซูลเดียวกัน -->
                 <div class="theme-toggle-container flex items-center shadow-sm" role="group">
-                    <button id="lang-btn" onclick="toggleLanguage()" class="theme-btn btn-hover-effect font-bold text-[11px] uppercase tracking-widest text-[var(--color-primary)] px-3" aria-label="Toggle Language">EN</button>
+                    <button id="lang-btn" onclick="toggleLanguage()" class="theme-btn btn-hover-effect font-bold text-[11px] uppercase tracking-widest text-[var(--color-primary)] px-3" aria-label="Toggle Language">TH</button>
                     <div class="w-px h-4 bg-[var(--text-muted)] opacity-30 mx-1"></div>
                     <button id="theme-btn-light" onclick="setTheme('light')" class="theme-btn btn-hover-effect" aria-label="Light Theme"><i class="fas fa-sun"></i></button>
                     <button id="theme-btn-system" onclick="setTheme('system')" class="theme-btn btn-hover-effect" aria-label="System Theme"><i class="fas fa-desktop"></i></button>
@@ -561,6 +583,11 @@
                             <div class="flex-1 bg-[var(--border-color)] h-1.5 rounded-full mx-2 overflow-hidden"><div class="bg-[var(--color-secondary)] h-full rounded-full transition-all duration-1000" id="prog-bar-training" style="width: 0%"></div></div>
                             <span class="w-8 text-right font-bold tabular-nums" id="prog-txt-training">0%</span>
                         </div>
+                        <div class="flex items-center text-[10px] sm:text-xs">
+                            <span class="w-[65px] text-left text-[var(--text-muted)] truncate font-semibold" data-i18n="prog_mock">Mock Exam</span>
+                            <div class="flex-1 bg-[var(--border-color)] h-1.5 rounded-full mx-2 overflow-hidden"><div class="bg-[var(--color-warning)] h-full rounded-full transition-all duration-1000" id="prog-bar-mock" style="width: 0%"></div></div>
+                            <span class="w-8 text-right font-bold tabular-nums" id="prog-txt-mock">0%</span>
+                        </div>
                     </div>
 
                     <button id="btn-continue-learning" class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-3 px-4 rounded-xl font-bold shadow-md btn-hover-effect text-sm sm:text-base">Start Flashcards</button>
@@ -571,7 +598,7 @@
                 <div class="surface-panel p-3 lg:p-4 flex flex-col justify-center items-center text-center"><span class="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] flex items-center justify-center mb-1"><i class="fas fa-check lg:text-lg"></i></span><span class="text-xl lg:text-2xl font-bold" id="stat-mastered">0</span><span class="text-[10px] lg:text-xs text-[var(--text-muted)] mt-1" data-i18n="stat_mastered">Mastered</span></div>
                 <div class="surface-panel p-3 lg:p-4 flex flex-col justify-center items-center text-center"><span class="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-[var(--color-warning)] flex items-center justify-center mb-1"><i class="fas fa-spinner lg:text-lg"></i></span><span class="text-xl lg:text-2xl font-bold" id="stat-learning">0</span><span class="text-[10px] lg:text-xs text-[var(--text-muted)] mt-1" data-i18n="stat_learning">Learning</span></div>
                 <div class="surface-panel p-3 lg:p-4 flex flex-col justify-center items-center text-center"><span class="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] flex items-center justify-center mb-1"><i class="fas fa-times lg:text-lg"></i></span><span class="text-xl lg:text-2xl font-bold" id="stat-unsure">0</span><span class="text-[10px] lg:text-xs text-[var(--text-muted)] mt-1" data-i18n="stat_unsure">Unsure</span></div>
-                <div class="surface-panel p-3 lg:p-4 flex flex-col justify-center items-center text-center"><span class="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center mb-1"><i class="fas fa-minus lg:text-lg"></i></span><span class="text-xl lg:text-2xl font-bold" id="stat-unattempted">32</span><span class="text-[10px] lg:text-xs text-[var(--text-muted)] mt-1" data-i18n="stat_unattempted">Not Started</span></div>
+                <div class="surface-panel p-3 lg:p-4 flex flex-col justify-center items-center text-center"><span class="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--text-muted)] flex items-center justify-center mb-1"><i class="fas fa-minus lg:text-lg"></i></span><span class="text-xl lg:text-2xl font-bold" id="stat-unattempted">48</span><span class="text-[10px] lg:text-xs text-[var(--text-muted)] mt-1" data-i18n="stat_unattempted">Not Started</span></div>
             </section>
 
             <section class="surface-panel py-3 px-4 sm:p-5 md:p-6 text-center relative overflow-hidden group lg:col-span-1 order-4 lg:order-3 flex flex-col justify-center self-stretch">
@@ -595,7 +622,7 @@
                         <div class="relative z-10 w-full px-2">
                             <div class="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full mb-3 uppercase tracking-wide shadow-sm label text-white" data-i18n="badge_recommended">Recommended</div>
                             <h4 class="font-bold text-lg lg:text-2xl text-[var(--color-primary)]" data-i18n="mode_arsenal_title">Flashcard Arsenal</h4>
-                            <p class="text-xs lg:text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto leading-relaxed" data-i18n="mode_arsenal_desc">Master 32 core grammar rules and error identification tricks.</p>
+                            <p class="text-xs lg:text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto leading-relaxed" data-i18n="mode_arsenal_desc">Master 48 core grammar rules and reading tricks.</p>
                         </div>
                     </button>
         
@@ -610,7 +637,7 @@
                         </div>
                     </button>
         
-                    <button onclick="navigateTo('view-coming-soon')" class="surface-panel p-4 lg:p-6 flex flex-col lg:flex-row items-center lg:items-start lg:justify-start gap-4 btn-hover-effect text-center lg:text-left group opacity-95 h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10">
+                    <button onclick="startMockExam()" class="surface-panel p-4 lg:p-6 flex flex-col lg:flex-row items-center lg:items-start lg:justify-start gap-4 btn-hover-effect text-center lg:text-left group h-full bg-gradient-to-br from-[var(--bg-surface)] to-orange-50/40 dark:to-orange-900/10">
                         <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-[var(--color-warning)] text-xl group-hover:scale-110 transition-transform relative z-10 shrink-0"><i class="fas fa-trophy"></i></div>
                         <div class="flex-1 relative z-10">
                             <h4 class="font-bold text-base lg:text-lg text-[var(--text-main)]" data-i18n="mode_mock_title">The Battlefield</h4>
@@ -658,6 +685,22 @@
                     <div class="flex items-center gap-4 relative z-10">
                         <div class="w-12 h-12 rounded-xl bg-[var(--color-danger)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-danger)] group-hover:text-white text-xl"><i class="fas fa-search"></i></div>
                         <div><h4 class="font-bold text-lg">Error Identification</h4><p class="text-xs opacity-70" data-i18n="fc_err_desc">13 common error tricks</p></div>
+                    </div>
+                    <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+
+                <button onclick="startFlashcards('reading_tactics')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-info)] hover:bg-[var(--color-info)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-info)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-info)] group-hover:text-white text-xl"><i class="fas fa-eye"></i></div>
+                        <div><h4 class="font-bold text-lg" data-i18n="fc_read_tac_title">Reading Tactics</h4><p class="text-xs opacity-70" data-i18n="fc_read_tac_desc">7 Scanning Tricks</p></div>
+                    </div>
+                    <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+
+                <button onclick="startFlashcards('reading_facts')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-warning)] hover:bg-[var(--color-warning)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-warning)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-warning)] group-hover:text-white text-xl"><i class="fas fa-key"></i></div>
+                        <div><h4 class="font-bold text-lg" data-i18n="fc_read_fact_title">Reading Core Facts</h4><p class="text-xs opacity-70" data-i18n="fc_read_fact_desc">9 passage summaries</p></div>
                     </div>
                     <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
                 </button>
@@ -752,6 +795,14 @@
                     </div>
                     <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
                 </button>
+                
+                <button onclick="startQuiz('reading')" class="surface-panel p-5 flex items-center justify-between btn-hover-effect text-left group border-[var(--color-info)] hover:bg-[var(--color-info)] hover:text-white transition-all overflow-hidden relative">
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-[var(--color-info)]/10 group-hover:bg-white/20 flex items-center justify-center text-[var(--color-info)] group-hover:text-white text-xl"><i class="fas fa-book-reader"></i></div>
+                        <div><h4 class="font-bold text-lg">Reading Comprehension</h4><p class="text-xs opacity-70" data-i18n="prac_read_desc">14 Passages (40 Items)</p></div>
+                    </div>
+                    <i class="fas fa-chevron-right relative z-10 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-transform"></i>
+                </button>
             </div>
         </main>
 
@@ -799,6 +850,37 @@
             <div class="surface-panel p-5 md:p-8 leading-loose text-lg mb-6 shadow-md" id="cloze-text-container"></div>
             
             <button id="cloze-next-passage-btn" onclick="nextClozePassage()" class="hidden w-full py-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold rounded-xl shadow-md mt-auto btn-hover-effect text-lg mb-2"><span data-i18n="btn_next_pass">Next</span> <i class="fas fa-arrow-right ml-1"></i></button>
+        </main>
+        
+        <!-- ================= VIEW 8: READING COMPREHENSION ================= -->
+        <main id="view-reading" class="hidden flex-1 flex flex-col fade-in max-w-3xl mx-auto w-full pb-safe">
+            <header class="flex justify-between items-center mb-4">
+                <button onclick="abortQuiz()" class="w-10 h-10 rounded-full surface-panel flex items-center justify-center text-[var(--color-danger)] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors btn-hover-effect"><i class="fas fa-times"></i></button>
+                <div class="font-bold text-[var(--text-muted)] section-heading" tabindex="-1"><span data-i18n="q_item">Q.</span> <span id="reading-current-num" class="text-[var(--text-main)] text-lg tabular-nums">1</span> / <span id="reading-total-num" class="tabular-nums">40</span></div>
+            </header>
+
+            <div class="w-full bg-[var(--border-color)] rounded-full h-2 mb-4 overflow-hidden">
+                <div id="reading-progress-bar" class="bg-[var(--color-info)] h-full rounded-full transition-all duration-300 w-0"></div>
+            </div>
+
+            <div class="flex-1 flex flex-col h-full overflow-hidden">
+                <div class="surface-panel p-4 mb-4 text-sm md:text-base leading-relaxed overflow-y-auto max-h-[35vh] border-2 border-[var(--border-color)] shadow-inner" id="reading-passage-text">
+                    Loading Passage...
+                </div>
+
+                <div class="surface-panel p-4 md:p-5 mb-4 text-base md:text-lg font-bold text-[var(--color-info)]" id="reading-question-text">
+                    Loading Question...
+                </div>
+
+                <div class="flex flex-col gap-3 mb-4 overflow-y-auto" id="reading-options-container"></div>
+
+                <div id="reading-explanation-box" class="hidden surface-panel p-4 rounded-xl border-l-4 border-[var(--color-info)] mb-4 bg-sky-50/50 dark:bg-sky-900/10">
+                    <h4 class="font-bold text-sm text-[var(--color-info)] mb-1 flex items-center gap-2"><i class="fas fa-lightbulb"></i> <span data-i18n="explanation">Explanation</span></h4>
+                    <p class="text-sm text-[var(--text-muted)]" id="reading-explanation-text">Explanation...</p>
+                </div>
+            </div>
+
+            <button id="reading-next-btn" onclick="nextReadingQuestion()" class="hidden w-full py-4 bg-[var(--color-info)] hover:opacity-90 text-white font-bold rounded-xl shadow-md mt-auto btn-hover-effect text-lg mb-2"><span data-i18n="btn_next_q">Next Question</span> <i class="fas fa-arrow-right ml-1"></i></button>
         </main>
 
         <!-- ================= VIEW 6: QUIZ SUMMARY ================= -->
@@ -867,7 +949,27 @@
             { id: 'e10', category: 'error', front: "โครงสร้างคู่ขนาน มี or คั่นกลาง\nระหว่าง V.2 (drank) กับ V.1 (smoke)", back: "ผิด! กริยาหน้าและหลังคำเชื่อมต้องเป็น Tense เดียวกัน\n(ต้องแก้ drank เป็น drink)", hint: "Parallelism (อ้างอิงข้อ 46)" },
             { id: 'e11', category: 'error', front: "โครงสร้าง help someone...\nแต่ตามด้วยคำนาม เช่น development", back: "ผิด! โครงสร้างนี้ต้องตามด้วยกริยาช่อง 1\n(ต้องแก้เป็น develop)", hint: "Help + Object + V.inf (อ้างอิงข้อ 47)" },
             { id: 'e12', category: 'error', front: "มีคำเชื่อม and คั่นระหว่างคำนาม (memory, mood)\nแต่มี Adjective (confident)โผล่มา", back: "ผิด! โครงสร้างคู่ขนานต้องเป็นคำชนิดเดียวกันทั้งหมด\n(ต้องแก้เป็น confidence)", hint: "Parallelism (อ้างอิงข้อ 50)" },
-            { id: 'e13', category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" }
+            { id: 'e13', category: 'error', front: "เจอคำว่า disconditional", back: "ผิด! ไม่มีคำนี้ในหลักภาษาอังกฤษ\n(คำที่แปลว่าไม่มีเงื่อนไขคือ unconditional)", hint: "Word Choice / Prefix (อ้างอิงข้อ 49)" },
+            
+            // หมวด Reading Tactics (rt1 - rt7)
+            { id: 'rt1', category: 'reading_tactics', front: "เจอคำถาม What is the main purpose...? หรือ What is the main idea...?", back: "ห้ามอ่านทั้งเรื่อง!\nให้อ่านแค่ ประโยคแรกและประโยคสุดท้ายของย่อหน้าแรก จะเจอแก่นของเรื่องเสมอ", hint: "Main Idea / Purpose" },
+            { id: 'rt2', category: 'reading_tactics', front: "เจอคำถามประเภท Which of the following is NOT mentioned...? หรือถามรายละเอียดเฉพาะเจาะจง", back: "ใช้เทคนิค Scanning ดึงคีย์เวิร์ดจากโจทย์ (เช่น ชื่อคน ตัวเลข) ไปกวาดสายตาหาในบทความ เจอแล้วอ่านแค่ประโยคนั้น", hint: "Scanning / Detail Questions" },
+            { id: 'rt3', category: 'reading_tactics', front: "เจอคำถาม What does the pronoun 'it' / 'they' refer to?", back: "คำตอบซ่อนอยู่ ประโยคก่อนหน้า 1 ประโยคเสมอ\nให้ถอยกลับไปมองหาประธานของประโยคที่แล้ว", hint: "Pronoun Reference" },
+            { id: 'rt4', category: 'reading_tactics', front: "เจอคำถามตีความคำศัพท์ What does the word '...' mean?", back: "ดู Context Clues (บริบทรอบข้าง)\nถ้าประโยคแวดล้อมเป็นเรื่องดี คำแปลต้องเป็นบวก ถ้าแวดล้อมมีคำว่า lack, problem คำแปลต้องเป็นลบ", hint: "Vocabulary / Context Clues" },
+            { id: 'rt5', category: 'reading_tactics', front: "เจอคำถาม What is the tone of this passage?", back: "สังเกต Adjective (คำคุณศัพท์) ที่ผู้เขียนใช้\nถ้าให้ข้อมูลข้อเท็จจริงล้วนๆ ตอบ Informative ถ้ากระตือรือร้นตื่นเต้นตอบ Enthusiastic", hint: "Tone of Passage" },
+            { id: 'rt6', category: 'reading_tactics', front: "บทความประเภท ประกาศรับสมัครงาน (Job Advertisement)", back: "สิ่งที่มักไม่ค่อยบอกและชอบเอามาออกข้อสอบคือ\nสถานที่ตั้งบริษัท (Location) หรือ อีเมลติดต่อ (กวาดสายตาหาไวๆ)", hint: "Job Advertisement Trick" },
+            { id: 'rt7', category: 'reading_tactics', front: "บทความประเภท โฆษณาโรงแรม/รีสอร์ต", back: "สิ่งที่มักหลอกถามว่ามีในป้ายโฆษณาหรือไม่คือ\nราคาห้องพัก (Room rate)\n(ข้อสอบมักจะบอกแค่ว่าราคาถูก แต่ไม่ระบุตัวเลข)", hint: "Hotel Advertisement Trick" },
+
+            // หมวด Reading Core Facts (rf1 - rf9)
+            { id: 'rf1', category: 'reading_facts', front: "บทความ Bullying (การกลั่นแกล้ง)", back: "เกิดขึ้นได้ ทุกที่ (Anywhere) ทำให้คนรู้สึกแย่\nและน้ำเสียงของบทความนี้คือ ให้ข้อมูล (Informative)", hint: "Passage: Bullying" },
+            { id: 'rf2', category: 'reading_facts', front: "บทความ Education (การศึกษา)", back: "การศึกษาเปลี่ยนโลกได้\nสรรพนาม 'it' ในเรื่องแทนคำว่า Education และคำว่า poverty แปลว่า ความยากจน (Poorness)", hint: "Passage: Education" },
+            { id: 'rf3', category: 'reading_facts', front: "อีเมลของ Lydia Houston (เรื่องเซรั่ม)", back: "เขียนมาเพื่อ ขอคืนเงิน (request a refund)\nเพราะใช้มาเกือบ 8 สัปดาห์แล้วหน้าแห้ง", hint: "Passage: Lydia Houston Email" },
+            { id: 'rf4', category: 'reading_facts', front: "จดหมายของ Lisa Martinez (ส่งถึง Mrs. Jordan)", back: "ห้องของ Lisa อยู่ ข้างใต้ (directly below)\nและเขียนมาขอให้เพื่อนบ้านเกรงใจเรื่อง ทำเสียงดัง", hint: "Passage: Lisa Martinez Letter" },
+            { id: 'rf5', category: 'reading_facts', front: "ประกาศรับสมัครงาน URGENT HIRING", back: "รับสมัครทั้งหมด 11 อัตรา (Asst. Manager 3 + HR 8)\nและไม่มีการระบุ สถานที่ตั้งและอีเมลติดต่อ", hint: "Passage: URGENT HIRING" },
+            { id: 'rf6', category: 'reading_facts', front: "จดหมายของ Will", back: "เขียนมาเพื่อ ขอเลื่อนนัด (postpone/reschedule) เนื่องจากข้อเท้าแพลง\nและจะนัดคุยเรื่องโปรเจกต์ที่ ร้านอาหาร (restaurant) ในวันจันทร์หน้า", hint: "Passage: Will's Letter" },
+            { id: 'rf7', category: 'reading_facts', front: "เรื่องสั้นของ Maneerat ในสิงคโปร์", back: "ทำงานเป็น ไกด์นำเที่ยว (tour guide) โทนเรื่องมีความ กระตือรือร้น (Enthusiastic)\nและสถานที่ที่ไม่ได้พาลูกทัวร์ไปคือ พิพิธภัณฑ์สัตว์น้ำ (Aquariums)", hint: "Passage: Maneerat in Singapore" },
+            { id: 'rf8', category: 'reading_facts', front: "เรื่องสั้นเพื่อนร่วมห้อง Maria", back: "Maria เป็นคนนิวซีแลนด์\nมีอาชีพเป็น ครูสอนภาษาอังกฤษ (Teacher)", hint: "Passage: Roommate Maria" },
+            { id: 'rf9', category: 'reading_facts', front: "เรื่องโครงการ Work and travel", back: "Suda ทำงานบนเรือสำราญและ ไม่ได้ไปประเทศไทย\nTony ทำงานที่ แคมป์ (Campsite)\nKyra ทำงานที่ ไร่ผลไม้ (Fruit farms)", hint: "Passage: Work and travel" }
         ];
 
         const grammarQuizData = [
@@ -947,17 +1049,226 @@
             }
         ];
 
+        const readingData = [
+            {
+                title: "Passage 1: Bullying",
+                text: `Bullying takes place in the context of relationships. It is behavior that can make people feel hurt, threatened, frightened and left out and it can happen face to face and online.
+Bullying is both behavior and impact; what someone does and the impact it has on the other person's capacity to feel in control of themselves. We call this their sense of 'agency'. Bullying takes place in the context of relationships. It is behavior that can make people feel hurt, threatened, frightened and left out and it can happen anywhere, both face to face and online.
+Bullying behavior can harm people physically or emotionally and, although the actual behavior might not be repeated, the threat that it might can be sustained over time, typically by actions: looks, messages, confrontations, physical interventions, or the fear of these. This behavior can include: Being called names, teased, put down or threatened face to face and/or online, being hit, tripped, pushed or kicked. Having belongings taken or damaged. Being ignored, left out or having rumors spread about you. Sending abusive messages, pictures or images on social media, online gaming platforms or phone. Behavior which makes people feel like they are not in control of themselves or their lives. Being targeted because of who you are or who you are perceived to be.
+Every bullying incident should be looked at individually. In some cases, children or young people may not be aware that their behavior is actually bullying. They are perhaps modelling the behavior of adults or other children and young people, not understanding that it is wrong because they have never been taught otherwise. In these circumstances, the intent to bully may not be present, but the impact and effect on the person being bullied will be no less severe because of this.
+It must be explained to the person bullying that their behavior is unacceptable and why. Intent is difficult to prove and young people can often reframe their behavior when challenged. It's more important to focus on the behavior and the impact it had, rather than trying to establish whether someone acted deliberately or not.`,
+                questions: [
+                    { q: "1. What is the main purpose of the passage?", options: ["To help bullied people deal with the problems more effectively.", "To support a person being bullied on social media.", "To explain the reasons why bullying can harm people physically and emotionally.", "To blame people who bully others deliberately"], ans: 2, exp: "ใช้แทคติก คำถาม Main purpose: อ่านแค่ย่อหน้าแรกและย่อหน้าสุดท้ายก็จับแก่นได้ว่า บทความอธิบายถึงพฤติกรรมกลั่นแกล้งและผลกระทบทางร่างกายและจิตใจ" },
+                    { q: "2. According to the text, where can bullying take place?", options: ["Anywhere", "At work places", "On teenagers' websites", "At home"], ans: 0, exp: "ใช้แก่นข้อเท็จจริง Bullying: จำได้ทันทีว่าการกลั่นแกล้งเกิดขึ้นได้ \"ทุกที่\" (Anywhere)" },
+                    { q: "3. Which of the following is TRUE about bullying?", options: ["It can lead to social problems and economic crises.", "It can have both advantages and disadvantages to teenagers.", "It can happen when people are painful and frightened.", "It can make people experience unpleasant feelings."], ans: 3, exp: "ใช้แก่นข้อเท็จจริง Bullying: พฤติกรรมนี้ทำให้คนรู้สึกแย่ หรือตกอยู่ในความรู้สึกที่ไม่พึงประสงค์ (unpleasant feelings)" },
+                    { q: "4. Which of the following can best replace the word \"understanding\" in line 22?", options: ["acknowledging", "perceiving", "anticipating", "synthesizing"], ans: 1, exp: "หลักการระบุให้ดูบริบทรอบข้างเพื่อหาทิศทางของคำศัพท์ ในประโยค \"...not understanding that it is wrong...\" บริบทแวดล้อมคือเรื่องของการที่เด็กมองไม่เห็นหรือไม่รับรู้สภาวะว่าสิ่งที่ทำนั้น \"ผิด\"" },
+                    { q: "5. What is the tone of this passage?", options: ["Informative", "Sarcastic", "Aggressive", "Apologetic"], ans: 0, exp: "ใช้แทคติกสังเกต Tone และแก่นข้อเท็จจริง: บทความนี้เขียนด้วยการให้ข้อมูลและข้อเท็จจริงล้วนๆ จึงเป็นแนว Informative" }
+                ]
+            },
+            {
+                title: "Passage 2: Education",
+                text: `Education can form a personality and make the individual develop knowledge. Through it, a person integrates into school activities, socializes, frees himself, communicates, and orients himself. And it is not only at school that we acquire education: different spheres of society, in general, can influence the individual in this sense.
+To gain knowledge, one must follow a procedure whether formal or not. Knowledge can be acquired through basic or applied research. Knowledge can also pass from one individual to another through communication.
+Education is a powerful weapon which can change the world a better place. Through it, a citizen becomes more critical, has more job opportunities, and improves their quality of life. The importance of learning for yourself is sharing your knowledge with others. Through this sharing, education acts directly on economic, social, and cultural development.
+Without access to knowledge, we are unaware of rights, the environment, adequate working conditions, and respect. Find out now what quality education can do!
+The more you know, the more opportunities arise in the job market. A person who qualifies and specializes is more likely to get a job than someone who has not studied. This happens in several countries: those who study earn more than those who are not literate. This impact is explicit in all grades of schooling. People who seek education can get out of poverty more easily.
+Education can help protect the environment, alleviate violence, give access to rights, and allow understanding of the world. The importance of understanding the world is for any human being. Education makes people more critical and aware, contributes to the country's economic growth, and promotes social equality.`,
+                questions: [
+                    { q: "6. What is the main idea of this passage?", options: ["The more people study and respect one another, the better education system can be.", "People who are illiterate always experience life failures.", "People should share their knowledge to others.", "Education can change the world and make people's lives better."], ans: 3, exp: "ใช้แก่นข้อเท็จจริง Education: ตอบได้ทันทีว่า \"การศึกษาเปลี่ยนโลกได้\" (Education can change the world)" },
+                    { q: "7. Which of the following is NOT the benefits of education?", options: ["Increasing more opportunities to get a desired job", "Helping alleviate violence", "Enhancing social inequality", "Improving people's quality of life"], ans: 2, exp: "ใช้แทคติก Scanning: กวาดสายตาหาคีย์เวิร์ดในชอยส์ จะพบว่าข้อความในบทความระบุว่าการศึกษาส่งเสริมความเท่าเทียม (social equality) การระบุว่าเพิ่มความเหลื่อมล้ำ (Enhancing social inequality) จึงผิด" },
+                    { q: "8. What does the pronoun \"it\" in line 8 refer to?", options: ["A better place", "A citizen", "The world", "Education"], ans: 3, exp: "ใช้แทคติก Pronoun \"it\": ถอยกลับไปมองหาประธานของประโยคที่แล้ว (Education is a powerful weapon...) คำตอบจึงเป็น Education" },
+                    { q: "9. What does the word \"poverty\" in line 17 mean?", options: ["Poorness", "Unemployment", "Exhaustion", "Ambition"], ans: 0, exp: "ใช้แก่นข้อเท็จจริง Education: คำว่า poverty แปลตรงตัวว่าความยากจน (Poorness)" },
+                    { q: "10. Which of the following CANNOT be inferred from this passage?", options: ["Education can make an individual develop his or her knowledge.", "Those who are lack of world knowledge normally come from poor families and suffer exclusion from the society.", "Without education, not only will the world deteriorate but the people's quality of life also becomes worse.", "People who are literate are more likely to get a job than those who are not."], ans: 1, exp: "ใช้แทคติก Scanning: กวาดสายตาหาข้อความที่ไม่จริง บทความไม่ได้ระบุตรรกะที่ว่าคนขาดความรู้ต้องมาจากครอบครัวยากจนและถูกกีดกันเสมอไป" }
+                ]
+            },
+            {
+                title: "Passage 3: Absolute Resorts & Hotels",
+                text: `Absolute Resorts & Hotels
+THAILAND +66 76 292 525
+
+On an Absolute Resorts holiday, you'll take home more than just wonderful memories. You'll reconnect with those you love under the warm Thai sunshine. You'll rediscover yourself by taking time to indulge in your own wellbeing under the guidance of our expert Wellness team. You'll experience the flavors of Thailand at one of our acclaimed restaurants. You'll remember the outstanding quality and size of your suite, whichever you choose. You'll have your belief in great standards of service restored with every warm Thai smile. And you'll be astonished at how little it all costs.
+Choose chic sophistication overlooking the famous Soi Bangla whilst indulging in a private terrace hot tub within your designer adults only suite in the heart of the action at Bangla Suites; or escape with the family to our flagship resort, Twin Sands, and relax and unwind with a wellness massage overlooking a peninsula of crystal seas, before catching one of the most spectacular sunsets at our swim unbar before heading off for a divine meal at one of our resort restaurants.
+Whichever Absolute Resort will decide to make home while on the island of Phuket, we will look forward to welcoming you. Please visit our website: https://www.absoluteresorts.com/ Or email us on info@absolutetwinsands.com`,
+                questions: [
+                    { q: "11. What is the main purpose of this advertisement?", options: ["To sell its land and property at auction.", "To inform further details to its staff and clients.", "To promote its picturesque places and services.", "To offer its special campaigns to all residents."], ans: 2, exp: "ใช้แทคติก คำถาม Main purpose: อ่านแค่ประโยคแรกก็ทราบเป้าหมาย เพื่อโปรโมทสถานที่ บริการ ร้านอาหาร และสิ่งอำนวยความสะดวกต่างๆ ของรีสอร์ทเพื่อดึงดูดนักท่องเที่ยว" },
+                    { q: "12. What is NOT mentioned in this advertisement?", options: ["The contact information", "The hotel facilities", "The hotel location", "The room rates and special discounts"], ans: 3, exp: "แม้โฆษณาจะบอกว่าราคาคุ้มค่า (\"how little it all costs\") แต่ไม่ได้มีการระบุ \"ราคาห้องพักและส่วนลดพิเศษ\" เป็นตัวเลขหรือรายละเอียดที่ชัดเจน" }
+                ]
+            },
+            {
+                title: "Passage 4: Flight Announcement",
+                text: `"Ladies and gentlemen, the Captain has turned on the Fasten Seat Belt sign. If you haven't already done so, please stow your carry-on luggage underneath the seat in front of you or in an overhead bin. Please take your seat and fasten your seat belt. And also make sure your seat back and folding trays are in their full upright position.
+If you are seated next to an emergency exit, please read carefully the special instructions card located by your seat. If you do not wish to perform the functions described in the event of an emergency, please ask a flight attendant to reseat you.
+We remind you that this is a non-smoking flight. Smoking is prohibited on the entire aircraft, including the lavatories. Tampering with, disabling or destroying the lavatory smoke detectors is prohibited by law.
+If you have any questions about our flight today, please don't hesitate to ask one of our flight attendants. Thank you."`,
+                questions: [
+                    { q: "13. Who is the target audience of this announcement?", options: ["Cabin crew members and staff", "Passengers on board", "Pilots and flight attendants", "Pilots and co-pilots"], ans: 1, exp: "ใช้แทคติก Scanning: กวาดหาคีย์เวิร์ดขึ้นต้น \"Ladies and gentlemen\" ตามด้วยคำสั่งให้รัดเข็มขัด เป้าหมายของสารนี้คือผู้โดยสารบนเครื่อง" },
+                    { q: "14. What is strictly forbidden while traveling on a flight?", options: ["Stowing your carry-on luggage underneath the seat", "Eating a snack or meal during the flight.", "Standing or sitting next to an emergency exit.", "Smoking cigarettes"], ans: 3, exp: "ใช้แทคติก Scanning: กวาดหาคำว่า prohibited (ถูกสั่งห้าม) จะเจอประโยคข้อห้ามสูบบุหรี่อย่างชัดเจน" }
+                ]
+            },
+            {
+                title: "Passage 5: Email to Leslie Smith",
+                text: `To: Leslie Smith lesliebkk@miracleserum.com
+From: Lydia Houston <lydiainwonderland@hotmail.com >
+Subject: Money-back Guarantee
+Date: January 28
+
+Dear Mr. Smith,
+My name is Lydia Houston who bought your new anti-ageing facial serum to visibly reduce the appearance of fine lines, wrinkles, and dark spots caused by melasma.
+In order to get rid of these skin problems, I have been using the serum every day, as per your instructions. Although I have been applying this serum on my face every day for almost eight weeks, I have yet to see any significant change or improvement. In fact - to my surprise - I feel my face become dry after use.
+I was informed before buying your product that this serum comes with 100% money-back guarantee, so I am writing to request a refund. Please kindly send me a check for the total amount as soon as possible.`,
+                questions: [
+                    { q: "15. What is the purpose of this email?", options: ["To ask for a refund", "To purchase an anti-melasma serum", "To report side effects after use", "To change a product"], ans: 0, exp: "ใช้แก่นข้อเท็จจริง อีเมลของ Lydia: เธอเขียนมาเพื่อ \"ขอคืนเงิน\" (\"I am writing to request a refund\") เนื่องจากสินค้าไม่เห็นผลตามที่โฆษณา" },
+                    { q: "16. How long has Lydia Houston used the product?", options: ["About a month", "For half a month", "Approximately a month and a half", "Over eight weeks"], ans: 2, exp: "แก่นข้อเท็จจริงที่กำหนดไว้ชัดเจนคือ \"ใช้มาเกือบ 8 สัปดาห์ (almost eight weeks)\" เมื่อใช้การ Scan หาคีย์เวิร์ดในตัวเลือก จะพบว่าตัวเลือก Over eight weeks (เกิน 8 สัปดาห์) นั้นขัดแย้งกับคำว่า almost (เกือบ) ข้อมูลนี้จึงบิดเบือนความจริงและต้องตัดทิ้ง ข้อที่ถูกคือประมาณเดือนครึ่ง (เกือบ 8 สัปดาห์)" }
+                ]
+            },
+            {
+                title: "Passage 6: Letter from Lisa Martinez",
+                text: `March 31
+Dear Mrs. Jordan,
+I am Lisa Martinez who is living in the same apartment, directly below your room. I am writing this letter to inform you that I always hear noises coming from your room almost every day. I understand that you have kids and they may play around, turn on their music or TV, drag the tables or drop some objects like toys, balls, or heavy items on the floor.
+I also have a kid, but the noises from your room often disrupt his full night's sleep. I would like to beg you to please avoid making such loud noises, especially in the nighttime hours. However, I do not object to your having a party and making a loud noise on your special occasion. You can let me know in advance so that I can manage myself and deal with the noises.
+Thank you for your kind consideration and co-operation in advance.
+Your neighbor,
+Lisa Martinez
+Apartment #5C`,
+                questions: [
+                    { q: "17. Why does Lisa write the letter to Mrs. Jordan?", options: ["To introduce herself after having moved into the apartment", "To ask if Mrs. Jordan can be more considerate to others living in the same building", "To warn Mrs. Jordan not to make loud noises while having a party", "To blame her for letting her naughty children destroy other people's objects"], ans: 1, exp: "ใช้แก่นข้อเท็จจริง จดหมายของ Lisa: เธอเขียนจดหมายเพื่อขอความกรุณาให้คุณจอร์แดนระมัดระวังเรื่องการทำเสียงดังรบกวนคนอื่น โดยเฉพาะในเวลากลางคืน" },
+                    { q: "18. Where is Mrs. Martinez's room?", options: ["Beneath Mrs. Jordan's room.", "Above Mrs. Jordan's room", "In front of Mrs. Jordan's room", "Next to Mrs. Jordan's room"], ans: 0, exp: "ใช้แก่นข้อเท็จจริง จดหมายของ Lisa: ห้องของเธออยู่ \"ข้างใต้\" โดยตรง (directly below / Beneath)" }
+                ]
+            },
+            {
+                title: "Passage 7: Job Advertisement",
+                text: `URGENT HIRING
+Our prestigious organization is looking to hire competent and energetic staff to join our team for the following positions.
+
+ASST. MANAGER - BUSINESS DEVELOPMENT
+(3 Positions)
+EXPERIENCED applicants from Finance, International Business, Marketing, Banking, Business administration and management or related fields, with proven track record of success. Good command of spoken and written English is advantageous.
+Salary Range Baht 48,000 - Baht 55,000 Per Month With additional performance incentives
+
+Manager Trainee Officers Human Resources (HR) Officers
+(8 positions)
+Bachelor's Degree in in business administration or related fields Ability to communicate in English is preferable`,
+                questions: [
+                    { q: "19. How many job vacancies are there in the job advertisement?", options: ["Two", "Three", "Eight", "Eleven"], ans: 3, exp: "ใช้แก่นข้อเท็จจริง ประกาศรับสมัครงาน URGENT HIRING: คำนวณอัตราว่างได้ 11 อัตรา (Asst. Manager 3 + HR 8)" },
+                    { q: "20. Which of the following is NOT mentioned in the job advertisement?", options: ["Education background", "Ability to communicate English", "The organization location and contact email", "Salary and incentives"], ans: 2, exp: "ใช้แทคติก Job Advertisement: สิ่งที่ป้ายนี้ไม่ได้บอกและชอบเอามาออกข้อสอบคือ \"สถานที่ตั้งบริษัทและอีเมลติดต่อ\" (Location and contact email)" }
+                ]
+            },
+            {
+                title: "Passage 8: Email to Ms. Tracy",
+                text: `Dear Ms. Tracy,
+Thank you so much for the pleasant news that my application has to Smile Club Com. has been accepted. I am thankful for the information regarding my responsibilities and payment in your email and also grateful for your kindness to offer discussion the condition of payment with me.
+I am keen to start working with Smile Club Com. as soon as possible. I am so excited to have a great opportunity to work with such a well-known company since I have read a lot about your company, especially the increasing growth of your business.
+Regarding your appointment mentioned in your email, I surely confirm to meet you at 10.00 a.m. on July 3.
+I am looking forward to meeting and have discussions further about my position.
+
+Sincerely,
+Katherine`,
+                questions: [
+                    { q: "21. What is the main purpose of this e-mail?", options: ["To book a ticket for holidays", "To make a reservation", "To make an appointment", "To confirm an appointment"], ans: 3, exp: "ใช้แทคติก คำถาม Main purpose: อ่านประโยคแรกและประโยคสุดท้าย สรุปได้ว่าเป็นการตอบยืนยันการนัดหมาย (confirm an appointment)" },
+                    { q: "22. What is NOT true about this e-mail?", options: ["Ms. Tracy previously wrote an email to Katherine.", "Ms. Katherine has been offered a job.", "Ms. Katherine has to start working on 3 July.", "Ms. Tracy is working for Smile Club Com."], ans: 2, exp: "ใช้แทคติก Scanning: กวาดสายตาวันที่ 3 กรกฎาคม คือวันที่นัดเจรจา ไม่ใช่วันที่เริ่มทำงาน" }
+                ]
+            },
+            {
+                title: "Passage 9: YRU Co., Ltd.",
+                text: `YRU Co., Ltd.
+YRU Company Limited is presently looking for highly qualification candidates to work with us.
+Secretary
+Job Descriptions
+- Arranging meetings and doing meeting reports
+- Preparing slide presentation
+- Dealing with correspondences
+- Proceeding general office management etc.
+
+Qualifications
+- Female, Thai , age 25-30 years
+- Good command of spoken and written English
+- Having bachelor's degree in English, Business English or related fields
+- Having positive attitudes and problem solving skills
+- At least 2 year experiences in secretarial work or related positions`,
+                questions: [
+                    { q: "23. What is TRUE about this job announcement?", options: ["The candidates can send their resume via the website of the company.", "All candidates must have Bachelors' degree in Business English only.", "Problem solving skill is required.", "The application date starts on 30 September."], ans: 2, exp: "ใช้แทคติก Scanning: กวาดสายตาไปที่หมวด Qualifications จะพบว่าทักษะแก้ปัญหา (Problem solving skill) เป็นสิ่งที่ต้องการ" },
+                    { q: "24. Who is the most appropriate for this job?", options: ["Alfred graduated Bachelor's degree in English and used to work as a secretary.", "Mili used to be a secretary assistant with 3 year experience.", "Jessy is 31 year old and has 5 year experiences with secretarial work.", "Tony has excellent problem solving skills with 3 year experience as a secretary."], ans: 1, exp: "ใช้แทคติก Scanning: เช็คเงื่อนไขทีละชอยส์ ตำแหน่งนี้ต้องการผู้หญิงและประสบการณ์อย่างน้อย 2 ปี Mili จึงเป็นคำตอบที่ถูกต้องที่สุด" }
+                ]
+            },
+            {
+                title: "Passage 10: Letter from Will",
+                text: `Dear Lisa,
+I am writing to inform you that I have to postpone our appointment tomorrow morning since I have sprained my ankle this morning. It accidentally happened when I was going to work. I was wearing my high heels but my right high heel stuck in a crack of sidewalk. It made me fall down and hurt my ankle. Poor me! My doctor said that there was no fracture, but the doctor advised I take a day off today and tried not to walk so much.
+I have to say sorry for the cancellation. I am wondering that you will be available next Monday at lunchtime. I would like to invite you to discuss new staff training project at a restaurant near our office instead of visiting me at my office.
+I am looking forward to your reply
+Regards,
+Will`,
+                questions: [
+                    { q: "25. What is the purpose of this letter?", options: ["To advice Will to see a doctor", "To talk about the training program", "To reschedule the meeting", "To report an accident"], ans: 2, exp: "ใช้แก่นข้อเท็จจริง จดหมายของ Will: เขาเขียนมาเพื่อ \"ขอเลื่อนนัด\" (reschedule / postpone) เนื่องจากข้อเท้าแพลง" },
+                    { q: "26. What are Lisa and Will probably doing next Monday?", options: ["Seeing at Will's office", "Having an appointment with the doctor", "Discussing a staff training course", "Writing a project"], ans: 2, exp: "ใช้แก่นข้อเท็จจริง จดหมายของ Will: การนัดหมายใหม่จะไปคุยเรื่องโปรเจกต์ (staff training course) ที่ร้านอาหารในวันจันทร์หน้า" }
+                ]
+            },
+            {
+                title: "Passage 11: BANYAN TREE",
+                text: `BANYAN TREE, KRABI, THAILAND
+We warmly welcome you to a peach and comfortable oasis in our heavenly beachfront resort. Feel the family embrace of Banyan Tree hospitality from the peaceful treatments at Banyan Tree Spa to mouthwatering food at our Thai style restaurants with Thai, Chinese, and Western dishes to the beach bar with its marvelous views of the Andaman Sea.
+72 luxurious suites and villas of Banyan Tree have their own private pools which provide privacy and familiarity in a tropical rainforest atmosphere. Whether you're finding a romantic setting with your loved one or a fun time with your family, you can have sunbathe in nature among natural gardens, beautiful water features, and spectacular views of the fascinating Andaman Sea.
+We will look forward to welcoming you with the memorable vacation.`,
+                questions: [
+                    { q: "27. Which of the following is NOT mentioned in the advertisement?", options: ["A resort facility", "A resort location", "Room types", "A room rate"], ans: 3, exp: "ใช้แทคติก โฆษณาโรงแรม/รีสอร์ต: ในโฆษณามีการกล่าวถึงสิ่งอำนวยความสะดวก สถานที่ตั้ง และประเภทของห้อง แต่ไม่มีการระบุ \"ราคาห้องพัก\"" },
+                    { q: "28. What is NOT true according to the advertisement?", options: ["The resort offers only Thai food to the customers.", "The resort offers privacy swimming pools to each of the rooms.", "The resort is suitable for a couple and a family.", "The resort is located in the south of Thailand."], ans: 0, exp: "ใช้แทคติก Scanning: กวาดสายตาหาข้อมูลร้านอาหาร พบว่ามีทั้งอาหารไทย จีน และตะวันตก การสรุปว่ามีแค่อาหารไทยจึงผิด" }
+                ]
+            },
+            {
+                title: "Passage 12: PUBLIC NOTICE",
+                text: `PUBLIC NOTICE OF CITY ELECTION
+NOTICE, is hereby given that the City of Jennings, Florida, will hold a City Election to fill two (2) City Council seats for a full four (4) year term and three (3) City Council seats for a full two (2) year term. The Qualifying Period will commence at noon, April 20, 2023 and will end at noon on April 24, 2023. Oaths may be secured at Jennings City Hall. The City Election will be held on Tuesday, June 2, 2023, between the hours of 7. 00 AM and 7.00 PM. All voting will take place at Jennings Council Chambers. The books for registration to vote in this election will close on May 2, 2023.
+Cindy Pedicini
+City Clerk`,
+                questions: [
+                    { q: "29. Which of the following is correct according to the notice?", options: ["This is the national election.", "The election will be on Tuesday, June 2.", "The election will last 24 hours on May 2, 2023.", "There are two chairs to sit in at Jennings City Hall."], ans: 1, exp: "ใช้แทคติก Scanning: กวาดสายตาหาข้อมูลวันที่ในชอยส์ จะตรงกับ Tuesday, June 2 พอดี" },
+                    { q: "30. What will happen on June 2, 2023?", options: ["The votes will be counted.", "The election will be organized.", "The books for registration to vote will be opened.", "The results of the election will be announced."], ans: 1, exp: "ใช้แทคติก Scanning: กวาดจากวันที่ June 2, 2023 จะพบว่าเป็นกำหนดการของการจัดเลือกตั้ง (City Election will be held)" }
+                ]
+            },
+            {
+                title: "Passage 13: Maneerat in Singapore",
+                text: `Hi Dara,
+How are things back home in Thailand? I'm fine here in Singapore. It's a great country. Great news! I have got a place to live. It's an apartment with two bedrooms. I share it with two roommates: Maria and Jin.
+Maria, from New Zealand, works in a high school. She teaches English to students. She also has a second job. She works at a restaurant as a waitress on weekends. Jin is a cook at a Chinese restaurant. She sometimes cooks for us. It's very delicious.
+I started my new job two weeks ago. I work as a tour guide. Well, I really like my new job and I'm willing to learn everything from my boss. I take people around Singapore to many places, such as amusement parks, museums and shopping malls. I love to take people to aquariums. Unfortunately, they aren't in my program. After work, I'm quite tired. I sometimes go to bed early.
+Take care,
+Maneerat`,
+                questions: [
+                    { q: "31. What does \"it\" in the first paragraph refer to?", options: ["A country", "Great news", "An apartment", "Home in Thailand"], ans: 2, exp: "ใช้แทคติก Pronoun \"it\": ถอยกลับไปมองหาประธาน 1 ประโยค (\"It's an apartment...\") สรรพนาม it จึงหมายถึง อพาร์ทเมนต์" },
+                    { q: "32. What job does Maria do for a living?", options: ["Cook", "Teacher", "Student", "Tour guide"], ans: 1, exp: "ใช้แก่นข้อเท็จจริง เพื่อนร่วมห้อง Maria: ข้อมูลระบุว่าเธอมีอาชีพเป็น ครูสอนภาษาอังกฤษ (Teacher)" },
+                    { q: "33. Which country does the writer work in?", options: ["Singapore", "Thailand", "New Zealand", "China"], ans: 0, exp: "ใช้แก่นข้อเท็จจริง เรื่องสั้น Maneerat: มณีรัตน์อาศัยและทำงานอยู่ที่ประเทศ \"สิงคโปร์\"" },
+                    { q: "34. What is the tone of the writer when talking about their new job?", options: ["Bored", "Surprised", "Depressed", "Enthusiastic"], ans: 3, exp: "ใช้แทคติกสังเกต Tone และแก่นข้อเท็จจริง: น้ำเสียงของผู้เขียนเต็มไปด้วยความกระตือรือร้น (Enthusiastic) โดยบอกว่า \"ฉันชอบงานใหม่นี้มากและพร้อมที่จะเรียนรู้ทุกอย่าง\" (\"I really like my new job and I'm willing to learn everything\")" },
+                    { q: "35. Which of the following does the writer NOT take people to?", options: ["Museums", "Aquariums", "Shopping malls", "Amusement parks"], ans: 1, exp: "ใช้แก่นข้อเท็จจริง เรื่องสั้น Maneerat: สถานที่ที่ไม่ได้พาลูกทัวร์ไปคือ พิพิธภัณฑ์สัตว์น้ำ (Aquariums) เพราะไม่อยู่ในโปรแกรม" }
+                ]
+            },
+            {
+                title: "Passage 14: Work and Travel",
+                text: `When some teenagers want to travel but they don't have enough money, they sometimes cancel their trip. There is a way that teenagers can get help to travel to other places and earn some money. Here are some students who joined the work and travel program. They shared their reasons and experiences.
+Tony from Taiwan wants to see the Eiffel Tower and the Colosseum, so he decided to work at a vacation camp. At the camp, he looked after children in the morning. The children did painting, drama and lots of other activities, like surfing. He spent the money from work on traveling from France to Italy. He loved both places very much. Next year, he is going to go back to the campsite and he will work there again. 
+Suda, a Thai student, wants to improve her English. She chose to work on a cruise ship. She went to many countries, such as Singapore, Japan, Taiwan and Vietnam. She met a lot of people who spoke English. She thinks her English is improving.
+Kyra, a girl from Japan, traveled around Australia. She joined the program to see how tough she could be. She decided to work on fruit farms to pick fruit. First, she picked strawberries. Then, she picked peaches. She had to get up early in the morning and worked long hours. It was hard work at first but she could do it. She could also eat more fruit than she had ever eaten before. She said, "I don't think I ever want to see another strawberry!"`,
+                questions: [
+                    { q: "36. What kind of program can the teenagers travel and earn money at the same time?", options: ["Volunteering", "Work and travel", "Student exchange", "International conference"], ans: 1, exp: "ใช้แก่นข้อเท็จจริง โครงการนี้: เป็นโครงการที่ช่วยให้เดินทางและได้เงินด้วย นั่นคือ Work and travel" },
+                    { q: "37. What is a children's activity at the vacation camp?", options: ["Painting", "Surfing the Internet", "Looking after children", "Watching drama on TV"], ans: 0, exp: "ใช้แทคติก Scanning: กวาดสายตาหาคีย์เวิร์ด activities ภายในแคมป์ เจอคำว่า painting" },
+                    { q: "38. Where does Kyra work for?", options: ["Traveling agencies", "The campsite", "Fruit farms", "School"], ans: 2, exp: "ใช้แก่นข้อเท็จจริง เรื่อง Work and travel: Kyra เดินทางไปทำงานที่ ไร่ผลไม้ (Fruit farms)" },
+                    { q: "39. What does \"there\" in the second paragraph refer to?", options: ["Taiwan", "Colosseum", "The campsite", "The Eiffel Tower"], ans: 2, exp: "ใช้แทคติก Pronoun \"there\": ถอยกลับไปหาคำนามแสดงสถานที่ในประโยคก่อนหน้า เจอคำว่า the campsite" },
+                    { q: "40. Which country did Suda NOT visit during her cruise work?", options: ["Japan", "Taiwan", "Vietnam", "Thailand"], ans: 3, exp: "ใช้แก่นข้อเท็จจริง เรื่อง Work and travel: Suda เดินทางไปทำงานบนเรือสำราญ และประเทศที่ไม่ได้แวะคือ \"ประเทศไทย\"" }
+                ]
+            }
+        ];
+
         // ================= 1.5. i18n (Language Dictionary) =================
         const i18n = {
             th: {
                 greeting_morning: "อรุณสวัสดิ์", greeting_afternoon: "สวัสดีตอนบ่าย", greeting_evening: "สวัสดีตอนเย็น",
                 progress_title: "ความคืบหน้าของคุณ", progress_mastered_fraction: "จำได้แล้ว",
-                prog_arsenal: "คลังอาวุธ", prog_training: "ห้องซ้อมรบ",
+                prog_arsenal: "คลังอาวุธ", prog_training: "ห้องซ้อมรบ", prog_mock: "สนามจริง",
                 btn_start_flashcard: "เริ่มเรียน Flashcard", btn_resume_flashcard: "เรียนต่อ",
                 stat_mastered: "จำได้แล้ว", stat_learning: "กำลังฝึก", stat_unsure: "ไม่มั่นใจ", stat_unattempted: "ยังไม่ได้เริ่ม",
                 countdown_title: "นับถอยหลังสู่วันสอบ", cd_days: "วัน", cd_hours: "ชม.", cd_mins: "นาที", cd_date: "3 ตุลาคม 2026",
                 modes_title: "เลือกโหมดการฝึกฝน", badge_recommended: "แนะนำสำหรับคุณ",
-                mode_arsenal_title: "คลังอาวุธ (ทริคจำ)", mode_arsenal_desc: "ท่องจุดตาย Grammar และเทคนิคหา Error รวม 32 ข้อ ดึงคะแนนได้ทันที",
+                mode_arsenal_title: "คลังอาวุธ (ทริคจำ)", mode_arsenal_desc: "ท่องจุดตาย Grammar และเทคนิคหา Error รวม 48 ข้อ ดึงคะแนนได้ทันที",
                 mode_practice_title: "ห้องซ้อมรบ", mode_practice_desc: "ตะลุยโจทย์แยกพาร์ท",
                 mode_mock_title: "ลงสนามจริง", mode_mock_desc: "ข้อสอบเสมือนจริง 90 ข้อ",
                 offline_title: "ข้อมูลออฟไลน์", offline_backup: "สำรอง", offline_restore: "กู้คืน",
@@ -966,10 +1277,15 @@
                 del_title: "ลบโปรไฟล์?", del_desc1: "ต้องการลบความคืบหน้าทั้งหมดของโปรไฟล์",
                 res_title: "ยืนยันการเริ่มต้นใหม่?", res_desc: "ความคืบหน้าทั้งหมดของรหัส", res_desc2: "จะถูกลบออกจากเครื่องนี้อย่างถาวร",
                 imp_title: "ยืนยันการกู้คืนข้อมูล?", imp_desc1: "คุณกำลังจะนำเข้าข้อมูลของโปรไฟล์", imp_desc2: "ข้อมูลปัจจุบันในเครื่องของคุณจะถูกเขียนทับทันที",
+                abort_mock_title: "ออกจากการสอบ?", abort_mock_desc: "คุณกำลังทำข้อสอบจำลองอยู่ หากออกตอนนี้ความคืบหน้าจะไม่ถูกบันทึก",
                 btn_cancel: "ยกเลิก", btn_delete: "ลบทันที", btn_reset: "เริ่มต้นใหม่", btn_restore: "เขียนทับข้อมูล", btn_close: "เข้าใจแล้ว (ปิดหน้าต่าง)",
-                fc_menu_title: "หมวดหมู่ Flashcard", fc_menu_desc: "เลือกหมวดหมู่ที่ต้องการท่องจำ", fc_gram_desc: "ท่องกฎเหล็ก 19 จุดตาย", fc_err_desc: "จับผิดไวยากรณ์ 13 จุดยอดฮิต",
+                btn_resume_exam: "ทำต่อ", btn_confirm_exit: "ยืนยันออก",
+                fc_menu_title: "หมวดหมู่ Flashcard", fc_menu_desc: "เลือกหมวดหมู่ที่ต้องการท่องจำ", 
+                fc_gram_desc: "ท่องกฎเหล็ก 19 จุดตาย", fc_err_desc: "จับผิดไวยากรณ์ 13 จุดยอดฮิต",
+                fc_read_tac_title: "เทคนิคการทำ Reading", fc_read_tac_desc: "7 เทคนิคสแกนบทความ",
+                fc_read_fact_title: "เจาะแก่นข้อเท็จจริง", fc_read_fact_desc: "จำเนื้อหาบทความ 9 เรื่อง",
                 fc_learned: "จำได้หมวดนี้", fc_tap: "แตะเพื่อดูคำตอบ", btn_prev: "ก่อนหน้า", btn_next: "ถัดไป", btn_reset_prog: "ล้างข้อมูลเรียนซ้ำ",
-                prac_menu_desc: "เลือกหมวดหมู่ที่ต้องการฝึกฝนเพื่อทดสอบความจำ", prac_gram_desc: "ข้อสอบ 20 ข้อ (สุ่มช้อยส์)", prac_cloze_desc: "เติมคำ 3 บทความ (15 ข้อ)", prac_err_desc: "หาจุดผิด 15 ข้อ (A, B, C, D)",
+                prac_menu_desc: "เลือกหมวดหมู่ที่ต้องการฝึกฝนเพื่อทดสอบความจำ", prac_gram_desc: "ข้อสอบ 20 ข้อ (สุ่มช้อยส์)", prac_cloze_desc: "เติมคำ 3 บทความ (15 ข้อ)", prac_err_desc: "หาจุดผิด 15 ข้อ (A, B, C, D)", prac_read_desc: "14 บทความ (40 ข้อ)",
                 q_item: "ข้อ", explanation: "คำอธิบาย", btn_next_q: "ข้อถัดไป", cloze_hint: "แตะที่ปุ่มในข้อความเพื่อเลือกคำตอบ", btn_next_pass: "ถัดไป",
                 sum_title: "ทำแบบทดสอบเสร็จสิ้น!", sum_score: "คะแนนที่ได้", sum_total: "คะแนนเต็ม", btn_back_menu: "กลับไปหน้าเมนูซ้อมรบ",
                 cs_title: "กำลังก่อสร้าง", cs_desc: "ฟีเจอร์นี้จะเปิดให้ใช้งานในอนาคต", btn_back: "กลับ"
@@ -977,12 +1293,12 @@
             en: {
                 greeting_morning: "Good morning,", greeting_afternoon: "Good afternoon,", greeting_evening: "Good evening,",
                 progress_title: "Your Progress", progress_mastered_fraction: "Mastered",
-                prog_arsenal: "Flashcards", prog_training: "Quizzes",
+                prog_arsenal: "Flashcards", prog_training: "Quizzes", prog_mock: "Mock Exam",
                 btn_start_flashcard: "Start Flashcards", btn_resume_flashcard: "Resume",
                 stat_mastered: "Mastered", stat_learning: "Learning", stat_unsure: "Unsure", stat_unattempted: "Not Started",
                 countdown_title: "Exam Countdown", cd_days: "Days", cd_hours: "Hrs", cd_mins: "Mins", cd_date: "Oct 3, 2026",
                 modes_title: "Training Modes", badge_recommended: "Recommended",
-                mode_arsenal_title: "Flashcard Arsenal", mode_arsenal_desc: "Master 32 core grammar rules and error identification tricks.",
+                mode_arsenal_title: "Flashcard Arsenal", mode_arsenal_desc: "Master 48 core grammar rules and reading tricks.",
                 mode_practice_title: "Training Room", mode_practice_desc: "Topic-based Quizzes",
                 mode_mock_title: "The Battlefield", mode_mock_desc: "Full 90-item Mock Exam",
                 offline_title: "Offline Data", offline_backup: "Backup", offline_restore: "Restore",
@@ -991,10 +1307,15 @@
                 del_title: "Delete Profile?", del_desc1: "Are you sure you want to delete profile",
                 res_title: "Reset Progress?", res_desc: "All progress for", res_desc2: "will be permanently deleted.",
                 imp_title: "Restore Data?", imp_desc1: "You are importing data for profile", imp_desc2: "Current data will be overwritten.",
+                abort_mock_title: "Exit Mock Exam?", abort_mock_desc: "You are currently in a mock exam. Leaving now will result in your progress NOT being saved.",
                 btn_cancel: "Cancel", btn_delete: "Delete", btn_reset: "Reset", btn_restore: "Overwrite", btn_close: "Close",
-                fc_menu_title: "Flashcard Categories", fc_menu_desc: "Choose a category to study", fc_gram_desc: "19 core grammar rules", fc_err_desc: "13 common error tricks",
+                btn_resume_exam: "Resume", btn_confirm_exit: "Confirm Exit",
+                fc_menu_title: "Flashcard Categories", fc_menu_desc: "Choose a category to study", 
+                fc_gram_desc: "19 core grammar rules", fc_err_desc: "13 common error tricks",
+                fc_read_tac_title: "Reading Tactics", fc_read_tac_desc: "7 Scanning Tricks",
+                fc_read_fact_title: "Reading Core Facts", fc_read_fact_desc: "9 passage summaries",
                 fc_learned: "Mastered", fc_tap: "Tap to flip", btn_prev: "Prev", btn_next: "Next", btn_reset_prog: "Reset Progress",
-                prac_menu_desc: "Select a topic to practice", prac_gram_desc: "20 Random Items", prac_cloze_desc: "3 Passages (15 Items)", prac_err_desc: "15 Items (A, B, C, D)",
+                prac_menu_desc: "Select a topic to practice", prac_gram_desc: "20 Random Items", prac_cloze_desc: "3 Passages (15 Items)", prac_err_desc: "15 Items (A, B, C, D)", prac_read_desc: "14 Passages (40 Items)",
                 q_item: "Q.", explanation: "Explanation", btn_next_q: "Next Question", cloze_hint: "Tap on the blanks to answer", btn_next_pass: "Next",
                 sum_title: "Quiz Completed!", sum_score: "Your Score", sum_total: "Total", btn_back_menu: "Back to Menu",
                 cs_title: "Coming Soon", cs_desc: "This feature will be available in the future.", btn_back: "Back"
@@ -1010,7 +1331,7 @@
         function applyLanguage() {
             const lang = appState.lang || 'en';
             const langBtn = document.getElementById('lang-btn');
-            if (langBtn) langBtn.textContent = lang === 'en' ? 'TH' : 'EN'; // ปุ่มโชว์ภาษาที่ "สลับไปได้"
+            if (langBtn) langBtn.textContent = lang === 'en' ? 'TH' : 'EN'; 
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -1029,7 +1350,7 @@
             schemaVersion: SCHEMA_VERSION,
             currentCardIndex: 0,
             cardProgress: {},
-            quizScores: { grammar: 0, error: 0, cloze: 0 },
+            quizScores: { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 },
             theme: 'system',
             lang: 'en',
             updatedAt: null
@@ -1058,6 +1379,18 @@
         let quizOrder = []; 
         let quizOptionsMap = {}; 
         let clozeOptionsMap = {}; 
+
+        // Reading Comprehension Variables
+        let activeReadingPassageIdx = 0;
+        let activeReadingQIdx = 0;
+        let readingOptionsMap = {};
+
+        // Mock Exam Variables
+        let isMockExam = false;
+        let mockPhase = 0; // 0=Grammar, 1=Error, 2=Cloze, 3=Reading
+        let mockTotalScore = 0;
+        let mockTimerInterval = null;
+        let mockTimeLeft = 7200; // 120 minutes
 
         function shuffleArray(array) {
             const newArray = [...array];
@@ -1175,14 +1508,15 @@
                         }
                     });
                 }
-                appState.quizScores = finalData.quizScores || { grammar: 0, error: 0, cloze: 0 };
+                appState.quizScores = finalData.quizScores || { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 };
+                if (!appState.quizScores.mock) appState.quizScores.mock = 0;
             } else {
-                appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0 }, theme: 'system', lang: 'en', updatedAt: Date.now() };
+                appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 }, theme: 'system', lang: 'en', updatedAt: Date.now() };
             }
         }
 
         function migrateV2toV3(oldData) {
-            const newData = { ...oldData, schemaVersion: 3, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0 } };
+            const newData = { ...oldData, schemaVersion: 3, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 } };
             if (oldData.cardProgress && typeof oldData.cardProgress === 'object') {
                 Object.keys(oldData.cardProgress).forEach(key => {
                     const k = parseInt(key);
@@ -1238,7 +1572,7 @@
             if(!pendingImportData || !currentUserPIN) return;
             let loadedAppState = pendingImportData.appState;
             if (loadedAppState.schemaVersion === 2) loadedAppState = migrateV2toV3(loadedAppState);
-            if (!loadedAppState.quizScores) loadedAppState.quizScores = { grammar: 0, error: 0, cloze: 0 };
+            if (!loadedAppState.quizScores) loadedAppState.quizScores = { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 };
             appState = loadedAppState;
             saveState();
             renderDashboard();
@@ -1282,6 +1616,17 @@
                 setTimeout(() => { if (announcer.textContent === message) announcer.textContent = ''; }, 1000);
             }
         }
+        
+        function showToast(msg, type="success") {
+            const c = document.getElementById('toast-container');
+            const icon = document.getElementById('toast-icon');
+            if(type === 'warning') icon.className = 'fas fa-exclamation-triangle text-[var(--color-warning)] text-lg';
+            else icon.className = 'fas fa-check-circle text-[var(--color-success)] text-lg';
+            
+            document.getElementById('toast-message').textContent = msg;
+            c.classList.remove('hidden');
+            setTimeout(() => c.classList.add('hidden'), 3000);
+        }
 
         function setTheme(mode) {
             if (!['light', 'dark', 'system'].includes(mode)) return;
@@ -1313,6 +1658,8 @@
             qScore = 0;
             activeClozePassageIdx = 0;
             currentClozeAnswers = {};
+            activeReadingPassageIdx = 0;
+            activeReadingQIdx = 0;
             
             const optsContainer = document.getElementById('quiz-options-container');
             if(optsContainer) optsContainer.innerHTML = '';
@@ -1332,6 +1679,15 @@
             const closeModalBtn = document.getElementById('cloze-modal-close-btn');
             if(closeModalBtn) closeModalBtn.classList.add('hidden');
             
+            const readingOpts = document.getElementById('reading-options-container');
+            if(readingOpts) readingOpts.innerHTML = '';
+            
+            const readingExpBox = document.getElementById('reading-explanation-box');
+            if(readingExpBox) { readingExpBox.classList.add('hidden'); readingExpBox.classList.remove('slide-down-enter'); }
+            
+            const nextReadingBtn = document.getElementById('reading-next-btn');
+            if(nextReadingBtn) nextReadingBtn.classList.add('hidden');
+            
             closeClozeModal();
         }
 
@@ -1350,7 +1706,7 @@
         }
 
         function showView(viewId, isInit) {
-            const views = ['view-lobby', 'view-flashcard-menu', 'view-flashcards', 'view-coming-soon', 'view-practice-menu', 'view-quiz', 'view-cloze', 'view-quiz-summary'];
+            const views = ['view-lobby', 'view-flashcard-menu', 'view-flashcards', 'view-coming-soon', 'view-practice-menu', 'view-quiz', 'view-cloze', 'view-reading', 'view-quiz-summary'];
             views.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -1424,26 +1780,34 @@
             safeSet('progress-fraction', `${stats.mastered}/${stats.total} ${dict.progress_mastered_fraction}`);
 
             // Quiz Scores Calculation
-            const maxGrammar = 20; const maxError = 15; const maxCloze = 15;
-            const totalQuizItems = maxGrammar + maxError + maxCloze; 
+            const maxFlash = stats.total; // 48
+            const maxGrammar = 20; const maxError = 15; const maxCloze = 15; const maxReading = 40;
+            const maxQuiz = maxGrammar + maxError + maxCloze + maxReading; // 90
+            const maxMock = 90;
             
             const userGrammar = appState.quizScores.grammar || 0;
             const userError = appState.quizScores.error || 0;
             const userCloze = appState.quizScores.cloze || 0;
-            const totalUserQuizScore = userGrammar + userError + userCloze;
+            const userReading = appState.quizScores.reading || 0;
+            const totalUserQuizScore = userGrammar + userError + userCloze + userReading;
+            const userMockScore = appState.quizScores.mock || 0;
             
-            const trainingPercentage = Math.round((totalUserQuizScore / totalQuizItems) * 100);
-            const overallPercentage = Math.round(((stats.mastered + totalUserQuizScore) / (stats.total + totalQuizItems)) * 100);
+            const trainingPercentage = Math.round((totalUserQuizScore / maxQuiz) * 100);
+            const mockPercentage = Math.round((userMockScore / maxMock) * 100);
+            const overallPercentage = Math.round(((stats.mastered + totalUserQuizScore + userMockScore) / (maxFlash + maxQuiz + maxMock)) * 100);
 
             safeSet('progress-percentage', `${overallPercentage}%`); 
             safeSet('prog-txt-flashcard', `${stats.percentage}%`);
             safeSet('prog-txt-training', `${trainingPercentage}%`);
+            safeSet('prog-txt-mock', `${mockPercentage}%`);
 
             setTimeout(() => {
                 const barFlash = document.getElementById('prog-bar-flashcard');
                 const barTrain = document.getElementById('prog-bar-training');
+                const barMock = document.getElementById('prog-bar-mock');
                 if (barFlash) barFlash.style.width = `${stats.percentage}%`;
                 if (barTrain) barTrain.style.width = `${trainingPercentage}%`;
+                if (barMock) barMock.style.width = `${mockPercentage}%`;
             }, 100);
 
             const ring = document.getElementById('progress-ring-circle');
@@ -1466,7 +1830,14 @@
                 } else {
                     const currentCard = flashcardsData[appState.currentCardIndex];
                     const cat = (currentCard && currentCard.category) ? currentCard.category : 'grammar';
-                    const catName = cat === 'grammar' ? 'Grammar' : 'Error';
+                    
+                    const catNames = {
+                        'grammar': 'Grammar',
+                        'error': 'Error',
+                        'reading_tactics': 'Reading Tactics',
+                        'reading_facts': 'Reading Facts'
+                    };
+                    const catName = catNames[cat] || 'Grammar';
                     
                     let relativeIdx = 1;
                     let totalInCat = 1;
@@ -1562,7 +1933,14 @@
             
             document.getElementById('current-card-num').textContent = queuePointer + 1;
             document.getElementById('total-cards').textContent = activeQueue.length;
-            document.getElementById('flashcard-category-title').textContent = currentFlashcardCategory === 'grammar' ? 'Grammar & Structure' : 'Error Identification';
+            
+            const catNames = {
+                'grammar': 'Grammar & Structure',
+                'error': 'Error Identification',
+                'reading_tactics': 'Reading Tactics',
+                'reading_facts': 'Reading Core Facts'
+            };
+            document.getElementById('flashcard-category-title').textContent = catNames[currentFlashcardCategory] || 'Flashcards';
             
             updateNavButtons();
             updateStateButtonsUI();
@@ -1668,7 +2046,95 @@
             document.getElementById('learned-count').textContent = catMastered;
         }
 
-        // ================= 6. Quiz Logic =================
+        // ================= 6. Mock Exam Engine =================
+        function startMockExam() {
+            isMockExam = true;
+            mockPhase = 0;
+            mockTotalScore = 0;
+            mockTimeLeft = 7200; // 120 mins
+            
+            document.getElementById('mock-timer-display').classList.remove('hidden');
+            updateMockTimerDisplay();
+            
+            if (mockTimerInterval) clearInterval(mockTimerInterval);
+            mockTimerInterval = setInterval(() => {
+                mockTimeLeft--;
+                updateMockTimerDisplay();
+                if (mockTimeLeft <= 0) {
+                    clearInterval(mockTimerInterval);
+                    showToast("Time's Up!", "warning");
+                    endMockExam(true); 
+                }
+            }, 1000);
+
+            startMockPhase();
+        }
+
+        function updateMockTimerDisplay() {
+            const h = Math.floor(mockTimeLeft / 3600);
+            const m = Math.floor((mockTimeLeft % 3600) / 60);
+            const s = mockTimeLeft % 60;
+            const timeStr = h > 0 ? 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` : 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            document.getElementById('mock-timer-text').textContent = timeStr;
+            
+            const timerEl = document.getElementById('mock-timer-display');
+            if (mockTimeLeft <= 300) {
+                timerEl.classList.add('bg-red-100', 'dark:bg-red-900/50');
+                timerEl.classList.remove('bg-[var(--bg-surface-solid)]');
+            } else {
+                timerEl.classList.remove('bg-red-100', 'dark:bg-red-900/50');
+                timerEl.classList.add('bg-[var(--bg-surface-solid)]');
+            }
+        }
+
+        function startMockPhase() {
+            if (mockPhase === 0) startQuiz('grammar');
+            else if (mockPhase === 1) startQuiz('error');
+            else if (mockPhase === 2) startQuiz('cloze');
+            else if (mockPhase === 3) startQuiz('reading');
+        }
+
+        function advanceMockPhase() {
+            mockTotalScore += qScore;
+            mockPhase++;
+            if (mockPhase <= 3) {
+                const lang = appState.lang || 'en';
+                const msg = lang === 'en' ? `Part ${mockPhase} Completed. Moving to Part ${mockPhase+1}...` : `จบพาร์ท ${mockPhase}. กำลังเข้าสู่พาร์ทถัดไป...`;
+                showToast(msg, "success");
+                setTimeout(() => { startMockPhase(); }, 1500);
+            } else {
+                endMockExam(false);
+            }
+        }
+
+        function endMockExam(isTimeout = false) {
+            if (mockTimerInterval) clearInterval(mockTimerInterval);
+            document.getElementById('mock-timer-display').classList.add('hidden');
+            
+            if (isTimeout) { mockTotalScore += qScore; }
+            
+            if (!appState.quizScores.mock || mockTotalScore > appState.quizScores.mock) {
+                appState.quizScores.mock = mockTotalScore;
+                saveState();
+            }
+
+            document.getElementById('summary-score').textContent = mockTotalScore;
+            document.getElementById('summary-total').textContent = 90;
+            
+            const subtitle = document.getElementById('summary-subtitle');
+            const percentage = (mockTotalScore / 90) * 100;
+            const lang = appState.lang || 'en';
+            if (percentage >= 80) subtitle.textContent = lang === 'en' ? "Excellent! You are ready for the real exam." : "สุดยอด! คุณพร้อมสำหรับสนามสอบจริงแล้ว";
+            else if (percentage >= 50) subtitle.textContent = lang === 'en' ? "Good job! A little more review and you're perfect." : "ทำได้ดี! ทบทวนอีกนิดก็เป๊ะแล้ว";
+            else subtitle.textContent = lang === 'en' ? "Good effort! Check out the Flashcard Arsenal." : "พยายามได้ดี! กลับไปฝึกฝนคลังอาวุธเพิ่มนะ";
+
+            isMockExam = false;
+            navigateTo('view-quiz-summary');
+        }
+
+        // ================= 7. Quiz Logic (Grammar, Error & Cloze) =================
         function startQuiz(mode) {
             cleanupTransientState(); 
             currentQuizMode = mode;
@@ -1705,12 +2171,46 @@
                 
                 navigateTo('view-cloze');
                 renderClozePassage();
+                
+            } else if (mode === 'reading') {
+                activeReadingPassageIdx = 0;
+                activeReadingQIdx = 0;
+                qTotal = readingData.reduce((sum, p) => sum + p.questions.length, 0);
+                
+                readingOptionsMap = {};
+                let globalQIdx = 0;
+                readingData.forEach(passage => {
+                    passage.questions.forEach(q => {
+                        readingOptionsMap[globalQIdx] = shuffleArray([0, 1, 2, 3]);
+                        globalQIdx++;
+                    });
+                });
+                
+                navigateTo('view-reading');
+                renderReadingQuestion();
             }
         }
 
         function abortQuiz() { 
+            if (isMockExam) {
+                document.getElementById('abort-mock-modal').classList.remove('hidden');
+            } else {
+                cleanupTransientState();
+                goBack(); 
+            }
+        }
+
+        function closeAbortMockModal() {
+            document.getElementById('abort-mock-modal').classList.add('hidden');
+        }
+
+        function confirmAbortMock() {
+            closeAbortMockModal();
+            if (mockTimerInterval) clearInterval(mockTimerInterval);
+            document.getElementById('mock-timer-display').classList.add('hidden');
+            isMockExam = false;
             cleanupTransientState();
-            goBack(); 
+            goBack();
         }
 
         function showSummary() {
@@ -1718,7 +2218,6 @@
                 appState.quizScores[currentQuizMode] = qScore;
                 saveState();
             }
-
             document.getElementById('summary-score').textContent = qScore;
             document.getElementById('summary-total').textContent = qTotal;
             navigateTo('view-quiz-summary');
@@ -1730,18 +2229,9 @@
             const q = activeQuizData[realQIndex];
             const optMap = quizOptionsMap[realQIndex];
             
-            if (isMockExam) {
-                // คำนวณข้อแบบรวบยอด (Grammar 1-20, Error 21-35)
-                let globalNum = mockPhase === 0 ? quizIdx + 1 : 20 + quizIdx + 1;
-                document.getElementById('quiz-current-num').textContent = globalNum;
-                document.getElementById('quiz-total-num').textContent = "90";
-                document.getElementById('quiz-progress-bar').style.width = `${((globalNum - 1) / 90) * 100}%`;
-            } else {
-                document.getElementById('quiz-current-num').textContent = quizIdx + 1;
-                document.getElementById('quiz-total-num').textContent = qTotal;
-                document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
-            }
-
+            document.getElementById('quiz-current-num').textContent = quizIdx + 1;
+            document.getElementById('quiz-total-num').textContent = qTotal;
+            document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
             document.getElementById('quiz-question-text').textContent = q.q;
             
             const optsContainer = document.getElementById('quiz-options-container');
@@ -1777,46 +2267,37 @@
             const btns = optsContainer.querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
             
-            // นับคะแนนเก็บไว้เงียบๆ
             if (selectedOrigIdx === q.ans) {
+                clickedBtn.classList.add('correct');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
+                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
+            } else {
+                clickedBtn.classList.add('incorrect');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
+                const correctRenderIdx = optMap.indexOf(q.ans);
+                const correctBtn = btns[correctRenderIdx];
+                if(correctBtn) {
+                    correctBtn.classList.add('correct');
+                    correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                }
+                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
             }
             
-            if (isMockExam) {
-                // โหมดสอบ: ไฮไลต์ว่ากดเลือกแล้วเท่านั้น (สีฟ้า)
-                clickedBtn.classList.add('border-[var(--color-primary)]', 'bg-indigo-50', 'dark:bg-indigo-900/20');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-primary)]', 'text-white');
-                document.getElementById('quiz-next-btn').classList.remove('hidden');
-            } else {
-                // โหมดซ้อม: เฉลยทันที
-                if (selectedOrigIdx === q.ans) {
-                    clickedBtn.classList.add('correct');
-                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
-                    if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
-                } else {
-                    clickedBtn.classList.add('incorrect');
-                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
-                    const correctRenderIdx = optMap.indexOf(q.ans);
-                    const correctBtn = btns[correctRenderIdx];
-                    if(correctBtn) {
-                        correctBtn.classList.add('correct');
-                        correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
-                    }
-                    if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
-                }
-                
-                const expBox = document.getElementById('quiz-explanation-box');
-                document.getElementById('quiz-explanation-text').textContent = q.exp;
-                expBox.classList.remove('hidden');
-                expBox.classList.add('slide-down-enter');
-                document.getElementById('quiz-next-btn').classList.remove('hidden');
-            }
+            const expBox = document.getElementById('quiz-explanation-box');
+            document.getElementById('quiz-explanation-text').textContent = q.exp;
+            expBox.classList.remove('hidden');
+            expBox.classList.add('slide-down-enter');
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
         }
 
         function nextQuizQuestion() {
             quizIdx++;
             if (quizIdx < qTotal) renderQuizQuestion();
-            else showSummary();
+            else {
+                if (isMockExam) advanceMockPhase();
+                else showSummary();
+            }
         }
 
         function renderClozePassage() {
@@ -1942,7 +2423,6 @@
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
                 if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
-                announce("Correct");
             } else {
                 clickedBtn.classList.add('incorrect');
                 clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
@@ -1954,7 +2434,6 @@
                     correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 }
                 if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
-                announce("Incorrect");
             }
             
             const expBox = document.getElementById('cloze-explanation-box');
@@ -1976,11 +2455,124 @@
                 renderClozePassage();
                 document.getElementById('cloze-next-passage-btn').classList.add('hidden');
             } else {
-                showSummary();
+                if (isMockExam) advanceMockPhase();
+                else showSummary();
             }
         }
 
-        // ================= 7. System Utilities =================
+        // ================= 8. Reading Comprehension Logic =================
+        function renderReadingQuestion() {
+            if (activeReadingPassageIdx >= readingData.length) return;
+            
+            const passage = readingData[activeReadingPassageIdx];
+            const q = passage.questions[activeReadingQIdx];
+            
+            let globalQNum = 0;
+            for (let i = 0; i < activeReadingPassageIdx; i++) {
+                globalQNum += readingData[i].questions.length;
+            }
+            globalQNum += activeReadingQIdx;
+            
+            const optMap = readingOptionsMap[globalQNum];
+
+            document.getElementById('reading-current-num').textContent = globalQNum + 1;
+            document.getElementById('reading-total-num').textContent = qTotal;
+            document.getElementById('reading-progress-bar').style.width = `${((globalQNum) / qTotal) * 100}%`;
+            
+            const passageBox = document.getElementById('reading-passage-text');
+            passageBox.innerHTML = '';
+            
+            passage.text.split('\n').forEach((line, i, arr) => {
+                if (line.trim() !== '') {
+                    const p = document.createElement('p');
+                    p.textContent = line;
+                    p.className = i < arr.length - 1 ? 'mb-2' : '';
+                    passageBox.appendChild(p);
+                } else {
+                    passageBox.appendChild(document.createElement('br'));
+                }
+            });
+
+            document.getElementById('reading-question-text').textContent = q.q;
+            
+            const optsContainer = document.getElementById('reading-options-container');
+            optsContainer.innerHTML = '';
+            optsContainer.dataset.answered = 'false'; 
+            
+            const labels = ['A', 'B', 'C', 'D'];
+            optMap.forEach((origIdx, renderIdx) => {
+                const optText = q.options[origIdx];
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option surface-solid p-3 md:p-4 rounded-xl text-left font-medium flex items-center gap-3 w-full group text-sm md:text-base';
+                btn.innerHTML = `<span class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center font-bold text-[var(--text-muted)] group-hover:bg-[var(--color-info)] group-hover:text-white transition-colors flex-shrink-0">${labels[renderIdx]}</span> <span class="flex-1">${optText}</span>`;
+                btn.onclick = () => handleReadingAnswer(globalQNum, renderIdx, btn);
+                optsContainer.appendChild(btn);
+            });
+            
+            const expBox = document.getElementById('reading-explanation-box');
+            expBox.classList.add('hidden');
+            expBox.classList.remove('slide-down-enter');
+            document.getElementById('reading-next-btn').classList.add('hidden');
+        }
+
+        function handleReadingAnswer(globalQNum, renderIdx, clickedBtn) {
+            const optsContainer = document.getElementById('reading-options-container');
+            if (optsContainer.dataset.answered === 'true') return;
+            optsContainer.dataset.answered = 'true';
+
+            const passage = readingData[activeReadingPassageIdx];
+            const q = passage.questions[activeReadingQIdx];
+            const optMap = readingOptionsMap[globalQNum];
+            const selectedOrigIdx = optMap[renderIdx];
+            
+            const btns = optsContainer.querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+            
+            if (selectedOrigIdx === q.ans) {
+                clickedBtn.classList.add('correct');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                qScore++;
+                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
+            } else {
+                clickedBtn.classList.add('incorrect');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
+                const correctRenderIdx = optMap.indexOf(q.ans);
+                const correctBtn = btns[correctRenderIdx];
+                if(correctBtn) {
+                    correctBtn.classList.add('correct');
+                    correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                }
+                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
+            }
+            
+            const expBox = document.getElementById('reading-explanation-box');
+            document.getElementById('reading-explanation-text').textContent = q.exp;
+            expBox.classList.remove('hidden');
+            expBox.classList.add('slide-down-enter');
+            
+            setTimeout(() => { optsContainer.scrollTop = optsContainer.scrollHeight; }, 100);
+            
+            document.getElementById('reading-next-btn').classList.remove('hidden');
+        }
+
+        function nextReadingQuestion() {
+            const passage = readingData[activeReadingPassageIdx];
+            activeReadingQIdx++;
+            
+            if (activeReadingQIdx >= passage.questions.length) {
+                activeReadingPassageIdx++;
+                activeReadingQIdx = 0;
+            }
+            
+            if (activeReadingPassageIdx < readingData.length) {
+                renderReadingQuestion();
+            } else {
+                if (isMockExam) advanceMockPhase();
+                else showSummary();
+            }
+        }
+
+        // ================= 9. System Utilities =================
         function openResetModal() { document.getElementById('reset-modal').classList.remove('hidden'); }
         function closeResetModal() { document.getElementById('reset-modal').classList.add('hidden'); }
         
@@ -1988,7 +2580,7 @@
             if(!currentUserPIN) return;
             try { localStorage.removeItem(`yru-tep-state-${currentUserPIN}`); } catch(e) {}
             
-            appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0 }, theme: appState.theme, lang: appState.lang, updatedAt: Date.now() };
+            appState = { schemaVersion: SCHEMA_VERSION, currentCardIndex: 0, cardProgress: {}, quizScores: { grammar: 0, error: 0, cloze: 0, reading: 0, mock: 0 }, theme: appState.theme, lang: appState.lang, updatedAt: Date.now() };
             saveState();
             closeResetModal();
             cleanupTransientState();
@@ -1997,9 +2589,10 @@
                 startFlashcards(currentFlashcardCategory); 
             }
             renderDashboard();
+            showToast("Reset completed.");
         }
 
-        // ================= 8. Init App =================
+        // ================= 10. Init App =================
         window.addEventListener('DOMContentLoaded', () => {
             scanProfiles();
             initCountdown();
