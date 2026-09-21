@@ -2229,9 +2229,18 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
             const q = activeQuizData[realQIndex];
             const optMap = quizOptionsMap[realQIndex];
             
-            document.getElementById('quiz-current-num').textContent = quizIdx + 1;
-            document.getElementById('quiz-total-num').textContent = qTotal;
-            document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
+            if (isMockExam) {
+                // คำนวณข้อแบบรวบยอด (Grammar 1-20, Error 21-35)
+                let globalNum = mockPhase === 0 ? quizIdx + 1 : 20 + quizIdx + 1;
+                document.getElementById('quiz-current-num').textContent = globalNum;
+                document.getElementById('quiz-total-num').textContent = "90";
+                document.getElementById('quiz-progress-bar').style.width = `${((globalNum - 1) / 90) * 100}%`;
+            } else {
+                document.getElementById('quiz-current-num').textContent = quizIdx + 1;
+                document.getElementById('quiz-total-num').textContent = qTotal;
+                document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
+            }
+
             document.getElementById('quiz-question-text').textContent = q.q;
             
             const optsContainer = document.getElementById('quiz-options-container');
@@ -2267,28 +2276,40 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
             const btns = optsContainer.querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
             
+            // นับคะแนนเก็บไว้เงียบๆ
             if (selectedOrigIdx === q.ans) {
-                clickedBtn.classList.add('correct');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
-                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
-            } else {
-                clickedBtn.classList.add('incorrect');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
-                const correctRenderIdx = optMap.indexOf(q.ans);
-                const correctBtn = btns[correctRenderIdx];
-                if(correctBtn) {
-                    correctBtn.classList.add('correct');
-                    correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
-                }
-                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
             }
             
-            const expBox = document.getElementById('quiz-explanation-box');
-            document.getElementById('quiz-explanation-text').textContent = q.exp;
-            expBox.classList.remove('hidden');
-            expBox.classList.add('slide-down-enter');
-            document.getElementById('quiz-next-btn').classList.remove('hidden');
+            if (isMockExam) {
+                // โหมดสอบ: ไฮไลต์ว่ากดเลือกแล้วเท่านั้น (สีฟ้า)
+                clickedBtn.classList.add('border-[var(--color-primary)]', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-primary)]', 'text-white');
+                document.getElementById('quiz-next-btn').classList.remove('hidden');
+            } else {
+                // โหมดซ้อม: เฉลยทันที
+                if (selectedOrigIdx === q.ans) {
+                    clickedBtn.classList.add('correct');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
+                } else {
+                    clickedBtn.classList.add('incorrect');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
+                    const correctRenderIdx = optMap.indexOf(q.ans);
+                    const correctBtn = btns[correctRenderIdx];
+                    if(correctBtn) {
+                        correctBtn.classList.add('correct');
+                        correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    }
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
+                }
+                
+                const expBox = document.getElementById('quiz-explanation-box');
+                document.getElementById('quiz-explanation-text').textContent = q.exp;
+                expBox.classList.remove('hidden');
+                expBox.classList.add('slide-down-enter');
+                document.getElementById('quiz-next-btn').classList.remove('hidden');
+            }
         }
 
         function nextQuizQuestion() {
@@ -2306,8 +2327,15 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
             document.getElementById('cloze-title-display').textContent = passage.title;
             
             const answeredCount = Object.keys(currentClozeAnswers).length;
-            document.getElementById('cloze-progress-text').textContent = `${answeredCount}/${qTotal}`;
-            document.getElementById('cloze-progress-bar').style.width = `${(answeredCount / qTotal) * 100}%`;
+            
+            if (isMockExam) {
+                let globalNum = 35 + answeredCount; // เริ่มต้นที่ข้อ 36
+                document.getElementById('cloze-progress-text').textContent = `${globalNum}/90`;
+                document.getElementById('cloze-progress-bar').style.width = `${(globalNum / 90) * 100}%`;
+            } else {
+                document.getElementById('cloze-progress-text').textContent = `${answeredCount}/${qTotal}`;
+                document.getElementById('cloze-progress-bar').style.width = `${(answeredCount / qTotal) * 100}%`;
+            }
             
             renderClozePassageSafely('cloze-text-container', passage, currentClozeAnswers);
             
@@ -2337,9 +2365,13 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
                     
                     if (isAnswered) {
                         btn.textContent = q.options[answers[qNum]];
-                        btn.className += isCorrect 
-                            ? "bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] border-[var(--color-success)]" 
-                            : "bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] border-[var(--color-danger)] line-through opacity-80";
+                        if (isMockExam) {
+                            btn.className += " bg-indigo-100 dark:bg-indigo-900/40 text-[var(--color-primary)] border-[var(--color-primary)] opacity-90";
+                        } else {
+                            btn.className += isCorrect 
+                                ? " bg-green-100 dark:bg-green-900/30 text-[var(--color-success)] border-[var(--color-success)]" 
+                                : " bg-red-100 dark:bg-red-900/30 text-[var(--color-danger)] border-[var(--color-danger)] line-through opacity-80";
+                        }
                     } else {
                         btn.textContent = `Q.${qNum}`;
                         btn.className += "bg-indigo-100 dark:bg-indigo-900/40 text-[var(--color-primary)] border-[var(--color-primary)] hover:bg-indigo-200 cloze-btn-unanswered";
@@ -2375,12 +2407,19 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
                 
                 if (isAlreadyAnswered) {
                     btn.disabled = true;
-                    if (origIdx === q.ans) { 
-                        btn.classList.add('correct'); 
-                        btn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white'); 
-                    } else if (origIdx === currentClozeAnswers[qNum]) { 
-                        btn.classList.add('incorrect'); 
-                        btn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white'); 
+                    if (isMockExam) {
+                        if (origIdx === currentClozeAnswers[qNum]) {
+                            btn.classList.add('border-[var(--color-primary)]', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                            btn.querySelector('span').classList.add('bg-[var(--color-primary)]', 'text-white');
+                        }
+                    } else {
+                        if (origIdx === q.ans) { 
+                            btn.classList.add('correct'); 
+                            btn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white'); 
+                        } else if (origIdx === currentClozeAnswers[qNum]) { 
+                            btn.classList.add('incorrect'); 
+                            btn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white'); 
+                        }
                     }
                 } else {
                     btn.onclick = () => handleClozeAnswer(qNum, origIdx, btn);
@@ -2393,8 +2432,12 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
             optsContainer.dataset.answered = isAlreadyAnswered ? 'true' : 'false';
 
             if (isAlreadyAnswered) {
-                document.getElementById('cloze-explanation-text').textContent = q.exp;
-                expBox.classList.remove('hidden');
+                if (isMockExam) {
+                    expBox.classList.add('hidden');
+                } else {
+                    document.getElementById('cloze-explanation-text').textContent = q.exp;
+                    expBox.classList.remove('hidden');
+                }
                 document.getElementById('cloze-modal-close-btn').classList.remove('hidden');
             } else {
                 expBox.classList.add('hidden');
@@ -2419,30 +2462,44 @@ Kyra, a girl from Japan, traveled around Australia. She joined the program to se
             btns.forEach(b => b.disabled = true);
             
             if (selectedOrigIdx === q.ans) {
-                clickedBtn.classList.add('correct');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
-                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
-            } else {
-                clickedBtn.classList.add('incorrect');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
-                
-                const correctRenderIdx = optMap.indexOf(q.ans);
-                const correctBtn = btns[correctRenderIdx];
-                if(correctBtn) {
-                    correctBtn.classList.add('correct');
-                    correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
-                }
-                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
             }
             
-            const expBox = document.getElementById('cloze-explanation-box');
-            document.getElementById('cloze-explanation-text').textContent = q.exp;
-            expBox.classList.remove('hidden');
-            expBox.classList.add('slide-down-enter');
-            document.getElementById('cloze-modal-close-btn').classList.remove('hidden');
-            
-            renderClozePassage();
+            if (isMockExam) {
+                clickedBtn.classList.add('border-[var(--color-primary)]', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-primary)]', 'text-white');
+                
+                // โหมดสอบ ให้ปิด Modal ทันทีแล้วไปเลือกข้ออื่นต่อได้เลยเพื่อความรวดเร็ว
+                setTimeout(() => {
+                    closeClozeModal();
+                    renderClozePassage();
+                }, 300);
+            } else {
+                if (selectedOrigIdx === q.ans) {
+                    clickedBtn.classList.add('correct');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
+                } else {
+                    clickedBtn.classList.add('incorrect');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
+                    
+                    const correctRenderIdx = optMap.indexOf(q.ans);
+                    const correctBtn = btns[correctRenderIdx];
+                    if(correctBtn) {
+                        correctBtn.classList.add('correct');
+                        correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    }
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
+                }
+                
+                const expBox = document.getElementById('cloze-explanation-box');
+                document.getElementById('cloze-explanation-text').textContent = q.exp;
+                expBox.classList.remove('hidden');
+                expBox.classList.add('slide-down-enter');
+                document.getElementById('cloze-modal-close-btn').classList.remove('hidden');
+                
+                renderClozePassage();
+            }
         }
 
         function closeClozeModal() {
