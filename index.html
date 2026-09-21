@@ -1730,9 +1730,18 @@
             const q = activeQuizData[realQIndex];
             const optMap = quizOptionsMap[realQIndex];
             
-            document.getElementById('quiz-current-num').textContent = quizIdx + 1;
-            document.getElementById('quiz-total-num').textContent = qTotal;
-            document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
+            if (isMockExam) {
+                // คำนวณข้อแบบรวบยอด (Grammar 1-20, Error 21-35)
+                let globalNum = mockPhase === 0 ? quizIdx + 1 : 20 + quizIdx + 1;
+                document.getElementById('quiz-current-num').textContent = globalNum;
+                document.getElementById('quiz-total-num').textContent = "90";
+                document.getElementById('quiz-progress-bar').style.width = `${((globalNum - 1) / 90) * 100}%`;
+            } else {
+                document.getElementById('quiz-current-num').textContent = quizIdx + 1;
+                document.getElementById('quiz-total-num').textContent = qTotal;
+                document.getElementById('quiz-progress-bar').style.width = `${((quizIdx) / qTotal) * 100}%`;
+            }
+
             document.getElementById('quiz-question-text').textContent = q.q;
             
             const optsContainer = document.getElementById('quiz-options-container');
@@ -1768,30 +1777,40 @@
             const btns = optsContainer.querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
             
+            // นับคะแนนเก็บไว้เงียบๆ
             if (selectedOrigIdx === q.ans) {
-                clickedBtn.classList.add('correct');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
                 qScore++;
-                if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
-                announce("Correct");
-            } else {
-                clickedBtn.classList.add('incorrect');
-                clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
-                const correctRenderIdx = optMap.indexOf(q.ans);
-                const correctBtn = btns[correctRenderIdx];
-                if(correctBtn) {
-                    correctBtn.classList.add('correct');
-                    correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
-                }
-                if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
-                announce("Incorrect");
             }
             
-            const expBox = document.getElementById('quiz-explanation-box');
-            document.getElementById('quiz-explanation-text').textContent = q.exp;
-            expBox.classList.remove('hidden');
-            expBox.classList.add('slide-down-enter');
-            document.getElementById('quiz-next-btn').classList.remove('hidden');
+            if (isMockExam) {
+                // โหมดสอบ: ไฮไลต์ว่ากดเลือกแล้วเท่านั้น (สีฟ้า)
+                clickedBtn.classList.add('border-[var(--color-primary)]', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+                clickedBtn.querySelector('span').classList.add('bg-[var(--color-primary)]', 'text-white');
+                document.getElementById('quiz-next-btn').classList.remove('hidden');
+            } else {
+                // โหมดซ้อม: เฉลยทันที
+                if (selectedOrigIdx === q.ans) {
+                    clickedBtn.classList.add('correct');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate(15);
+                } else {
+                    clickedBtn.classList.add('incorrect');
+                    clickedBtn.querySelector('span').classList.add('bg-[var(--color-danger)]', 'text-white');
+                    const correctRenderIdx = optMap.indexOf(q.ans);
+                    const correctBtn = btns[correctRenderIdx];
+                    if(correctBtn) {
+                        correctBtn.classList.add('correct');
+                        correctBtn.querySelector('span').classList.add('bg-[var(--color-success)]', 'text-white');
+                    }
+                    if (typeof navigator.vibrate === 'function') navigator.vibrate([30, 40, 30]);
+                }
+                
+                const expBox = document.getElementById('quiz-explanation-box');
+                document.getElementById('quiz-explanation-text').textContent = q.exp;
+                expBox.classList.remove('hidden');
+                expBox.classList.add('slide-down-enter');
+                document.getElementById('quiz-next-btn').classList.remove('hidden');
+            }
         }
 
         function nextQuizQuestion() {
